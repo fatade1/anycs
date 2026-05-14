@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Join ANYCS — membership types and registration for young Nigerian civil servants.">
+  <title>Membership — ANYCS</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar" id="navbar">
+    <div class="navbar__inner">
+      <a href="index.html" class="navbar__logo">
+        <div class="navbar__logo-icon">A</div>
+        ANYCS
+      </a>
+      <div class="navbar__links" id="navLinks">
+        <a href="index.html" class="navbar__link">Home</a>
+        <a href="about.html" class="navbar__link">About</a>
+        <a href="objectives.html" class="navbar__link">Objectives</a>
+        <a href="membership.html" class="navbar__link">Membership</a>
+        <a href="governance.html" class="navbar__link">Governance</a>
+        <a href="chapters.html" class="navbar__link">Chapters</a>
+        <a href="finance.html" class="navbar__link">Finance</a>
+        <a href="contact.html" class="navbar__link">Contact</a>
+        <div class="navbar__cta">
+          <a href="membership.html" class="btn btn--primary btn--sm">Sign In</a>
+        </div>
+      </div>
+      <button class="navbar__toggle" id="navToggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+
+  <!-- Page Hero -->
+  <section class="page-hero">
+    <div class="container">
+      <div class="page-hero__content">
+        <span class="section-label">Membership</span>
+        <h1>Join ANYCS Today</h1>
+        <p>Become part of Nigeria's most dynamic network of young civil servants. Choose your membership type and register below.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Membership Types -->
+  <section class="section">
+    <div class="container">
+      <div class="text-center fade-in">
+        <span class="section-label">Choose Your Path</span>
+        <h2>Membership Categories</h2>
+        <p class="subtitle">We offer two membership categories to serve civil servants and allied professionals alike.</p>
+      </div>
+      <div class="grid grid--2" style="margin-top: var(--space-3xl); max-width: 900px; margin-left: auto; margin-right: auto;">
+        <div class="membership-type-card membership-type-card--featured fade-in">
+          <div class="membership-type-card__icon">🏛️</div>
+          <h3>Full Member</h3>
+          <p class="card__text">For active civil servants currently serving in any Nigerian MDA at federal, state, or local government level.</p>
+          <ul>
+            <li>Full voting rights</li>
+            <li>Eligible for executive positions</li>
+            <li>Access to all programs & training</li>
+            <li>Mentorship matching</li>
+            <li>Priority event registration</li>
+            <li>Certificate of membership</li>
+          </ul>
+          <a href="#register" class="btn btn--primary" style="width: 100%; justify-content: center;">Register as Full Member</a>
+        </div>
+        <div class="membership-type-card fade-in">
+          <div class="membership-type-card__icon" style="background: var(--color-accent-subtle); color: var(--color-accent-dark);">🤝</div>
+          <h3>Associate Member</h3>
+          <p class="card__text">For professionals in allied organizations, NGOs, and public-sector adjacent roles who share our vision.</p>
+          <ul>
+            <li>Observer status at meetings</li>
+            <li>Access to networking events</li>
+            <li>Training program access</li>
+            <li>Newsletter & updates</li>
+            <li>Community forum access</li>
+            <li>Digital membership card</li>
+          </ul>
+          <a href="#register" class="btn btn--outline" style="width: 100%; justify-content: center;">Register as Associate</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Registration Form -->
+  <section class="section section--gray" id="register">
+    <div class="container">
+      <div class="text-center fade-in">
+        <span class="section-label">Registration</span>
+        <h2>Create Your Account</h2>
+        <p class="subtitle">Fill in the form below to begin your membership application. All fields marked with * are required.</p>
+      </div>
+
+      <div style="max-width: 720px; margin: var(--space-3xl) auto 0;">
+        <!-- Tabs -->
+        <div class="tabs fade-in">
+          <button class="tab active" data-tab="fullMemberForm">Full Member</button>
+          <button class="tab" data-tab="associateMemberForm">Associate Member</button>
+        </div>
+
+        <!-- Full Member Form -->
+        <div class="tab-content active" id="fullMemberForm">
+          <form id="membershipForm" class="fade-in" novalidate>
+            <input type="hidden" name="memberType" value="full">
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="fullFirstName">First Name *</label>
+                <input class="form-input" type="text" id="fullFirstName" name="firstName" placeholder="Enter your first name" required>
+                <div class="form-error">Please enter your first name</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="fullLastName">Last Name *</label>
+                <input class="form-input" type="text" id="fullLastName" name="lastName" placeholder="Enter your last name" required>
+                <div class="form-error">Please enter your last name</div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="fullPhone">Phone Number *</label>
+                <input class="form-input" type="tel" id="fullPhone" name="phone" placeholder="+234 800 000 0000" required>
+                <div class="form-error">Please enter a valid phone number</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="fullEmail">Email Address *</label>
+                <input class="form-input" type="email" id="fullEmail" name="email" placeholder="you@example.com" required>
+                <div class="form-error">Please enter a valid email address</div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="fullDob">Date of Birth *</label>
+                <input class="form-input" type="date" id="fullDob" name="dob" required>
+                <div class="form-error">Please select your date of birth</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="fullState">State of Origin *</label>
+                <select class="form-input state-select" id="fullState" name="stateOfOrigin" required>
+                  <option value="">Select your state</option>
+                </select>
+                <div class="form-error">Please select your state</div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="fullMda">MDA (Ministry/Department/Agency) *</label>
+                <input class="form-input" type="text" id="fullMda" name="mda" placeholder="e.g. Federal Ministry of Finance" required>
+                <div class="form-error">Please enter your MDA</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="fullStaffId">Staff ID *</label>
+                <input class="form-input" type="text" id="fullStaffId" name="staffId" placeholder="Enter your staff ID number" required>
+                <div class="form-error">Please enter your Staff ID</div>
+              </div>
+            </div>
+
+            <div style="margin-top: var(--space-xl);">
+              <button type="submit" class="btn btn--primary btn--lg" style="width: 100%; justify-content: center;">Submit Registration →</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Associate Member Form -->
+        <div class="tab-content" id="associateMemberForm">
+          <form id="membershipForm2" class="fade-in" novalidate>
+            <input type="hidden" name="memberType" value="associate">
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="assocFirstName">First Name *</label>
+                <input class="form-input" type="text" id="assocFirstName" name="firstName" placeholder="Enter your first name" required>
+                <div class="form-error">Please enter your first name</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="assocLastName">Last Name *</label>
+                <input class="form-input" type="text" id="assocLastName" name="lastName" placeholder="Enter your last name" required>
+                <div class="form-error">Please enter your last name</div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="assocPhone">Phone Number *</label>
+                <input class="form-input" type="tel" id="assocPhone" name="phone" placeholder="+234 800 000 0000" required>
+                <div class="form-error">Please enter a valid phone number</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="assocEmail">Email Address *</label>
+                <input class="form-input" type="email" id="assocEmail" name="email" placeholder="you@example.com" required>
+                <div class="form-error">Please enter a valid email address</div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="assocDob">Date of Birth *</label>
+                <input class="form-input" type="date" id="assocDob" name="dob" required>
+                <div class="form-error">Please select your date of birth</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="assocState">State of Origin *</label>
+                <select class="form-input state-select" id="assocState" name="stateOfOrigin" required>
+                  <option value="">Select your state</option>
+                </select>
+                <div class="form-error">Please select your state</div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="assocOrg">Organization *</label>
+                <input class="form-input" type="text" id="assocOrg" name="organization" placeholder="e.g. Red Cross Nigeria" required>
+                <div class="form-error">Please enter your organization</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="assocBodyId">Body ID *</label>
+                <input class="form-input" type="text" id="assocBodyId" name="bodyId" placeholder="Enter your body ID number" required>
+                <div class="form-error">Please enter your Body ID</div>
+              </div>
+            </div>
+
+            <div style="margin-top: var(--space-xl);">
+              <button type="submit" class="btn btn--primary btn--lg" style="width: 100%; justify-content: center;">Submit Registration →</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits CTA -->
+  <section class="section section--sm">
+    <div class="container">
+      <div class="cta-banner fade-in">
+        <h2>Still Have Questions?</h2>
+        <p>Reach out to us and we'll help you understand how membership can benefit your career in civil service.</p>
+        <a href="contact.html" class="btn btn--white btn--lg">Contact Us →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a href="index.html" class="navbar__logo" style="margin-bottom: var(--space-sm);">
+            <div class="navbar__logo-icon">A</div>
+            ANYCS
+          </a>
+          <p>The Association of Nigerian Youths in Civil Service — empowering young civil servants through capacity building, mentorship, networking, and innovation.</p>
+        </div>
+        <div>
+          <div class="footer__heading">Quick Links</div>
+          <a href="about.html" class="footer__link">About Us</a>
+          <a href="objectives.html" class="footer__link">Objectives</a>
+          <a href="membership.html" class="footer__link">Membership</a>
+          <a href="governance.html" class="footer__link">Governance</a>
+        </div>
+        <div>
+          <div class="footer__heading">Resources</div>
+          <a href="chapters.html" class="footer__link">Chapters</a>
+          <a href="finance.html" class="footer__link">Finance</a>
+          <a href="contact.html" class="footer__link">Contact</a>
+        </div>
+        <div>
+          <div class="footer__heading">Contact</div>
+          <a href="mailto:info@anycs.org.ng" class="footer__link">info@anycs.org.ng</a>
+          <a href="tel:+2348000000000" class="footer__link">+234 800 000 0000</a>
+          <a href="#" class="footer__link">Abuja, Nigeria</a>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 ANYCS. All rights reserved.</span>
+        <div class="footer__socials">
+          <a href="#" class="footer__social" aria-label="Facebook">f</a>
+          <a href="#" class="footer__social" aria-label="Twitter">𝕏</a>
+          <a href="#" class="footer__social" aria-label="Instagram">ig</a>
+          <a href="#" class="footer__social" aria-label="LinkedIn">in</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script>
+    // Associate form also needs submit handler
+    const assocForm = document.getElementById('membershipForm2');
+    if (assocForm) {
+      assocForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = e.target;
+        form.querySelectorAll('.form-input, .form-select').forEach(input => input.classList.remove('error'));
+        let isValid = true;
+        form.querySelectorAll('[required]').forEach(input => {
+          if (!input.value.trim()) { input.classList.add('error'); isValid = false; }
+        });
+        const emailField = form.querySelector('input[type="email"]');
+        if (emailField && emailField.value.trim()) {
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailField.value.trim())) {
+            emailField.classList.add('error'); isValid = false;
+          }
+        }
+        if (!isValid) { showToast('Please fill in all required fields correctly.', 'error'); return; }
+        showToast('🎉 Registration submitted successfully! We will review your application and get back to you.', 'success');
+        form.reset();
+      });
+    }
+  </script>
+</body>
+</html>
