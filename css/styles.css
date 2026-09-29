@@ -1633,7 +1633,7 @@ p {
     --fs-3xl: 1.85rem;
   }
 
-  .grid--3 { grid-template-columns: repeat(2, 1fr); }
+  .grid--3 { grid-template-columns: 1fr; }
   .grid--4 { grid-template-columns: repeat(2, 1fr); }
 
   .footer__grid {
@@ -2199,6 +2199,23 @@ p {
 /* ========================================
    Priority Objectives (5 Pillars)
    ======================================== */
+.objectives-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-xl);
+  margin-top: var(--space-3xl);
+  width: 100%;
+}
+
+@media (min-width: 992px) {
+  .objectives-grid > :nth-child(4) {
+    grid-column: 1 / 2;
+  }
+  .objectives-grid > :nth-child(5) {
+    grid-column: 2 / 4;
+  }
+}
+
 .objective-card {
   background: var(--color-white);
   border-radius: var(--radius-xl);
@@ -2591,6 +2608,20 @@ p {
   .priority-detail-card {
     padding: var(--space-2xl);
   }
+
+  .objectives-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: var(--space-lg) !important;
+    width: 100% !important;
+  }
+
+  .objectives-grid .objective-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    grid-column: auto !important;
+  }
 }
 
 /* ---- Breakpoint: Mobile Devices (<= 768px) ---- */
@@ -2622,9 +2653,25 @@ p {
   .grid--2,
   .grid--3,
   .grid--4,
-  .sector-grid {
+  .sector-grid,
+  .objectives-grid {
     grid-template-columns: 1fr !important;
     gap: var(--space-lg);
+  }
+
+  .objectives-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: var(--space-md) !important;
+    width: 100% !important;
+  }
+
+  .objectives-grid .objective-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    grid-column: auto !important;
+    padding: var(--space-xl) var(--space-lg) !important;
   }
 
   /* Hero Mobile Styling */
@@ -2964,9 +3011,14 @@ p {
   .signin-card,
   .pillars-intro-card,
   .priority-detail-card,
-  .track-header-card {
+  .track-header-card,
+  .objective-card {
     padding: var(--space-lg) var(--space-md);
     border-radius: var(--radius-lg);
+  }
+
+  .objectives-grid {
+    gap: var(--space-sm) !important;
   }
 
   .modal-dialog {
