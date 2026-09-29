@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Contact ANYCS — reach out to us for inquiries, partnerships, or membership assistance.">
-  <title>Contact Us — ANYCS</title>
+  <meta name="description" content="Contact Nigeria Civil Service Youths Forum (ANYCS) — Secretariat inquiries, partnerships, and member support.">
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -12,21 +15,151 @@
   <!-- Navbar -->
   <nav class="navbar" id="navbar">
     <div class="navbar__inner">
-      <a href="index.html" class="navbar__logo">
-        <div class="navbar__logo-icon">A</div>
-        ANYCS
+      <a href="index.html" class="navbar__logo" aria-label="NCSYF — Nigeria Civil Service Youths' Forum Home">
+        <img src="images/logo.png" alt="NCSYF — Nigeria Civil Service Youths' Forum" class="navbar__logo-img">
       </a>
       <div class="navbar__links" id="navLinks">
         <a href="index.html" class="navbar__link">Home</a>
-        <a href="about.html" class="navbar__link">About</a>
-        <a href="objectives.html" class="navbar__link">Objectives</a>
-        <a href="membership.html" class="navbar__link">Membership</a>
-        <a href="governance.html" class="navbar__link">Governance</a>
-        <a href="chapters.html" class="navbar__link">Chapters</a>
-        <a href="finance.html" class="navbar__link">Finance</a>
-        <a href="contact.html" class="navbar__link">Contact</a>
+
+        <!-- About Us Dropdown -->
+        <div class="navbar__dropdown">
+          <button class="navbar__dropdown-toggle" aria-expanded="false" aria-haspopup="true">
+            About Us
+            <svg class="navbar__dropdown-chevron" viewBox="0 0 20 20">
+              <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+            </svg>
+          </button>
+          <div class="navbar__dropdown-menu">
+            <a href="about.html#who-we-are" class="dropdown-link">
+              <div class="dropdown-link__icon">🏛️</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Who We Are</span>
+                <span class="dropdown-link__desc">Our Story, Vision, and Mission in Nigeria's public service</span>
+              </div>
+            </a>
+            <a href="objectives.html" class="dropdown-link">
+              <div class="dropdown-link__icon">🎯</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Core Objectives</span>
+                <span class="dropdown-link__desc">The 5 strategic priorities driving our nationwide impact</span>
+              </div>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="governance.html" class="dropdown-link">
+              <div class="dropdown-link__icon">👥</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Governance</span>
+                <span class="dropdown-link__desc">Patrons, Matrons, National Executive Council & Chapters</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Membership Dropdown -->
+        <div class="navbar__dropdown">
+          <button class="navbar__dropdown-toggle" aria-expanded="false" aria-haspopup="true">
+            Membership
+            <svg class="navbar__dropdown-chevron" viewBox="0 0 20 20">
+              <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+            </svg>
+          </button>
+          <div class="navbar__dropdown-menu">
+            <a href="membership.html#eligibility" class="dropdown-link">
+              <div class="dropdown-link__icon">📋</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Eligibility Criteria</span>
+                <span class="dropdown-link__desc">Ages 18–35, serving civil servants & MDA verification</span>
+              </div>
+            </a>
+            <a href="membership.html#classes" class="dropdown-link">
+              <div class="dropdown-link__icon">🎖️</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Classes of Membership</span>
+                <span class="dropdown-link__desc">Full Member, Associate/Alumni Member, Honorary Member</span>
+              </div>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="membership.html#register" class="dropdown-link">
+              <div class="dropdown-link__icon">✍️</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Registration Form</span>
+                <span class="dropdown-link__desc">Complete your national membership application</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Projects Dropdown -->
+        <div class="navbar__dropdown">
+          <button class="navbar__dropdown-toggle" aria-expanded="false" aria-haspopup="true">
+            Projects
+            <svg class="navbar__dropdown-chevron" viewBox="0 0 20 20">
+              <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+            </svg>
+          </button>
+          <div class="navbar__dropdown-menu navbar__dropdown-menu--wide">
+            <a href="projects.html#track-a" class="dropdown-link">
+              <div class="dropdown-link__icon">🌐</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Track A – By Sector (Thematic)</span>
+                <span class="dropdown-link__desc">7 National Sectors running across multiple states simultaneously</span>
+              </div>
+            </a>
+            <a href="projects.html#track-b" class="dropdown-link">
+              <div class="dropdown-link__icon">📍</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Track B – By State (Locally Scoped)</span>
+                <span class="dropdown-link__desc">Grassroots projects owned by 36 State Chapters plus FCT</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Resources Dropdown -->
+        <div class="navbar__dropdown">
+          <button class="navbar__dropdown-toggle" aria-expanded="false" aria-haspopup="true">
+            Resources
+            <svg class="navbar__dropdown-chevron" viewBox="0 0 20 20">
+              <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+            </svg>
+          </button>
+          <div class="navbar__dropdown-menu">
+            <a href="resources.html#news" class="dropdown-link">
+              <div class="dropdown-link__icon">📰</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">News</span>
+                <span class="dropdown-link__desc">Latest public sector updates and Forum releases</span>
+              </div>
+            </a>
+            <a href="resources.html#media" class="dropdown-link">
+              <div class="dropdown-link__icon">📸</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Media</span>
+                <span class="dropdown-link__desc">Photo galleries, event recordings, and briefings</span>
+              </div>
+            </a>
+            <a href="resources.html#elibrary" class="dropdown-link">
+              <div class="dropdown-link__icon">📚</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">e-Library</span>
+                <span class="dropdown-link__desc">Civil service circulars, whitepapers & research docs</span>
+              </div>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="resources.html#faqs" class="dropdown-link">
+              <div class="dropdown-link__icon">❓</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">FAQs</span>
+                <span class="dropdown-link__desc">Frequently asked questions & membership guides</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
         <div class="navbar__cta">
-          <a href="membership.html" class="btn btn--primary btn--sm">Sign In</a>
+          <button class="btn btn--accent btn--sm" data-open-signin>
+            <span>🔐 Sign In</span>
+          </button>
         </div>
       </div>
       <button class="navbar__toggle" id="navToggle" aria-label="Toggle navigation">
@@ -39,10 +172,10 @@
   <!-- Page Hero -->
   <section class="page-hero">
     <div class="container">
-      <div class="page-hero__content">
-        <span class="section-label">Contact</span>
-        <h1>Get in Touch</h1>
-        <p>Have questions, want to partner with us, or need assistance with membership? We'd love to hear from you.</p>
+      <div class="page-hero__content fade-in">
+        <span class="section-label">Connect</span>
+        <h1>Contact Secretariat</h1>
+        <p>Inquiries, partnerships, inter-agency collaborations, and member support.</p>
       </div>
     </div>
   </section>
@@ -55,32 +188,41 @@
         <!-- Contact Form -->
         <div class="fade-in">
           <span class="section-label">Send a Message</span>
-          <h2 style="margin-bottom: var(--space-xl);">Write to Us</h2>
+          <h2 style="margin-bottom: var(--space-xl);">Write to the Secretariat</h2>
 
           <form id="contactForm" novalidate>
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label" for="contactName">Full Name *</label>
-                <input class="form-input" type="text" id="contactName" name="name" placeholder="Enter your full name" required>
-                <div class="form-error">Please enter your name</div>
+                <input class="form-input" type="text" id="contactName" name="name" placeholder="Your name" required>
               </div>
               <div class="form-group">
                 <label class="form-label" for="contactEmail">Email Address *</label>
-                <input class="form-input" type="email" id="contactEmail" name="email" placeholder="you@example.com" required>
-                <div class="form-error">Please enter a valid email</div>
+                <input class="form-input" type="email" id="contactEmail" name="email" placeholder="you@mda.gov.ng" required>
               </div>
             </div>
 
-            <div class="form-group">
-              <label class="form-label" for="contactSubject">Subject *</label>
-              <input class="form-input" type="text" id="contactSubject" name="subject" placeholder="What is this about?" required>
-              <div class="form-error">Please enter a subject</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="contactPhone">Phone Number</label>
+                <input class="form-input" type="tel" id="contactPhone" name="phone" placeholder="+234 800 000 0000">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="contactSubject">Subject *</label>
+                <select class="form-input" id="contactSubject" name="subject" required>
+                  <option value="">Select subject</option>
+                  <option value="membership">Membership Verification Inquiry</option>
+                  <option value="state_chapter">State Chapter Coordination</option>
+                  <option value="projects">Track A / Track B Project Collaboration</option>
+                  <option value="partnership">Institutional Partnership</option>
+                  <option value="media">Media & Press Inquiry</option>
+                </select>
+              </div>
             </div>
 
             <div class="form-group">
               <label class="form-label" for="contactMessage">Message *</label>
-              <textarea class="form-input form-textarea" id="contactMessage" name="message" placeholder="Tell us more about your inquiry..." required></textarea>
-              <div class="form-error">Please enter your message</div>
+              <textarea class="form-textarea" id="contactMessage" name="message" rows="5" placeholder="Type your inquiry here..." required></textarea>
             </div>
 
             <button type="submit" class="btn btn--primary btn--lg" style="width: 100%; justify-content: center;">Send Message →</button>
@@ -89,83 +231,47 @@
 
         <!-- Contact Info -->
         <div class="fade-in">
-          <span class="section-label">Contact Information</span>
-          <h2 style="margin-bottom: var(--space-xl);">Reach Us Directly</h2>
+          <span class="section-label">Liaison Offices</span>
+          <h2 style="margin-bottom: var(--space-xl);">Secretariat Directory</h2>
 
           <div style="display: flex; flex-direction: column; gap: var(--space-lg);">
             <div class="contact-info-card">
+              <div class="contact-info-card__icon">📍</div>
+              <div>
+                <div class="contact-info-card__label">National Secretariat</div>
+                <div class="contact-info-card__value">Federal Secretariat Complex, Shehu Shagari Way, Central Business District, Abuja, FCT, Nigeria</div>
+              </div>
+            </div>
+
+            <div class="contact-info-card">
               <div class="contact-info-card__icon">✉️</div>
               <div>
-                <div class="contact-info-card__label">Email Address</div>
-                <div class="contact-info-card__value">info@anycs.org.ng</div>
+                <div class="contact-info-card__label">Official Email</div>
+                <div class="contact-info-card__value">
+                  <a href="mailto:info@anycs.org.ng" style="color: var(--color-primary); font-weight: 600;">info@anycs.org.ng</a><br>
+                  <a href="mailto:secretariat@anycs.org.ng" style="color: var(--color-primary);">secretariat@anycs.org.ng</a>
+                </div>
               </div>
             </div>
 
             <div class="contact-info-card">
               <div class="contact-info-card__icon">📞</div>
               <div>
-                <div class="contact-info-card__label">Phone Number</div>
-                <div class="contact-info-card__value">+234 800 000 0000</div>
+                <div class="contact-info-card__label">Helpline & WhatsApp</div>
+                <div class="contact-info-card__value">+234 (0) 800 26927 64 (ANYCS NG)</div>
               </div>
             </div>
 
             <div class="contact-info-card">
-              <div class="contact-info-card__icon">📍</div>
+              <div class="contact-info-card__icon">⏱️</div>
               <div>
-                <div class="contact-info-card__label">Head Office</div>
-                <div class="contact-info-card__value">National Secretariat, Abuja, Nigeria</div>
-              </div>
-            </div>
-
-            <div class="contact-info-card">
-              <div class="contact-info-card__icon">🕐</div>
-              <div>
-                <div class="contact-info-card__label">Office Hours</div>
-                <div class="contact-info-card__value">Monday – Friday: 9:00 AM – 5:00 PM (WAT)</div>
+                <div class="contact-info-card__label">Working Hours</div>
+                <div class="contact-info-card__value">Monday – Friday: 8:00 AM – 5:00 PM (WAT)</div>
               </div>
             </div>
           </div>
-
-          <!-- Social Links -->
-          <div style="margin-top: var(--space-2xl); padding-top: var(--space-2xl); border-top: 1px solid var(--color-light-gray);">
-            <h4 style="margin-bottom: var(--space-md);">Follow Us</h4>
-            <div style="display: flex; gap: var(--space-md);">
-              <a href="#" style="width: 44px; height: 44px; border-radius: var(--radius-md); background: var(--color-primary-subtle); display: flex; align-items: center; justify-content: center; color: var(--color-primary); font-weight: 700; transition: all var(--transition-fast);">f</a>
-              <a href="#" style="width: 44px; height: 44px; border-radius: var(--radius-md); background: var(--color-primary-subtle); display: flex; align-items: center; justify-content: center; color: var(--color-primary); font-weight: 700; transition: all var(--transition-fast);">𝕏</a>
-              <a href="#" style="width: 44px; height: 44px; border-radius: var(--radius-md); background: var(--color-primary-subtle); display: flex; align-items: center; justify-content: center; color: var(--color-primary); font-weight: 700; transition: all var(--transition-fast);">ig</a>
-              <a href="#" style="width: 44px; height: 44px; border-radius: var(--radius-md); background: var(--color-primary-subtle); display: flex; align-items: center; justify-content: center; color: var(--color-primary); font-weight: 700; transition: all var(--transition-fast);">in</a>
-            </div>
-          </div>
         </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- Map Placeholder -->
-  <section class="section section--gray">
-    <div class="container">
-      <div class="text-center fade-in">
-        <span class="section-label">Location</span>
-        <h2>Find Us</h2>
-      </div>
-      <div class="fade-in" style="margin-top: var(--space-2xl); border-radius: var(--radius-xl); overflow: hidden; height: 400px; background: var(--color-light-gray); display: flex; align-items: center; justify-content: center; border: 1px solid var(--color-light-gray);">
-        <div style="text-align: center; color: var(--color-gray);">
-          <div style="font-size: 3rem; margin-bottom: var(--space-md);">📍</div>
-          <p style="font-family: var(--font-heading); font-weight: 600;">National Secretariat</p>
-          <p style="font-size: var(--fs-sm);">Abuja, Federal Capital Territory, Nigeria</p>
-          <p style="font-size: var(--fs-xs); margin-top: var(--space-sm);">(Map integration available upon deployment)</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA -->
-  <section class="section section--sm">
-    <div class="container">
-      <div class="cta-banner fade-in">
-        <h2>Ready to Join the Movement?</h2>
-        <p>Become a member of ANYCS and connect with thousands of young civil servants transforming Nigeria's public service.</p>
-        <a href="membership.html" class="btn btn--white btn--lg">Join ANYCS →</a>
       </div>
     </div>
   </section>
@@ -175,34 +281,38 @@
     <div class="container">
       <div class="footer__grid">
         <div class="footer__brand">
-          <a href="index.html" class="navbar__logo" style="margin-bottom: var(--space-sm);">
-            <div class="navbar__logo-icon">A</div>
-            ANYCS
+          <a href="index.html" class="footer__logo-link" style="display: inline-block; margin-bottom: var(--space-md);" aria-label="NCSYF Home">
+            <img src="images/logo.png" alt="NCSYF — Nigeria Civil Service Youths' Forum" class="footer__logo-img">
           </a>
-          <p>The Association of Nigerian Youths in Civil Service — empowering young civil servants through capacity building, mentorship, networking, and innovation.</p>
+          <p>
+            <strong>Nigeria Civil Service Youths' Forum (NCSYF)</strong> — promoting excellence, innovation, integrity and transformative leadership across the Federal, States and Local Government Councils Public Service of Nigeria.
+          </p>
         </div>
         <div>
-          <div class="footer__heading">Quick Links</div>
-          <a href="about.html" class="footer__link">About Us</a>
-          <a href="objectives.html" class="footer__link">Objectives</a>
-          <a href="membership.html" class="footer__link">Membership</a>
-          <a href="governance.html" class="footer__link">Governance</a>
+          <div class="footer__heading">About Us</div>
+          <a href="about.html#who-we-are" class="footer__link">Our Story</a>
+          <a href="about.html#vision-mission" class="footer__link">Vision & Mission</a>
+          <a href="objectives.html" class="footer__link">Core Objectives</a>
+          <a href="governance.html" class="footer__link">Governance Structure</a>
         </div>
         <div>
-          <div class="footer__heading">Resources</div>
-          <a href="chapters.html" class="footer__link">Chapters</a>
-          <a href="finance.html" class="footer__link">Finance</a>
-          <a href="contact.html" class="footer__link">Contact</a>
+          <div class="footer__heading">Membership</div>
+          <a href="membership.html#eligibility" class="footer__link">Eligibility Criteria</a>
+          <a href="membership.html#classes" class="footer__link">Classes of Membership</a>
+          <a href="projects.html" class="footer__link">Projects Portfolio</a>
+          <a href="resources.html" class="footer__link">Resources & FAQs</a>
         </div>
         <div>
-          <div class="footer__heading">Contact</div>
-          <a href="mailto:info@anycs.org.ng" class="footer__link">info@anycs.org.ng</a>
-          <a href="tel:+2348000000000" class="footer__link">+234 800 000 0000</a>
-          <a href="#" class="footer__link">Abuja, Nigeria</a>
+          <div class="footer__heading">Portal Access</div>
+          <button class="btn btn--primary btn--sm" data-open-signin style="margin-bottom: var(--space-md); width: 100%; justify-content: center;">
+            Sign In with Membership ID
+          </button>
+          <a href="membership.html#register" class="footer__link">Register New Member</a>
+          <a href="contact.html" class="footer__link">Contact Secretariat</a>
         </div>
       </div>
       <div class="footer__bottom">
-        <span>© 2026 ANYCS. All rights reserved.</span>
+        <span>© 2026 Nigeria Civil Service Youths' Forum (NCSYF). All rights reserved.</span>
         <div class="footer__socials">
           <a href="#" class="footer__social" aria-label="Facebook">f</a>
           <a href="#" class="footer__social" aria-label="Twitter">𝕏</a>
@@ -212,6 +322,60 @@
       </div>
     </div>
   </footer>
+
+  <!-- Sign In Modal -->
+  <div class="modal-overlay" id="signInModal" role="dialog" aria-modal="true">
+    <div class="modal-dialog">
+      <button class="modal-close-btn" aria-label="Close dialog">✕</button>
+      <div id="authMainSection">
+        <div class="modal-brand">
+          <img src="images/logo.png" alt="NCSYF Logo" class="modal-brand__logo">
+          <h3>Member Portal</h3>
+          <p>Sign in to access your member dashboard and chapter initiatives</p>
+        </div>
+        <form id="modalAuthForm">
+          <div class="form-group">
+            <label class="form-label" for="modalMemberId">Membership ID *</label>
+            <input type="text" id="modalMemberId" class="form-input" placeholder="e.g. ANYCS-2026-0842 or Staff ID" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="modalPassword">Password *</label>
+            <div class="password-wrapper">
+              <input type="password" id="modalPassword" class="form-input" placeholder="Enter password" required>
+              <button type="button" class="password-toggle-btn">👁️</button>
+            </div>
+          </div>
+          <div class="form-extras">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--color-dark-gray);">
+              <input type="checkbox" style="accent-color: var(--color-primary);"> Remember me
+            </label>
+            <a href="#" class="forgot-link" id="forgotPasswordLink">Forget Password?</a>
+          </div>
+          <button type="submit" class="btn btn--primary" style="width: 100%; justify-content: center;">Sign In to Portal</button>
+          <p style="text-align: center; margin-top: var(--space-lg); font-size: var(--fs-sm); color: var(--color-gray);">
+            Not registered yet? <a href="membership.html#register" style="color: var(--color-primary); font-weight: 700;">Apply for Membership</a>
+          </p>
+        </form>
+      </div>
+      <div id="forgotPasswordSection" style="display: none;">
+        <div class="modal-brand">
+          <div class="logo-icon">🔑</div>
+          <h3>Reset Password</h3>
+          <p>Enter your details to recover your account</p>
+        </div>
+        <form id="forgotPasswordForm">
+          <div class="form-group">
+            <label class="form-label" for="resetEmail">Registered Email or Membership ID *</label>
+            <input type="text" id="resetEmail" class="form-input" placeholder="name@mda.gov.ng" required>
+          </div>
+          <button type="submit" class="btn btn--primary" style="width: 100%; justify-content: center;">Send Recovery Instructions</button>
+          <div style="text-align: center; margin-top: var(--space-lg);">
+            <button type="button" id="backToSignInBtn" style="background: none; border: none; color: var(--color-primary); font-weight: 700; cursor: pointer;">← Back to Sign In</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
   <script src="js/main.js"></script>
 </body>

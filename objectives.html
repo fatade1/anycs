@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="ANYCS objectives — training, ICT opportunities, innovation, networking, and policy advocacy for young Nigerian civil servants.">
-  <title>Objectives — ANYCS</title>
+  <meta name="description" content="Core Objectives of the Nigeria Civil Service Youths Forum (ANYCS) — The five strategic priorities driving excellence across the three tiers of government.">
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -12,21 +15,151 @@
   <!-- Navbar -->
   <nav class="navbar" id="navbar">
     <div class="navbar__inner">
-      <a href="index.html" class="navbar__logo">
-        <div class="navbar__logo-icon">A</div>
-        ANYCS
+      <a href="index.html" class="navbar__logo" aria-label="NCSYF — Nigeria Civil Service Youths' Forum Home">
+        <img src="images/logo.png" alt="NCSYF — Nigeria Civil Service Youths' Forum" class="navbar__logo-img">
       </a>
       <div class="navbar__links" id="navLinks">
         <a href="index.html" class="navbar__link">Home</a>
-        <a href="about.html" class="navbar__link">About</a>
-        <a href="objectives.html" class="navbar__link">Objectives</a>
-        <a href="membership.html" class="navbar__link">Membership</a>
-        <a href="governance.html" class="navbar__link">Governance</a>
-        <a href="chapters.html" class="navbar__link">Chapters</a>
-        <a href="finance.html" class="navbar__link">Finance</a>
-        <a href="contact.html" class="navbar__link">Contact</a>
+
+        <!-- About Us Dropdown -->
+        <div class="navbar__dropdown">
+          <button class="navbar__dropdown-toggle active" aria-expanded="false" aria-haspopup="true">
+            About Us
+            <svg class="navbar__dropdown-chevron" viewBox="0 0 20 20">
+              <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+            </svg>
+          </button>
+          <div class="navbar__dropdown-menu">
+            <a href="about.html#who-we-are" class="dropdown-link">
+              <div class="dropdown-link__icon">🏛️</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Who We Are</span>
+                <span class="dropdown-link__desc">Our Story, Vision, and Mission in Nigeria's public service</span>
+              </div>
+            </a>
+            <a href="objectives.html" class="dropdown-link">
+              <div class="dropdown-link__icon">🎯</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Core Objectives</span>
+                <span class="dropdown-link__desc">The 5 strategic priorities driving our nationwide impact</span>
+              </div>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="governance.html" class="dropdown-link">
+              <div class="dropdown-link__icon">👥</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Governance</span>
+                <span class="dropdown-link__desc">Patrons, Matrons, National Executive Council & Chapters</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Membership Dropdown -->
+        <div class="navbar__dropdown">
+          <button class="navbar__dropdown-toggle" aria-expanded="false" aria-haspopup="true">
+            Membership
+            <svg class="navbar__dropdown-chevron" viewBox="0 0 20 20">
+              <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+            </svg>
+          </button>
+          <div class="navbar__dropdown-menu">
+            <a href="membership.html#eligibility" class="dropdown-link">
+              <div class="dropdown-link__icon">📋</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Eligibility Criteria</span>
+                <span class="dropdown-link__desc">Ages 18–35, serving civil servants & MDA verification</span>
+              </div>
+            </a>
+            <a href="membership.html#classes" class="dropdown-link">
+              <div class="dropdown-link__icon">🎖️</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Classes of Membership</span>
+                <span class="dropdown-link__desc">Full Member, Associate/Alumni Member, Honorary Member</span>
+              </div>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="membership.html#register" class="dropdown-link">
+              <div class="dropdown-link__icon">✍️</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Registration Form</span>
+                <span class="dropdown-link__desc">Complete your national membership application</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Projects Dropdown -->
+        <div class="navbar__dropdown">
+          <button class="navbar__dropdown-toggle" aria-expanded="false" aria-haspopup="true">
+            Projects
+            <svg class="navbar__dropdown-chevron" viewBox="0 0 20 20">
+              <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+            </svg>
+          </button>
+          <div class="navbar__dropdown-menu navbar__dropdown-menu--wide">
+            <a href="projects.html#track-a" class="dropdown-link">
+              <div class="dropdown-link__icon">🌐</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Track A – By Sector (Thematic)</span>
+                <span class="dropdown-link__desc">7 National Sectors running across multiple states simultaneously</span>
+              </div>
+            </a>
+            <a href="projects.html#track-b" class="dropdown-link">
+              <div class="dropdown-link__icon">📍</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Track B – By State (Locally Scoped)</span>
+                <span class="dropdown-link__desc">Grassroots projects owned by 36 State Chapters plus FCT</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Resources Dropdown -->
+        <div class="navbar__dropdown">
+          <button class="navbar__dropdown-toggle" aria-expanded="false" aria-haspopup="true">
+            Resources
+            <svg class="navbar__dropdown-chevron" viewBox="0 0 20 20">
+              <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+            </svg>
+          </button>
+          <div class="navbar__dropdown-menu">
+            <a href="resources.html#news" class="dropdown-link">
+              <div class="dropdown-link__icon">📰</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">News</span>
+                <span class="dropdown-link__desc">Latest public sector updates and Forum releases</span>
+              </div>
+            </a>
+            <a href="resources.html#media" class="dropdown-link">
+              <div class="dropdown-link__icon">📸</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Media</span>
+                <span class="dropdown-link__desc">Photo galleries, event recordings, and briefings</span>
+              </div>
+            </a>
+            <a href="resources.html#elibrary" class="dropdown-link">
+              <div class="dropdown-link__icon">📚</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">e-Library</span>
+                <span class="dropdown-link__desc">Civil service circulars, whitepapers & research docs</span>
+              </div>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="resources.html#faqs" class="dropdown-link">
+              <div class="dropdown-link__icon">❓</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">FAQs</span>
+                <span class="dropdown-link__desc">Frequently asked questions & membership guides</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
         <div class="navbar__cta">
-          <a href="membership.html" class="btn btn--primary btn--sm">Sign In</a>
+          <button class="btn btn--accent btn--sm" data-open-signin>
+            <span>🔐 Sign In</span>
+          </button>
         </div>
       </div>
       <button class="navbar__toggle" id="navToggle" aria-label="Toggle navigation">
@@ -39,157 +172,194 @@
   <!-- Page Hero -->
   <section class="page-hero">
     <div class="container">
-      <div class="page-hero__content">
-        <span class="section-label">Our Objectives</span>
-        <h1>What We Strive to Achieve</h1>
-        <p>Our strategic pillars of action that drive meaningful impact across Nigeria's public service landscape.</p>
+      <div class="page-hero__content fade-in">
+        <span class="section-label">Strategic Blueprint</span>
+        <h1>Core Objectives</h1>
+        <p>Anchoring the Forum's mission on five transformative priorities for Nigeria's public sector.</p>
       </div>
     </div>
   </section>
 
-  <!-- Training & Development -->
+  <!-- Vision Statement Preamble -->
+  <section class="section" style="padding-bottom: 0;">
+    <div class="container">
+      <div class="card pillars-intro-card fade-in">
+        <span style="color: var(--color-accent); font-family: var(--font-heading); font-size: var(--fs-xs); font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">Strategic Framework</span>
+        <h2 style="color: var(--color-white); font-size: var(--fs-2xl); margin-top: 8px; margin-bottom: var(--space-md);">Pillars of Action</h2>
+        <p style="color: rgba(255, 255, 255, 0.9); font-size: 1.125rem; line-height: 1.85; max-width: 900px; margin-bottom: 0;">
+          To realise this vision, the Forum's work is anchored on the following five priorities across the Federal, State, and Local Government Councils Public Service:
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- The 5 Priorities Detailed Breakdown -->
   <section class="section">
     <div class="container">
-      <div class="grid grid--2" style="align-items: center;">
-        <div class="fade-in">
-          <span class="section-label">Objective 01</span>
-          <h2>Training & Professional Development</h2>
-          <p>We organize high-impact training programs, workshops, conferences, and seminars designed to sharpen the professional skills of our members and equip them for leadership roles in the civil service.</p>
-          <p>Our programs cover a wide range of topics including public administration best practices, project management, digital literacy, communication skills, and leadership development — all tailored to the unique needs of Nigerian civil servants.</p>
-          <ul style="margin-top: var(--space-md);">
-            <li style="padding: 8px 0; display: flex; gap: var(--space-sm); color: var(--color-dark-gray);"><span style="color: var(--color-primary); font-weight: 700;">✓</span> Professional certification sponsorships</li>
-            <li style="padding: 8px 0; display: flex; gap: var(--space-sm); color: var(--color-dark-gray);"><span style="color: var(--color-primary); font-weight: 700;">✓</span> Quarterly skill-building workshops</li>
-            <li style="padding: 8px 0; display: flex; gap: var(--space-sm); color: var(--color-dark-gray);"><span style="color: var(--color-primary); font-weight: 700;">✓</span> Annual leadership conference</li>
-            <li style="padding: 8px 0; display: flex; gap: var(--space-sm); color: var(--color-dark-gray);"><span style="color: var(--color-primary); font-weight: 700;">✓</span> E-learning platform access</li>
-          </ul>
-        </div>
-        <div class="fade-in">
-          <div class="card" style="background: var(--color-primary-subtle); border: none; text-align: center; padding: var(--space-4xl);">
-            <div style="font-size: 4rem; margin-bottom: var(--space-lg);">📚</div>
-            <h3 style="font-size: var(--fs-2xl);">Building Capacity</h3>
-            <p style="margin-top: var(--space-md);">Equipping civil servants with skills that matter for the future of public service.</p>
+      <div style="display: flex; flex-direction: column; gap: var(--space-3xl);">
+
+        <!-- Priority 1 -->
+        <div class="card card--bordered priority-detail-card fade-in">
+          <div style="display: flex; align-items: flex-start; gap: var(--space-xl); flex-wrap: wrap;">
+            <div class="objective-card__num" style="width: 56px; height: 56px; font-size: 1.5rem; flex-shrink: 0;">01</div>
+            <div style="flex: 1; min-width: 280px;">
+              <span class="section-label">Priority 1</span>
+              <h2 style="font-size: var(--fs-2xl); color: var(--color-primary); margin-bottom: var(--space-sm);">Professional Development</h2>
+              <p style="font-size: 1.15rem; font-weight: 600; color: var(--color-dark-gray); line-height: 1.8; margin-bottom: var(--space-md);">
+                Promoting continuous learning, through structured training, seminars, workshops and conferences.
+              </p>
+              <p style="color: var(--color-gray); line-height: 1.8;">
+                Equipping young officers with contemporary public administration skills, certified project management, executive communication, and performance monitoring standards. We collaborate with the Administrative Staff College of Nigeria (ASCON), Public Service Institute of Nigeria (PSIN), and state staff training colleges.
+              </p>
+              <div class="grid grid--3" style="margin-top: var(--space-lg); gap: var(--space-md);">
+                <div style="background: var(--color-bg-page); padding: var(--space-md); border-radius: var(--radius-md);">
+                  <strong style="color: var(--color-primary); display: block; margin-bottom: 4px;">Structured Seminars</strong>
+                  <span style="font-size: var(--fs-sm); color: var(--color-dark-gray);">Quarterly public policy masterclasses for young administrative officers.</span>
+                </div>
+                <div style="background: var(--color-bg-page); padding: var(--space-md); border-radius: var(--radius-md);">
+                  <strong style="color: var(--color-primary); display: block; margin-bottom: 4px;">Executive Workshops</strong>
+                  <span style="font-size: var(--fs-sm); color: var(--color-dark-gray);">Hands-on civil service rules & procurement compliance labs.</span>
+                </div>
+                <div style="background: var(--color-bg-page); padding: var(--space-md); border-radius: var(--radius-md);">
+                  <strong style="color: var(--color-primary); display: block; margin-bottom: 4px;">National Conference</strong>
+                  <span style="font-size: var(--fs-sm); color: var(--color-dark-gray);">Annual convention uniting 36 State delegations with federal leaders.</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- ICT & Agro Opportunities -->
-  <section class="section section--gray">
-    <div class="container">
-      <div class="grid grid--2" style="align-items: center;">
-        <div class="fade-in" style="order: 2;">
-          <span class="section-label">Objective 02</span>
-          <h2>ICT & Agro-Allied Opportunities</h2>
-          <p>In a world driven by technology and sustainable development, we expose our members to ICT-driven income streams, agricultural innovations, and entrepreneurial opportunities that complement their civil service careers.</p>
-          <p>From digital marketing and data analytics to agro-tech and sustainable farming practices, we create pathways for members to diversify their income and expert-led trainings on AI while contributing to national development goals.</p>
-          <ul style="margin-top: var(--space-md);">
-            <li style="padding: 8px 0; display: flex; gap: var(--space-sm); color: var(--color-dark-gray);"><span style="color: var(--color-primary); font-weight: 700;">✓</span> ICT skills bootcamps</li>
-            <li style="padding: 8px 0; display: flex; gap: var(--space-sm); color: var(--color-dark-gray);"><span style="color: var(--color-primary); font-weight: 700;">✓</span> Agro-business partnerships</li>
-            <li style="padding: 8px 0; display: flex; gap: var(--space-sm); color: var(--color-dark-gray);"><span style="color: var(--color-primary); font-weight: 700;">✓</span> Digital entrepreneurship training</li>
-            <li style="padding: 8px 0; display: flex; gap: var(--space-sm); color: var(--color-dark-gray);"><span style="color: var(--color-primary); font-weight: 700;">✓</span> Income diversification workshops</li>
-          </ul>
-        </div>
-        <div class="fade-in" style="order: 1;">
-          <div class="card" style="background: var(--color-accent-subtle); border: none; text-align: center; padding: var(--space-4xl);">
-            <div style="font-size: 4rem; margin-bottom: var(--space-lg);">💻</div>
-            <h3 style="font-size: var(--fs-2xl);">Tech & Agriculture</h3>
-            <p style="margin-top: var(--space-md);">Creating pathways for sustainable income and technological competence.</p>
+        <!-- Priority 2 -->
+        <div class="card card--bordered priority-detail-card fade-in" style="border-left-color: var(--color-accent-dark);">
+          <div style="display: flex; align-items: flex-start; gap: var(--space-xl); flex-wrap: wrap;">
+            <div class="objective-card__num" style="width: 56px; height: 56px; font-size: 1.5rem; flex-shrink: 0; background: var(--color-primary-dark); color: var(--color-accent);">02</div>
+            <div style="flex: 1; min-width: 280px;">
+              <span class="section-label">Priority 2</span>
+              <h2 style="font-size: var(--fs-2xl); color: var(--color-primary); margin-bottom: var(--space-sm);">Innovation and Digital Transformation</h2>
+              <p style="font-size: 1.15rem; font-weight: 600; color: var(--color-dark-gray); line-height: 1.8; margin-bottom: var(--space-md);">
+                Encouraging researches, innovations and the adoption of technologies to improve service delivery in the public service sector.
+              </p>
+              <p style="color: var(--color-gray); line-height: 1.8;">
+                Transitioning government workflows from bureaucratic paper trails to streamlined digital platforms. Young civil servants spearhead government-to-citizen (G2C) portals, data analytics in budgeting, automated records management, and AI-enabled decision support systems.
+              </p>
+              <div class="grid grid--3" style="margin-top: var(--space-lg); gap: var(--space-md);">
+                <div style="background: var(--color-bg-page); padding: var(--space-md); border-radius: var(--radius-md);">
+                  <strong style="color: var(--color-primary); display: block; margin-bottom: 4px;">Applied Policy Research</strong>
+                  <span style="font-size: var(--fs-sm); color: var(--color-dark-gray);">Publishing empirical findings on civil service operational bottlenecks.</span>
+                </div>
+                <div style="background: var(--color-bg-page); padding: var(--space-md); border-radius: var(--radius-md);">
+                  <strong style="color: var(--color-primary); display: block; margin-bottom: 4px;">GovTech Solutions</strong>
+                  <span style="font-size: var(--fs-sm); color: var(--color-dark-gray);">Piloting electronic registry systems in federal and state ministries.</span>
+                </div>
+                <div style="background: var(--color-bg-page); padding: var(--space-md); border-radius: var(--radius-md);">
+                  <strong style="color: var(--color-primary); display: block; margin-bottom: 4px;">Service Delivery Labs</strong>
+                  <span style="font-size: var(--fs-sm); color: var(--color-dark-gray);">Rapid prototyping for efficient citizen inquiry and permit processing.</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- Innovation -->
-  <section class="section">
-    <div class="container">
-      <div class="grid grid--2" style="align-items: center;">
-        <div class="fade-in">
-          <span class="section-label">Objective 03</span>
-          <h2>Innovation & Research</h2>
-          <p>We champion creative thinking, research-driven solutions, and the adoption of modern technologies in public sector operations. Our innovation programs encourage members to develop solutions that improve government efficiency and service delivery.</p>
-          <p>Through hackathons, research grants, and innovation challenges, we create platforms for young civil servants to showcase their creativity and contribute original ideas to improving governance.</p>
-          <ul style="margin-top: var(--space-md);">
-            <li style="padding: 8px 0; display: flex; gap: var(--space-sm); color: var(--color-dark-gray);"><span style="color: var(--color-primary); font-weight: 700;">✓</span> Annual Innovation Challenge</li>
-            <li style="padding: 8px 0; display: flex; gap: var(--space-sm); color: var(--color-dark-gray);"><span style="color: var(--color-primary); font-weight: 700;">✓</span> Research publication support</li>
-            <li style="padding: 8px 0; display: flex; gap: var(--space-sm); color: var(--color-dark-gray);"><span style="color: var(--color-primary); font-weight: 700;">✓</span> Tech adoption advocacy</li>
-            <li style="padding: 8px 0; display: flex; gap: var(--space-sm); color: var(--color-dark-gray);"><span style="color: var(--color-primary); font-weight: 700;">✓</span> Smart governance initiatives</li>
-          </ul>
-        </div>
-        <div class="fade-in">
-          <div class="card" style="background: var(--color-primary-subtle); border: none; text-align: center; padding: var(--space-4xl);">
-            <div style="font-size: 4rem; margin-bottom: var(--space-lg);">💡</div>
-            <h3 style="font-size: var(--fs-2xl);">Think. Create. Transform.</h3>
-            <p style="margin-top: var(--space-md);">Driving innovation in governance through fresh ideas and modern technology.</p>
+        <!-- Priority 3 -->
+        <div class="card card--bordered priority-detail-card fade-in">
+          <div style="display: flex; align-items: flex-start; gap: var(--space-xl); flex-wrap: wrap;">
+            <div class="objective-card__num" style="width: 56px; height: 56px; font-size: 1.5rem; flex-shrink: 0;">03</div>
+            <div style="flex: 1; min-width: 280px;">
+              <span class="section-label">Priority 3</span>
+              <h2 style="font-size: var(--fs-2xl); color: var(--color-primary); margin-bottom: var(--space-sm);">Networking and Collaboration</h2>
+              <p style="font-size: 1.15rem; font-weight: 600; color: var(--color-dark-gray); line-height: 1.8; margin-bottom: var(--space-md);">
+                Creating platforms that connect young public servants in Ministries, Departments and Agencies across the three tiers of Government.
+              </p>
+              <p style="color: var(--color-gray); line-height: 1.8;">
+                Eliminating ministerial silos and administrative bottlenecks by building an interconnected fraternity of dedicated young officers. Cross-tier collaboration between the Federal Civil Service, State Civil Service Commissions, and Local Government Councils ensures unified execution of national developmental blueprints.
+              </p>
+              <div class="grid grid--3" style="margin-top: var(--space-lg); gap: var(--space-md);">
+                <div style="background: var(--color-bg-page); padding: var(--space-md); border-radius: var(--radius-md);">
+                  <strong style="color: var(--color-primary); display: block; margin-bottom: 4px;">Cross-MDA Roundtables</strong>
+                  <span style="font-size: var(--fs-sm); color: var(--color-dark-gray);">Joint peer-review sessions across finance, health, and education MDAs.</span>
+                </div>
+                <div style="background: var(--color-bg-page); padding: var(--space-md); border-radius: var(--radius-md);">
+                  <strong style="color: var(--color-primary); display: block; margin-bottom: 4px;">Tier Integration Forum</strong>
+                  <span style="font-size: var(--fs-sm); color: var(--color-dark-gray);">Linking local council directors with state and federal policy planners.</span>
+                </div>
+                <div style="background: var(--color-bg-page); padding: var(--space-md); border-radius: var(--radius-md);">
+                  <strong style="color: var(--color-primary); display: block; margin-bottom: 4px;">Mentorship Match</strong>
+                  <span style="font-size: var(--fs-sm); color: var(--color-dark-gray);">Direct pairing with accomplished Permanent Secretaries and Directors.</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- Networking -->
-  <section class="section section--gray">
-    <div class="container">
-      <div class="text-center fade-in">
-        <span class="section-label">Objective 04</span>
-        <h2>Networking & Collaboration</h2>
-        <p class="subtitle">Building a powerful, nationwide network of professionals committed to public service excellence.</p>
-      </div>
-      <div class="grid grid--3" style="margin-top: var(--space-3xl);">
-        <div class="card fade-in">
-          <div class="card__icon">🌐</div>
-          <div class="card__title">Cross-MDA Connections</div>
-          <p class="card__text">Connect with peers across different Ministries, Departments, and Agencies to share knowledge, best practices, and opportunities.</p>
-        </div>
-        <div class="card fade-in">
-          <div class="card__icon card__icon--accent">🎤</div>
-          <div class="card__title">Events & Conferences</div>
-          <p class="card__text">Regular meetups, conferences, and networking events that bring together young civil servants from across Nigeria.</p>
-        </div>
-        <div class="card fade-in">
-          <div class="card__icon">🤝</div>
-          <div class="card__title">Strategic Partnerships</div>
-          <p class="card__text">Collaborations with international organizations, NGOs, and private sector entities to create more opportunities for members.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Advocacy -->
-  <section class="section">
-    <div class="container">
-      <div class="grid grid--2" style="align-items: center;">
-        <div class="fade-in">
-          <span class="section-label">Objective 05</span>
-          <h2>Policy Advocacy</h2>
-          <p>We serve as the voice of young civil servants at the policy level. Through structured engagement with key stakeholders, legislative bodies, and government agencies, we advocate for policies and reforms that:</p>
-          <ul style="margin-top: var(--space-md);">
-            <li style="padding: 10px 0; display: flex; gap: var(--space-sm); color: var(--color-dark-gray); font-size: var(--fs-md);"><span style="color: var(--color-accent); font-weight: 700; font-size: var(--fs-lg);">→</span> Promote youth inclusion in civil service leadership positions</li>
-            <li style="padding: 10px 0; display: flex; gap: var(--space-sm); color: var(--color-dark-gray); font-size: var(--fs-md);"><span style="color: var(--color-accent); font-weight: 700; font-size: var(--fs-lg);">→</span> Improve welfare packages and working conditions</li>
-            <li style="padding: 10px 0; display: flex; gap: var(--space-sm); color: var(--color-dark-gray); font-size: var(--fs-md);"><span style="color: var(--color-accent); font-weight: 700; font-size: var(--fs-lg);">→</span> Create clear career advancement pathways</li>
-            <li style="padding: 10px 0; display: flex; gap: var(--space-sm); color: var(--color-dark-gray); font-size: var(--fs-md);"><span style="color: var(--color-accent); font-weight: 700; font-size: var(--fs-lg);">→</span> Encourage merit-based recruitment and promotion</li>
-            <li style="padding: 10px 0; display: flex; gap: var(--space-sm); color: var(--color-dark-gray); font-size: var(--fs-md);"><span style="color: var(--color-accent); font-weight: 700; font-size: var(--fs-lg);">→</span> Strengthen anti-corruption and transparency measures</li>
-          </ul>
-        </div>
-        <div class="fade-in">
-          <div class="card" style="background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark)); border: none; text-align: center; padding: var(--space-4xl); color: var(--color-white);">
-            <div style="font-size: 4rem; margin-bottom: var(--space-lg);">📢</div>
-            <h3 style="font-size: var(--fs-2xl); color: var(--color-white);">Your Voice Matters</h3>
-            <p style="margin-top: var(--space-md); color: rgba(255,255,255,0.85);">Championing policies that put young civil servants at the center of Nigeria's governance transformation.</p>
+        <!-- Priority 4 -->
+        <div class="card card--bordered priority-detail-card fade-in" style="border-left-color: var(--color-accent);">
+          <div style="display: flex; align-items: flex-start; gap: var(--space-xl); flex-wrap: wrap;">
+            <div class="objective-card__num" style="width: 56px; height: 56px; font-size: 1.5rem; flex-shrink: 0; background: var(--color-primary); color: var(--color-accent);">04</div>
+            <div style="flex: 1; min-width: 280px;">
+              <span class="section-label">Priority 4</span>
+              <h2 style="font-size: var(--fs-2xl); color: var(--color-primary); margin-bottom: var(--space-sm);">Youth Empowerment</h2>
+              <p style="font-size: 1.15rem; font-weight: 600; color: var(--color-dark-gray); line-height: 1.8; margin-bottom: var(--space-md);">
+                Advancing skills acquisition, ICT development and agro-allied initiatives in partnership with government institutions and relevant private sectors.
+              </p>
+              <p style="color: var(--color-gray); line-height: 1.8;">
+                Fostering multifaceted capacity building that empowers members to thrive inside and outside the workplace. We structure strategic partnerships with technical development agencies, commercial banks, fintechs, and agro-allied corporations to provide subsidized certifications, seed grants, and agribusiness extension.
+              </p>
+              <div class="grid grid--3" style="margin-top: var(--space-lg); gap: var(--space-md);">
+                <div style="background: var(--color-bg-page); padding: var(--space-md); border-radius: var(--radius-md);">
+                  <strong style="color: var(--color-primary); display: block; margin-bottom: 4px;">ICT & Cloud Skills</strong>
+                  <span style="font-size: var(--fs-sm); color: var(--color-dark-gray);">Cybersecurity, data analytics, and cloud infrastructure certifications.</span>
+                </div>
+                <div style="background: var(--color-bg-page); padding: var(--space-md); border-radius: var(--radius-md);">
+                  <strong style="color: var(--color-primary); display: block; margin-bottom: 4px;">Agro-Allied Cooperatives</strong>
+                  <span style="font-size: var(--fs-sm); color: var(--color-dark-gray);">Modern farming, grain storage, and livestock value chain partnerships.</span>
+                </div>
+                <div style="background: var(--color-bg-page); padding: var(--space-md); border-radius: var(--radius-md);">
+                  <strong style="color: var(--color-primary); display: block; margin-bottom: 4px;">Private Sector Alliances</strong>
+                  <span style="font-size: var(--fs-sm); color: var(--color-dark-gray);">Collaborations with chambers of commerce and enterprise incubators.</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- CTA -->
-  <section class="section section--sm">
-    <div class="container">
-      <div class="cta-banner fade-in">
-        <h2>Ready to Be Part of Something Greater?</h2>
-        <p>These objectives are not just words—they are actionable commitments. Join ANYCS and be part of the change.</p>
-        <a href="membership.html" class="btn btn--white btn--lg">Join ANYCS Now →</a>
+        <!-- Priority 5 -->
+        <div class="card card--bordered priority-detail-card fade-in">
+          <div style="display: flex; align-items: flex-start; gap: var(--space-xl); flex-wrap: wrap;">
+            <div class="objective-card__num" style="width: 56px; height: 56px; font-size: 1.5rem; flex-shrink: 0;">05</div>
+            <div style="flex: 1; min-width: 280px;">
+              <span class="section-label">Priority 5</span>
+              <h2 style="font-size: var(--fs-2xl); color: var(--color-primary); margin-bottom: var(--space-sm);">Policy Advocacy and Welfare</h2>
+              <p style="font-size: 1.15rem; font-weight: 600; color: var(--color-dark-gray); line-height: 1.8; margin-bottom: var(--space-md);">
+                Championing policies and programmes that strengthen community services and welfare of the general public.
+              </p>
+              <p style="color: var(--color-gray); line-height: 1.8;">
+                Positioning young civil servants as passionate advocates for the Nigerian public. We sponsor nationwide volunteer community service drives, health outreach missions, environmental sanitation campaigns, and champion welfare reforms that incentivize ethical, meritocratic public administration.
+              </p>
+              <div class="grid grid--3" style="margin-top: var(--space-lg); gap: var(--space-md);">
+                <div style="background: var(--color-bg-page); padding: var(--space-md); border-radius: var(--radius-md);">
+                  <strong style="color: var(--color-primary); display: block; margin-bottom: 4px;">Community Service Drives</strong>
+                  <span style="font-size: var(--fs-sm); color: var(--color-dark-gray);">Grassroots medical and educational outreach in local government areas.</span>
+                </div>
+                <div style="background: var(--color-bg-page); padding: var(--space-md); border-radius: var(--radius-md);">
+                  <strong style="color: var(--color-primary); display: block; margin-bottom: 4px;">Policy Whitepapers</strong>
+                  <span style="font-size: var(--fs-sm); color: var(--color-dark-gray);">Actionable memoranda submitted to the National Assembly & Head of Service.</span>
+                </div>
+                <div style="background: var(--color-bg-page); padding: var(--space-md); border-radius: var(--radius-md);">
+                  <strong style="color: var(--color-primary); display: block; margin-bottom: 4px;">Member Welfare Support</strong>
+                  <span style="font-size: var(--fs-sm); color: var(--color-dark-gray);">Legal advisory, mental health resources, and cooperative housing drives.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Action Box -->
+      <div class="cta-banner fade-in" style="margin-top: var(--space-4xl);">
+        <h2>Participate in Our Priority Programs</h2>
+        <p>Whether you want to lead an ICT innovation sprint or organize community outreach in your state, ANYCS gives you the mandate and platform.</p>
+        <a href="membership.html#register" class="btn btn--accent btn--lg">Become an Active Member →</a>
       </div>
     </div>
   </section>
@@ -199,34 +369,38 @@
     <div class="container">
       <div class="footer__grid">
         <div class="footer__brand">
-          <a href="index.html" class="navbar__logo" style="margin-bottom: var(--space-sm);">
-            <div class="navbar__logo-icon">A</div>
-            ANYCS
+          <a href="index.html" class="footer__logo-link" style="display: inline-block; margin-bottom: var(--space-md);" aria-label="NCSYF Home">
+            <img src="images/logo.png" alt="NCSYF — Nigeria Civil Service Youths' Forum" class="footer__logo-img">
           </a>
-          <p>The Association of Nigerian Youths in Civil Service — empowering young civil servants through capacity building, mentorship, networking, and innovation.</p>
+          <p>
+            <strong>Nigeria Civil Service Youths' Forum (NCSYF)</strong> — a non-partisan professional body established to promote excellence, innovation, integrity and transformative leadership across the Federal, States and Local Government Councils Public Service of Nigeria.
+          </p>
         </div>
         <div>
-          <div class="footer__heading">Quick Links</div>
-          <a href="about.html" class="footer__link">About Us</a>
-          <a href="objectives.html" class="footer__link">Objectives</a>
-          <a href="membership.html" class="footer__link">Membership</a>
-          <a href="governance.html" class="footer__link">Governance</a>
+          <div class="footer__heading">About Us</div>
+          <a href="about.html#who-we-are" class="footer__link">Our Story</a>
+          <a href="about.html#vision-mission" class="footer__link">Vision & Mission</a>
+          <a href="objectives.html" class="footer__link">Core Objectives</a>
+          <a href="governance.html" class="footer__link">Governance Structure</a>
         </div>
         <div>
-          <div class="footer__heading">Resources</div>
-          <a href="chapters.html" class="footer__link">Chapters</a>
-          <a href="finance.html" class="footer__link">Finance</a>
-          <a href="contact.html" class="footer__link">Contact</a>
+          <div class="footer__heading">Implementation</div>
+          <a href="projects.html#track-a" class="footer__link">Track A – Sector Projects</a>
+          <a href="projects.html#track-b" class="footer__link">Track B – State Chapters</a>
+          <a href="membership.html#classes" class="footer__link">Membership Classes</a>
+          <a href="resources.html" class="footer__link">Resources & FAQs</a>
         </div>
         <div>
-          <div class="footer__heading">Contact</div>
-          <a href="mailto:info@anycs.org.ng" class="footer__link">info@anycs.org.ng</a>
-          <a href="tel:+2348000000000" class="footer__link">+234 800 000 0000</a>
-          <a href="#" class="footer__link">Abuja, Nigeria</a>
+          <div class="footer__heading">Portal Access</div>
+          <button class="btn btn--primary btn--sm" data-open-signin style="margin-bottom: var(--space-md); width: 100%; justify-content: center;">
+            Sign In with Membership ID
+          </button>
+          <a href="membership.html#register" class="footer__link">Join Forum</a>
+          <a href="contact.html" class="footer__link">Contact Secretariat</a>
         </div>
       </div>
       <div class="footer__bottom">
-        <span>© 2026 ANYCS. All rights reserved.</span>
+        <span>© 2026 Nigeria Civil Service Youths' Forum (NCSYF). All rights reserved.</span>
         <div class="footer__socials">
           <a href="#" class="footer__social" aria-label="Facebook">f</a>
           <a href="#" class="footer__social" aria-label="Twitter">𝕏</a>
@@ -236,6 +410,60 @@
       </div>
     </div>
   </footer>
+
+  <!-- Sign In Modal -->
+  <div class="modal-overlay" id="signInModal" role="dialog" aria-modal="true">
+    <div class="modal-dialog">
+      <button class="modal-close-btn" aria-label="Close dialog">✕</button>
+      <div id="authMainSection">
+        <div class="modal-brand">
+          <img src="images/logo.png" alt="NCSYF Logo" class="modal-brand__logo">
+          <h3>Member Portal</h3>
+          <p>Sign in to access your member dashboard and chapter initiatives</p>
+        </div>
+        <form id="modalAuthForm">
+          <div class="form-group">
+            <label class="form-label" for="modalMemberId">Membership ID *</label>
+            <input type="text" id="modalMemberId" class="form-input" placeholder="e.g. ANYCS-2026-0842 or Staff ID" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="modalPassword">Password *</label>
+            <div class="password-wrapper">
+              <input type="password" id="modalPassword" class="form-input" placeholder="Enter password" required>
+              <button type="button" class="password-toggle-btn">👁️</button>
+            </div>
+          </div>
+          <div class="form-extras">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--color-dark-gray);">
+              <input type="checkbox" style="accent-color: var(--color-primary);"> Remember me
+            </label>
+            <a href="#" class="forgot-link" id="forgotPasswordLink">Forget Password?</a>
+          </div>
+          <button type="submit" class="btn btn--primary" style="width: 100%; justify-content: center;">Sign In to Portal</button>
+          <p style="text-align: center; margin-top: var(--space-lg); font-size: var(--fs-sm); color: var(--color-gray);">
+            Not registered yet? <a href="membership.html#register" style="color: var(--color-primary); font-weight: 700;">Apply for Membership</a>
+          </p>
+        </form>
+      </div>
+      <div id="forgotPasswordSection" style="display: none;">
+        <div class="modal-brand">
+          <div class="logo-icon">🔑</div>
+          <h3>Reset Password</h3>
+          <p>Enter your details to recover your account</p>
+        </div>
+        <form id="forgotPasswordForm">
+          <div class="form-group">
+            <label class="form-label" for="resetEmail">Registered Email or Membership ID *</label>
+            <input type="text" id="resetEmail" class="form-input" placeholder="name@mda.gov.ng" required>
+          </div>
+          <button type="submit" class="btn btn--primary" style="width: 100%; justify-content: center;">Send Recovery Instructions</button>
+          <div style="text-align: center; margin-top: var(--space-lg);">
+            <button type="button" id="backToSignInBtn" style="background: none; border: none; color: var(--color-primary); font-weight: 700; cursor: pointer;">← Back to Sign In</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
   <script src="js/main.js"></script>
 </body>

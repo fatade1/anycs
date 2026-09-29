@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Association of Nigerian Youths in Civil Service — Empowering young civil servants through capacity building, mentorship, networking, innovation, and leadership development.">
-  <title>ANYCS — Association of Nigerian Youths in Civil Service</title>
+  <meta name="description" content="Nigeria Civil Service Youths Forum (ANYCS) — Unifying young minds across all ministries, departments, and agencies (MDAs) to transform public sector policies into measurable impact for all Nigerians.">
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -12,21 +15,153 @@
   <!-- Navbar -->
   <nav class="navbar" id="navbar">
     <div class="navbar__inner">
-      <a href="index.html" class="navbar__logo">
-        <div class="navbar__logo-icon">A</div>
-        ANYCS
+      <a href="index.html" class="navbar__logo" aria-label="NCSYF — Nigeria Civil Service Youths' Forum Home">
+        <img src="images/logo.png" alt="NCSYF — Nigeria Civil Service Youths' Forum" class="navbar__logo-img">
       </a>
       <div class="navbar__links" id="navLinks">
-        <a href="index.html" class="navbar__link">Home</a>
-        <a href="about.html" class="navbar__link">About</a>
-        <a href="objectives.html" class="navbar__link">Objectives</a>
-        <a href="membership.html" class="navbar__link">Membership</a>
-        <a href="governance.html" class="navbar__link">Governance</a>
-        <a href="chapters.html" class="navbar__link">Chapters</a>
-        <a href="finance.html" class="navbar__link">Finance</a>
-        <a href="contact.html" class="navbar__link">Contact</a>
+        <!-- 1. Home -->
+        <a href="index.html" class="navbar__link active">Home</a>
+
+        <!-- 2. About Us Dropdown -->
+        <div class="navbar__dropdown">
+          <button class="navbar__dropdown-toggle" aria-expanded="false" aria-haspopup="true">
+            About Us
+            <svg class="navbar__dropdown-chevron" viewBox="0 0 20 20">
+              <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+            </svg>
+          </button>
+          <div class="navbar__dropdown-menu">
+            <a href="about.html#who-we-are" class="dropdown-link">
+              <div class="dropdown-link__icon">🏛️</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Who We Are</span>
+                <span class="dropdown-link__desc">Our Story, Vision, and Mission in Nigeria's public service</span>
+              </div>
+            </a>
+            <a href="objectives.html" class="dropdown-link">
+              <div class="dropdown-link__icon">🎯</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Core Objectives</span>
+                <span class="dropdown-link__desc">The 5 strategic priorities driving our nationwide impact</span>
+              </div>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="governance.html" class="dropdown-link">
+              <div class="dropdown-link__icon">👥</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Governance</span>
+                <span class="dropdown-link__desc">Patrons, Matrons, National Executive Council & Chapters</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- 3. Membership Dropdown -->
+        <div class="navbar__dropdown">
+          <button class="navbar__dropdown-toggle" aria-expanded="false" aria-haspopup="true">
+            Membership
+            <svg class="navbar__dropdown-chevron" viewBox="0 0 20 20">
+              <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+            </svg>
+          </button>
+          <div class="navbar__dropdown-menu">
+            <a href="membership.html#eligibility" class="dropdown-link">
+              <div class="dropdown-link__icon">📋</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Eligibility Criteria</span>
+                <span class="dropdown-link__desc">Ages 18–35, serving civil servants & MDA verification</span>
+              </div>
+            </a>
+            <a href="membership.html#classes" class="dropdown-link">
+              <div class="dropdown-link__icon">🎖️</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Classes of Membership</span>
+                <span class="dropdown-link__desc">Full Member, Associate/Alumni Member, Honorary Member</span>
+              </div>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="membership.html#register" class="dropdown-link">
+              <div class="dropdown-link__icon">✍️</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Registration Form</span>
+                <span class="dropdown-link__desc">Complete your national membership application</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- 4. Projects Dropdown -->
+        <div class="navbar__dropdown">
+          <button class="navbar__dropdown-toggle" aria-expanded="false" aria-haspopup="true">
+            Projects
+            <svg class="navbar__dropdown-chevron" viewBox="0 0 20 20">
+              <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+            </svg>
+          </button>
+          <div class="navbar__dropdown-menu navbar__dropdown-menu--wide">
+            <a href="projects.html#track-a" class="dropdown-link">
+              <div class="dropdown-link__icon">🌐</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Track A – By Sector (Thematic)</span>
+                <span class="dropdown-link__desc">7 National Sectors running across multiple states simultaneously</span>
+              </div>
+            </a>
+            <a href="projects.html#track-b" class="dropdown-link">
+              <div class="dropdown-link__icon">📍</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Track B – By State (Locally Scoped)</span>
+                <span class="dropdown-link__desc">Grassroots projects owned by 36 State Chapters plus FCT</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- 5. Resources Dropdown -->
+        <div class="navbar__dropdown">
+          <button class="navbar__dropdown-toggle" aria-expanded="false" aria-haspopup="true">
+            Resources
+            <svg class="navbar__dropdown-chevron" viewBox="0 0 20 20">
+              <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+            </svg>
+          </button>
+          <div class="navbar__dropdown-menu">
+            <a href="resources.html#news" class="dropdown-link">
+              <div class="dropdown-link__icon">📰</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">News</span>
+                <span class="dropdown-link__desc">Latest public sector updates and Forum releases</span>
+              </div>
+            </a>
+            <a href="resources.html#media" class="dropdown-link">
+              <div class="dropdown-link__icon">📸</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Media</span>
+                <span class="dropdown-link__desc">Photo galleries, event recordings, and briefings</span>
+              </div>
+            </a>
+            <a href="resources.html#elibrary" class="dropdown-link">
+              <div class="dropdown-link__icon">📚</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">e-Library</span>
+                <span class="dropdown-link__desc">Civil service circulars, whitepapers & research docs</span>
+              </div>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="resources.html#faqs" class="dropdown-link">
+              <div class="dropdown-link__icon">❓</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">FAQs</span>
+                <span class="dropdown-link__desc">Frequently asked questions & membership guides</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- 6. Sign In CTA -->
         <div class="navbar__cta">
-          <a href="membership.html" class="btn btn--primary btn--sm">Sign In</a>
+          <button class="btn btn--accent btn--sm" data-open-signin>
+            <span>🔐 Sign In</span>
+          </button>
         </div>
       </div>
       <button class="navbar__toggle" id="navToggle" aria-label="Toggle navigation">
@@ -36,207 +171,548 @@
   </nav>
   <div class="mobile-overlay" id="mobileOverlay"></div>
 
-  <!-- Hero -->
+  <!-- Hero Section -->
   <section class="hero" id="hero">
     <div class="container">
-      <div class="hero__content">
-        <div class="hero__badge">Young Minds. Strong Service. Better Nigeria.</div>
-        <h1>Building a <span>Network</span> of Young Civil Servants for National Development</h1>
-        <p>We unite young Nigerian civil servants across all levels of government to foster professional growth, drive innovation, and shape the future of public service in Nigeria.</p>
-        <div class="hero__actions">
-          <a href="membership.html" class="btn btn--accent btn--lg">Become a Member</a>
-          <a href="about.html" class="btn btn--outline-white btn--lg">Learn More</a>
+      <div class="hero__grid">
+        <!-- Hero Left Column: Headline, Subline, CTAs -->
+        <div class="hero__text fade-in">
+          <div class="hero__badge-pill">
+            <span class="pulse-dot"></span>
+            Nigeria Civil Service Youths Forum
+          </div>
+          <h1 class="hero__headline">
+            Young Minds. <span class="highlight">Strong Service.</span> Better Nigeria
+          </h1>
+          <p class="hero__subline">
+            Unifying young minds across all ministries, departments, and agencies (MDAs) to transform public sector policies into measurable impact for all Nigerians.
+          </p>
+          <div class="hero__actions-group">
+            <a href="membership.html#register" class="btn btn--accent btn--lg">
+              <span>Become a Member →</span>
+            </a>
+            <a href="projects.html" class="btn btn--outline-white btn--lg">
+              <span>Explore Projects</span>
+            </a>
+            <button class="btn btn--white btn--sm" data-open-signin style="margin-left: 4px;">
+              <span>Sign In</span>
+            </button>
+          </div>
+
+          <div class="hero__trust-strip">
+            <div class="hero__trust-item">
+              <span class="hero__trust-number">36 + FCT</span>
+              <span class="hero__trust-label">State Chapters</span>
+            </div>
+            <div class="hero__trust-item">
+              <span class="hero__trust-number">7 Sectors</span>
+              <span class="hero__trust-label">National Track A</span>
+            </div>
+            <div class="hero__trust-item">
+              <span class="hero__trust-number">18–35 yrs</span>
+              <span class="hero__trust-label">Youth Focus</span>
+            </div>
+            <div class="hero__trust-item">
+              <span class="hero__trust-number">3 Tiers</span>
+              <span class="hero__trust-label">Federal, State & LGA</span>
+            </div>
+          </div>
         </div>
 
+        <!-- Hero Right Column: Engaging Visual Card (Nigeria Map Network & African Youths Photo) -->
+        <div class="hero__visual fade-in">
+          <div class="hero__visual-card">
+            <!-- View Mode Switcher -->
+            <div class="visual-switcher">
+              <button class="visual-switcher__btn active" data-target="paneMap">
+                <span>🗺️ Connected States Network</span>
+              </button>
+              <button class="visual-switcher__btn" data-target="paneYouth">
+                <span>👥 African Youths in Service</span>
+              </button>
+            </div>
+
+            <!-- Pane 1: Interactive Nigeria Map Network -->
+            <div class="visual-pane active" id="paneMap">
+              <div class="nigeria-map-box">
+                <svg class="nigeria-map-svg" viewBox="0 0 520 400" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <radialGradient id="mapGlow" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stop-color="#166647" stop-opacity="0.6"/>
+                      <stop offset="100%" stop-color="#08291C" stop-opacity="0.9"/>
+                    </radialGradient>
+                    <filter id="glowFilter" x="-20%" y="-20%" width="140%" height="140%">
+                      <feGaussianBlur stdDeviation="3" result="blur"/>
+                      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+                    </filter>
+                  </defs>
+
+                  <!-- Nigeria Stylized Geopolitical Outline -->
+                  <path d="M 120 70 
+                           C 170 50, 240 45, 330 65 
+                           C 380 75, 440 90, 480 130 
+                           C 490 170, 480 230, 440 280 
+                           C 410 320, 360 350, 300 365 
+                           C 240 375, 170 360, 130 340 
+                           C 90 320, 60 270, 50 220 
+                           C 40 160, 70 100, 120 70 Z" 
+                        fill="url(#mapGlow)" 
+                        stroke="#E9CE74" 
+                        stroke-width="1.8" 
+                        stroke-dasharray="6,4" 
+                        opacity="0.85"/>
+
+                  <!-- Network Vector Links Linking Central Hub (Abuja FCT) to all Regions -->
+                  <line class="network-link" x1="260" y1="190" x2="110" y2="280" /> <!-- Lagos -->
+                  <line class="network-link" x1="260" y1="190" x2="300" y2="90" />  <!-- Kano -->
+                  <line class="network-link" x1="260" y1="190" x2="270" y2="135" /> <!-- Kaduna -->
+                  <line class="network-link" x1="260" y1="190" x2="260" y2="330" /> <!-- Rivers -->
+                  <line class="network-link" x1="260" y1="190" x2="300" y2="280" /> <!-- Enugu -->
+                  <line class="network-link" x1="260" y1="190" x2="140" y2="230" /> <!-- Oyo -->
+                  <line class="network-link" x1="260" y1="190" x2="430" y2="110" /> <!-- Borno -->
+                  <line class="network-link" x1="260" y1="190" x2="330" y2="180" /> <!-- Plateau -->
+                  <line class="network-link" x1="260" y1="190" x2="190" y2="310" /> <!-- Delta -->
+                  <line class="network-link" x1="260" y1="190" x2="120" y2="100" /> <!-- Sokoto -->
+                  <line class="network-link" x1="260" y1="190" x2="330" y2="330" /> <!-- Cross River -->
+
+                  <!-- Inter-State Mesh Network -->
+                  <line class="network-link" x1="110" y1="280" x2="140" y2="230" opacity="0.4"/>
+                  <line class="network-link" x1="300" y1="90" x2="270" y2="135" opacity="0.4"/>
+                  <line class="network-link" x1="300" y1="280" x2="260" y2="330" opacity="0.4"/>
+                  <line class="network-link" x1="430" y1="110" x2="330" y2="180" opacity="0.4"/>
+
+                  <!-- Interactive State Chapter Nodes -->
+                  <!-- Abuja (FCT) Central Pulse -->
+                  <g class="state-node" data-state="fct">
+                    <circle cx="260" cy="190" r="18" fill="none" stroke="#E9CE74" stroke-width="1.5" class="pulse-ring"/>
+                    <circle cx="260" cy="190" r="9" fill="#0F4530" stroke="#E9CE74" stroke-width="3"/>
+                    <circle cx="260" cy="190" r="4" fill="#FFFFFF"/>
+                    <text x="260" y="215" fill="#E9CE74" font-size="11" font-weight="800" text-anchor="middle" font-family="Montserrat">ABUJA (FCT)</text>
+                  </g>
+
+                  <!-- Lagos -->
+                  <g class="state-node" data-state="lagos">
+                    <circle cx="110" cy="280" r="12" class="pulse-ring"/>
+                    <circle cx="110" cy="280" r="6" class="pin-dot"/>
+                    <text x="110" y="300" fill="#FFFFFF" font-size="9" font-weight="600" text-anchor="middle">Lagos</text>
+                  </g>
+
+                  <!-- Kano -->
+                  <g class="state-node" data-state="kano">
+                    <circle cx="300" cy="90" r="12" class="pulse-ring"/>
+                    <circle cx="300" cy="90" r="6" class="pin-dot"/>
+                    <text x="300" y="80" fill="#FFFFFF" font-size="9" font-weight="600" text-anchor="middle">Kano</text>
+                  </g>
+
+                  <!-- Kaduna -->
+                  <g class="state-node" data-state="kaduna">
+                    <circle cx="270" cy="135" r="5" class="pin-dot"/>
+                    <text x="290" y="140" fill="#FFFFFF" font-size="8" font-weight="600">Kaduna</text>
+                  </g>
+
+                  <!-- Rivers (Port Harcourt) -->
+                  <g class="state-node" data-state="rivers">
+                    <circle cx="260" cy="330" r="12" class="pulse-ring"/>
+                    <circle cx="260" cy="330" r="6" class="pin-dot"/>
+                    <text x="260" y="350" fill="#FFFFFF" font-size="9" font-weight="600" text-anchor="middle">Rivers</text>
+                  </g>
+
+                  <!-- Enugu -->
+                  <g class="state-node" data-state="enugu">
+                    <circle cx="300" cy="280" r="5" class="pin-dot"/>
+                    <text x="315" y="285" fill="#FFFFFF" font-size="8" font-weight="600">Enugu</text>
+                  </g>
+
+                  <!-- Oyo (Ibadan) -->
+                  <g class="state-node" data-state="oyo">
+                    <circle cx="140" cy="230" r="5" class="pin-dot"/>
+                    <text x="140" y="220" fill="#FFFFFF" font-size="8" font-weight="600" text-anchor="middle">Oyo</text>
+                  </g>
+
+                  <!-- Borno (Maiduguri) -->
+                  <g class="state-node" data-state="borno">
+                    <circle cx="430" cy="110" r="12" class="pulse-ring"/>
+                    <circle cx="430" cy="110" r="6" class="pin-dot"/>
+                    <text x="430" y="100" fill="#FFFFFF" font-size="9" font-weight="600" text-anchor="middle">Borno</text>
+                  </g>
+
+                  <!-- Plateau (Jos) -->
+                  <g class="state-node" data-state="plateau">
+                    <circle cx="330" cy="180" r="5" class="pin-dot"/>
+                    <text x="345" y="185" fill="#FFFFFF" font-size="8" font-weight="600">Plateau</text>
+                  </g>
+
+                  <!-- Delta -->
+                  <g class="state-node" data-state="delta">
+                    <circle cx="190" cy="310" r="5" class="pin-dot"/>
+                    <text x="190" y="328" fill="#FFFFFF" font-size="8" font-weight="600" text-anchor="middle">Delta</text>
+                  </g>
+
+                  <!-- Sokoto -->
+                  <g class="state-node" data-state="sokoto">
+                    <circle cx="120" cy="100" r="5" class="pin-dot"/>
+                    <text x="120" y="90" fill="#FFFFFF" font-size="8" font-weight="600" text-anchor="middle">Sokoto</text>
+                  </g>
+
+                  <!-- Cross River -->
+                  <g class="state-node" data-state="crossriver">
+                    <circle cx="330" cy="330" r="5" class="pin-dot"/>
+                    <text x="330" y="348" fill="#FFFFFF" font-size="8" font-weight="600" text-anchor="middle">Cross River</text>
+                  </g>
+                </svg>
+
+                <!-- Interactive State Hover Status Card -->
+                <div class="map-info-toast" id="mapInfoToast">
+                  <span><strong>Abuja (FCT)</strong> • National Executive Secretariat & 18 Federal MDAs</span>
+                  <span style="color: var(--color-accent); font-weight:700;">Click any node</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pane 2: African Youths in Public Service -->
+            <div class="visual-pane" id="paneYouth">
+              <div class="youth-photo-box">
+                <img src="images/african-youth-civil-servants.jpg" alt="Young African Civil Servants in Conference Strategy Session">
+                <div class="floating-badge floating-badge--top-right">
+                  <span>🇳🇬 Non-Partisan Forum</span>
+                </div>
+                <div class="youth-photo-overlay">
+                  <h4>Transformative Youth Leadership</h4>
+                  <p>Young civil servants aged 18–35 driving policy implementation and public innovation across Federal, State, and LGA ministries.</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- About Preview -->
-  <section class="section" id="about-preview">
+  <!-- 2. About Us / Who We Are Section -->
+  <section class="section" id="about-us">
     <div class="container">
-      <div class="stats-bar fade-in" style="display: flex; justify-content: center; gap: var(--space-3xl); margin-bottom: var(--space-3xl); padding-bottom: var(--space-2xl); border-bottom: 1px solid var(--color-light-gray);">
-        <div style="text-align: center;">
-          <div style="font-family: var(--font-heading); font-size: var(--fs-3xl); font-weight: 900; color: var(--color-primary); letter-spacing: -0.02em;">36+</div>
-          <div style="font-size: var(--fs-sm); color: var(--color-gray); margin-top: 4px; font-weight: 500;">State Chapters</div>
-        </div>
-        <div style="text-align: center;">
-          <div style="font-family: var(--font-heading); font-size: var(--fs-3xl); font-weight: 900; color: var(--color-primary); letter-spacing: -0.02em;">5,000+</div>
-          <div style="font-size: var(--fs-sm); color: var(--color-gray); margin-top: 4px; font-weight: 500;">Nationwide Members</div>
-        </div>
-        <div style="text-align: center;">
-          <div style="font-family: var(--font-heading); font-size: var(--fs-3xl); font-weight: 900; color: var(--color-primary); letter-spacing: -0.02em;">100+</div>
-          <div style="font-size: var(--fs-sm); color: var(--color-gray); margin-top: 4px; font-weight: 500;">Programs Delivered</div>
-        </div>
-      </div>
       <div class="text-center fade-in">
         <span class="section-label">Who We Are</span>
-        <h2>Championing Excellence in Public Service</h2>
-        <p class="subtitle">The Association of Nigerian Youths in Civil Service (ANYCS) is a national body dedicated to empowering young civil servants with the skills, networks, and platforms they need to drive transformative change in governance and public administration.</p>
+        <h2>Nigeria Civil Service Youths Forum</h2>
+        <p class="subtitle">A premier national professional body uniting emerging leaders in Nigeria's public sector.</p>
       </div>
-      <div class="grid grid--3" style="margin-top: var(--space-3xl);">
-        <div class="card fade-in">
-          <div class="card__icon">🎓</div>
-          <div class="card__title">Capacity Building</div>
-          <p class="card__text">Equipping members with modern skills, certifications, and knowledge to excel in their roles and advance their careers in public service.</p>
+
+      <div class="grid grid--2" style="margin-top: var(--space-3xl); align-items: stretch;">
+        <!-- Our Story -->
+        <div class="card fade-in" style="display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div class="card__icon" style="background: var(--color-primary-subtle); color: var(--color-primary);">📖</div>
+            <h3 class="card__title" style="font-size: var(--fs-xl);">Our Story</h3>
+            <p class="card__text" style="font-size: 1.05rem; line-height: 1.85; color: var(--color-dark-gray);">
+              <strong>Nigeria Civil Service Youths Forum</strong>, a non-partisan professional body established to promote excellence, innovation, integrity and transformative leadership among young public servants across the Federal, States and Local Government Councils Public Service of Nigeria.
+            </p>
+          </div>
+          <div style="margin-top: var(--space-xl); padding-top: var(--space-md); border-top: 1px solid var(--color-light-gray);">
+            <a href="about.html#who-we-are" class="btn btn--outline btn--sm">Read Full Story →</a>
+          </div>
         </div>
-        <div class="card fade-in">
-          <div class="card__icon">🤝</div>
-          <div class="card__title">Mentorship</div>
-          <p class="card__text">Connecting emerging leaders with seasoned professionals who provide guidance, support, and invaluable career insights.</p>
-        </div>
-        <div class="card fade-in">
-          <div class="card__icon">🌐</div>
-          <div class="card__title">Networking</div>
-          <p class="card__text">Building a powerful network of young professionals across Ministries, Departments, and Agencies nationwide.</p>
+
+        <!-- Vision and Mission -->
+        <div class="card fade-in" style="display: flex; flex-direction: column; justify-content: space-between; border-left: 4px solid var(--color-primary);">
+          <div>
+            <div class="card__icon" style="background: var(--color-accent-subtle); color: var(--color-accent-dark);">✨</div>
+            <h3 class="card__title" style="font-size: var(--fs-xl);">Vision & Mission</h3>
+            <p class="card__text" style="font-size: 1.05rem; line-height: 1.85; color: var(--color-dark-gray); margin-bottom: var(--space-lg);">
+              We envision a dynamic and united network of youths in public service who are committed to advancing national development through <strong>Professionalism, Collaboration and Innovative service delivery</strong>.
+            </p>
+            <div style="background: var(--color-bg-page); padding: var(--space-md) var(--space-lg); border-radius: var(--radius-md); border: 1px solid rgba(15, 69, 48, 0.1);">
+              <span style="font-size: var(--fs-xs); font-weight: 700; color: var(--color-primary); text-transform: uppercase; letter-spacing: 1px;">Core Foundation</span>
+              <p style="font-size: var(--fs-sm); color: var(--color-dark-gray); margin-top: 4px; margin-bottom: 0;">Uniting the 3 tiers of Nigerian governance with cutting-edge civic capacity and institutional integrity.</p>
+            </div>
+          </div>
+          <div style="margin-top: var(--space-xl); padding-top: var(--space-md); border-top: 1px solid var(--color-light-gray);">
+            <a href="governance.html" class="btn btn--outline btn--sm">Explore Governance →</a>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Vision & Mission -->
-  <section class="section section--gray" id="vision-mission">
+  <!-- 3. Core Objectives Section (The 5 Strategic Priorities) -->
+  <section class="section section--gray" id="core-objectives">
     <div class="container">
       <div class="text-center fade-in">
-        <span class="section-label">Our Foundation</span>
-        <h2>Vision & Mission</h2>
-      </div>
-      <div class="grid grid--2" style="margin-top: var(--space-3xl);">
-        <div class="vm-card vm-card--vision fade-in">
-          <div class="vm-card__label">◆ Our Vision</div>
-          <p class="vm-card__text">To be the foremost platform for the development, empowerment, and representation of young civil servants in Nigeria, fostering a generation of innovative, ethical, and transformative public sector leaders.</p>
-        </div>
-        <div class="vm-card vm-card--mission fade-in">
-          <div class="vm-card__label">◆ Our Mission</div>
-          <p class="vm-card__text">To unite, equip, and empower young Nigerian civil servants through capacity building, mentorship, innovation, and advocacy — creating an enabling environment for professional growth and impactful public service delivery.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Core Objectives -->
-  <section class="section" id="objectives">
-    <div class="container">
-      <div class="text-center fade-in">
-        <span class="section-label">What We Stand For</span>
+        <span class="section-label">Strategic Priorities</span>
         <h2>Core Objectives</h2>
-        <p class="subtitle">Our pillars of action that drive meaningful impact across Nigeria's public service landscape.</p>
+        <p class="subtitle">To realise this vision, the Forum's work is anchored on the following five priorities:</p>
       </div>
+
+      <div class="grid grid--3" style="margin-top: var(--space-3xl);">
+        <!-- Priority 1 -->
+        <div class="objective-card fade-in">
+          <div class="objective-card__num">01</div>
+          <h3 class="objective-card__title">Professional Development</h3>
+          <p class="objective-card__text">
+            Promoting continuous learning, through structured training, seminars, workshops and conferences.
+          </p>
+        </div>
+
+        <!-- Priority 2 -->
+        <div class="objective-card fade-in">
+          <div class="objective-card__num">02</div>
+          <h3 class="objective-card__title">Innovation & Digital Transformation</h3>
+          <p class="objective-card__text">
+            Encouraging researches, innovations and the adoption of technologies to improve service delivery in the public service sector.
+          </p>
+        </div>
+
+        <!-- Priority 3 -->
+        <div class="objective-card fade-in">
+          <div class="objective-card__num">03</div>
+          <h3 class="objective-card__title">Networking & Collaboration</h3>
+          <p class="objective-card__text">
+            Creating platforms that connect young public servants in Ministries, Departments and Agencies across the three tiers of Government.
+          </p>
+        </div>
+
+        <!-- Priority 4 -->
+        <div class="objective-card fade-in">
+          <div class="objective-card__num">04</div>
+          <h3 class="objective-card__title">Youth Empowerment</h3>
+          <p class="objective-card__text">
+            Advancing skills acquisition, ICT development and agro-allied initiatives in partnership with government institutions and relevant private sectors.
+          </p>
+        </div>
+
+        <!-- Priority 5 -->
+        <div class="objective-card fade-in" style="grid-column: span 2;">
+          <div class="objective-card__num">05</div>
+          <h3 class="objective-card__title">Policy Advocacy & Welfare</h3>
+          <p class="objective-card__text">
+            Championing policies and programmes that strengthen community services and welfare of the general public.
+          </p>
+        </div>
+      </div>
+
+      <div class="text-center fade-in" style="margin-top: var(--space-2xl);">
+        <a href="objectives.html" class="btn btn--primary">View Detailed Priority Programs →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Membership Overview (Eligibility & Classes) -->
+  <section class="section" id="membership-overview">
+    <div class="container">
+      <div class="text-center fade-in">
+        <span class="section-label">Join The Movement</span>
+        <h2>Membership Structure</h2>
+        <p class="subtitle">Designed specifically for serving civil servants and allied professionals across Nigeria.</p>
+      </div>
+
+      <!-- Eligibility Criteria Callout -->
+      <div class="card priority-detail-card fade-in" style="background: var(--color-bg-page); border: 1px solid rgba(15, 69, 48, 0.15); margin-top: var(--space-3xl);">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: var(--space-md);">
+          <span style="font-size: 1.75rem;">📋</span>
+          <h3 style="font-size: var(--fs-xl); color: var(--color-primary); margin-bottom: 0;">Eligibility Criteria</h3>
+        </div>
+        <div class="grid grid--3" style="gap: var(--space-xl); margin-top: var(--space-lg);">
+          <div style="background: var(--color-white); padding: var(--space-lg); border-radius: var(--radius-md); border-left: 3px solid var(--color-accent);">
+            <div style="font-weight: 700; color: var(--color-dark); margin-bottom: 6px;">Age Requirement</div>
+            <p style="font-size: var(--fs-sm); color: var(--color-dark-gray); margin-bottom: 0;">Any Nigerian not less than eighteen (18) years and not more than thirty-five (35) years of age as at the date of registration.</p>
+          </div>
+          <div style="background: var(--color-white); padding: var(--space-lg); border-radius: var(--radius-md); border-left: 3px solid var(--color-accent);">
+            <div style="font-weight: 700; color: var(--color-dark); margin-bottom: 6px;">Serving Officer</div>
+            <p style="font-size: var(--fs-sm); color: var(--color-dark-gray); margin-bottom: 0;">Is a serving officer in any Ministry, Department or Agency (MDA) of the Federal Government, a State Government or a Local Government Council in Nigeria.</p>
+          </div>
+          <div style="background: var(--color-white); padding: var(--space-lg); border-radius: var(--radius-md); border-left: 3px solid var(--color-accent);">
+            <div style="font-weight: 700; color: var(--color-dark); margin-bottom: 6px;">Official Verification</div>
+            <p style="font-size: var(--fs-sm); color: var(--color-dark-gray); margin-bottom: 0;">Holds a valid letter of employment, appointment or an official Staff identification document from their MDA.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 Classes of Membership -->
       <div class="grid grid--3" style="margin-top: var(--space-3xl);">
         <div class="card card--bordered fade-in">
-          <div class="card__icon">📚</div>
-          <div class="card__title">Professional Development</div>
-          <p class="card__text">Organizing training programs, workshops, and seminars that enhance the professional competence of young civil servants.</p>
+          <div class="card__icon">🏛️</div>
+          <h3 class="card__title">Full Member</h3>
+          <p class="card__text">A serving civil servant aged 18–35 who has met all eligibility requirements.</p>
+          <ul style="margin: var(--space-md) 0 var(--space-lg); font-size: var(--fs-sm); color: var(--color-dark-gray); display: flex; flex-direction: column; gap: 8px;">
+            <li>✓ Full voting and leadership eligibility</li>
+            <li>✓ Priority access to structured seminars</li>
+            <li>✓ Official membership credentials</li>
+          </ul>
+          <a href="membership.html#register" class="btn btn--primary" style="width: 100%; justify-content: center;">Apply as Full Member</a>
         </div>
-        <div class="card card--bordered fade-in">
-          <div class="card__icon">💡</div>
-          <div class="card__title">Innovation & Research</div>
-          <p class="card__text">Promoting innovative thinking, research, and the adoption of technology in public sector operations and service delivery.</p>
+
+        <div class="card fade-in" style="border-top: 4px solid var(--color-accent);">
+          <div class="card__icon" style="background: var(--color-accent-subtle); color: var(--color-accent-dark);">🎓</div>
+          <h3 class="card__title">Associate/ Alumni Member</h3>
+          <p class="card__text">A former full member who has exited on account of age or has left the Civil Service in good standing.</p>
+          <ul style="margin: var(--space-md) 0 var(--space-lg); font-size: var(--fs-sm); color: var(--color-dark-gray); display: flex; flex-direction: column; gap: 8px;">
+            <li>✓ Mentorship and advisory roles</li>
+            <li>✓ Continued network collaboration</li>
+            <li>✓ Invitations to national summits</li>
+          </ul>
+          <a href="membership.html#register" class="btn btn--outline" style="width: 100%; justify-content: center;">Register as Associate</a>
         </div>
-        <div class="card card--bordered fade-in">
-          <div class="card__icon">💼</div>
-          <div class="card__title">Income & Skill Development</div>
-          <p class="card__text">Creating pathways for income generation, ICT proficiency, and entrepreneurial opportunities for members.</p>
-        </div>
-        <div class="card card--bordered fade-in">
-          <div class="card__icon">🔗</div>
-          <div class="card__title">Networking</div>
-          <p class="card__text">Building bridges between young civil servants across MDAs, fostering collaboration and knowledge sharing.</p>
-        </div>
-        <div class="card card--bordered fade-in">
-          <div class="card__icon">📢</div>
-          <div class="card__title">Advocacy</div>
-          <p class="card__text">Championing policies that promote youth inclusion, welfare, and advancement within the Nigerian civil service framework.</p>
-        </div>
-        <div class="card card--bordered fade-in">
-          <div class="card__icon">🏆</div>
-          <div class="card__title">Leadership Development</div>
-          <p class="card__text">Cultivating the next generation of public sector leaders through structured mentorship and leadership programs.</p>
+
+        <div class="card fade-in">
+          <div class="card__icon" style="background: var(--color-primary-subtle); color: var(--color-primary);">🎖️</div>
+          <h3 class="card__title">Honorary Member</h3>
+          <p class="card__text">A distinguished individual conferred with membership by the National Executive Council in recognition of support to the Forum’s objectives.</p>
+          <ul style="margin: var(--space-md) 0 var(--space-lg); font-size: var(--fs-sm); color: var(--color-dark-gray); display: flex; flex-direction: column; gap: 8px;">
+            <li>✓ Conferred by National Executive Council</li>
+            <li>✓ Strategic patronage & public advisory</li>
+            <li>✓ Lifetime recognition of service</li>
+          </ul>
+          <a href="governance.html" class="btn btn--outline" style="width: 100%; justify-content: center;">Learn More</a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Membership CTA -->
+  <!-- 5. Projects Preview: Track A & Track B -->
+  <section class="section section--gray" id="projects-preview">
+    <div class="container">
+      <div class="text-center fade-in">
+        <span class="section-label">National Implementation</span>
+        <h2>Projects Framework</h2>
+        <p class="subtitle">Structured delivery through thematic national sectors and locally scoped state initiatives.</p>
+      </div>
+
+      <div class="grid grid--2" style="margin-top: var(--space-3xl);">
+        <!-- Track A Card -->
+        <div class="card fade-in" style="background: var(--color-white); border-top: 5px solid var(--color-primary);">
+          <span class="sector-card__badge">Track A • Thematic & Multi-State</span>
+          <h3 style="font-size: var(--fs-xl); color: var(--color-primary); margin-bottom: var(--space-sm);">By Sector Projects</h3>
+          <p style="font-size: var(--fs-sm); color: var(--color-dark-gray); line-height: 1.8;">
+            Sector projects are thematic and may run across multiple states simultaneously. The <strong>seven national sectors</strong> focus on critical public sector development:
+          </p>
+          <ul style="margin: var(--space-md) 0 var(--space-lg); font-size: var(--fs-sm); color: var(--color-dark-gray); display: grid; grid-template-columns: 1fr; gap: 8px;">
+            <li>🌱 Education & Youth Capacity Development</li>
+            <li>🏥 Health & Public Wellbeing</li>
+            <li>🌾 Agriculture & Food Security</li>
+            <li>💻 ICT, Innovation & Digital Skills</li>
+            <li>🏛️ Governance & Civic Engagement</li>
+            <li>⚡ Energy, Environment & Climate Resilience</li>
+            <li>💼 Industry, Entrepreneurship & Economic Empowerment</li>
+          </ul>
+          <a href="projects.html#track-a" class="btn btn--primary btn--sm" style="align-self: flex-start;">Explore Track A Sectors →</a>
+        </div>
+
+        <!-- Track B Card -->
+        <div class="card fade-in" style="background: var(--color-white); border-top: 5px solid var(--color-accent);">
+          <span class="sector-card__badge" style="background: var(--color-accent-subtle); color: var(--color-accent-dark); border-color: rgba(233, 206, 116, 0.4);">Track B • Locally Scoped</span>
+          <h3 style="font-size: var(--fs-xl); color: var(--color-primary); margin-bottom: var(--space-sm);">By State Projects</h3>
+          <p style="font-size: var(--fs-sm); color: var(--color-dark-gray); line-height: 1.8;">
+            State-track projects are locally scoped and owned by a <strong>State Chapter plus the FCT</strong>. These grassroots actions address localized administrative bottlenecks, grassroots capacity building, and community service initiatives in all 36 States and Abuja.
+          </p>
+          <div style="background: var(--color-bg-page); padding: var(--space-md); border-radius: var(--radius-md); margin: var(--space-lg) 0; border: 1px solid rgba(15, 69, 48, 0.08);">
+            <div style="font-size: var(--fs-xs); font-weight: 700; color: var(--color-primary); margin-bottom: 4px;">Grassroots Ownership</div>
+            <p style="font-size: var(--fs-sm); color: var(--color-dark-gray); margin-bottom: 0;">Coordinated by State Chapters in direct liaison with State Head of Service and local government service commissions.</p>
+          </div>
+          <a href="projects.html#track-b" class="btn btn--outline btn--sm" style="align-self: flex-start;">Browse State Chapters & Projects →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Resources & Community Preview -->
+  <section class="section" id="resources-preview">
+    <div class="container">
+      <div class="text-center fade-in">
+        <span class="section-label">Knowledge & Updates</span>
+        <h2>Forum Resources</h2>
+        <p class="subtitle">Access vital publications, press releases, multimedia, and answers to key questions.</p>
+      </div>
+
+      <div class="grid grid--4" style="margin-top: var(--space-3xl);">
+        <div class="card fade-in">
+          <div class="card__icon">📰</div>
+          <h4 class="card__title">News</h4>
+          <p class="card__text">Stay updated with national communiqués, policy reforms, and chapter updates.</p>
+          <a href="resources.html#news" style="color: var(--color-primary); font-weight: 700; font-size: var(--fs-sm);">Read News →</a>
+        </div>
+
+        <div class="card fade-in">
+          <div class="card__icon">📸</div>
+          <h4 class="card__title">Media</h4>
+          <p class="card__text">High-resolution photo galleries, conferences, and executive session recordings.</p>
+          <a href="resources.html#media" style="color: var(--color-primary); font-weight: 700; font-size: var(--fs-sm);">View Gallery →</a>
+        </div>
+
+        <div class="card fade-in">
+          <div class="card__icon">📚</div>
+          <h4 class="card__title">e-Library</h4>
+          <p class="card__text">Download public service guidebooks, policy briefs, circulars, and study reports.</p>
+          <a href="resources.html#elibrary" style="color: var(--color-primary); font-weight: 700; font-size: var(--fs-sm);">Open e-Library →</a>
+        </div>
+
+        <div class="card fade-in">
+          <div class="card__icon">❓</div>
+          <h4 class="card__title">FAQs</h4>
+          <p class="card__text">Common questions about membership verification, state chapters, and initiatives.</p>
+          <a href="resources.html#faqs" style="color: var(--color-primary); font-weight: 700; font-size: var(--fs-sm);">Get Answers →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Member Portal Sign In Banner -->
   <section class="section section--sm">
     <div class="container">
-      <div class="cta-banner fade-in">
-        <h2>Ready to Make a Difference?</h2>
-        <p>Join thousands of young civil servants who are transforming Nigeria's public service. Become a member today and unlock a world of opportunities.</p>
-        <a href="membership.html" class="btn btn--white btn--lg">Become a Member →</a>
+      <div class="cta-banner fade-in" style="background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);">
+        <h2>Already a Member? Access Your Portal</h2>
+        <p>Sign in with your Membership ID and password to access training modules, voting portals, and state chapter directories.</p>
+        <div style="display: flex; justify-content: center; gap: var(--space-md); flex-wrap: wrap;">
+          <button class="btn btn--accent btn--lg" data-open-signin>
+            <span>🔐 Sign In with Membership ID</span>
+          </button>
+          <a href="membership.html#register" class="btn btn--outline-white btn--lg">
+            <span>New Member Registration</span>
+          </a>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Governance Preview -->
-  <section class="section section--gray">
-    <div class="container">
-      <div class="text-center fade-in">
-        <span class="section-label">Leadership</span>
-        <h2>Our Governance Structure</h2>
-        <p class="subtitle">ANYCS is led by a dedicated team of professionals committed to the association's mission and vision.</p>
-      </div>
-      <div class="grid grid--4" style="margin-top: var(--space-3xl);">
-        <div class="person-card fade-in">
-          <div class="person-card__avatar">P</div>
-          <div class="person-card__name">President</div>
-          <div class="person-card__role person-card__role--accent">Executive Committee</div>
-        </div>
-        <div class="person-card fade-in">
-          <div class="person-card__avatar">VP</div>
-          <div class="person-card__name">Vice President</div>
-          <div class="person-card__role person-card__role--accent">Executive Committee</div>
-        </div>
-        <div class="person-card fade-in">
-          <div class="person-card__avatar">NS</div>
-          <div class="person-card__name">National Secretary</div>
-          <div class="person-card__role person-card__role--accent">Executive Committee</div>
-        </div>
-        <div class="person-card fade-in">
-          <div class="person-card__avatar">FS</div>
-          <div class="person-card__name">Financial Secretary</div>
-          <div class="person-card__role person-card__role--accent">Executive Committee</div>
-        </div>
-      </div>
-      <div class="text-center fade-in" style="margin-top: var(--space-2xl);">
-        <a href="governance.html" class="btn btn--outline">View Full Structure →</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Footer -->
+  <!-- Footer (Styled with #F5FCF7 background per specification) -->
   <footer class="footer">
     <div class="container">
       <div class="footer__grid">
         <div class="footer__brand">
-          <a href="index.html" class="navbar__logo" style="margin-bottom: var(--space-sm);">
-            <div class="navbar__logo-icon">A</div>
-            ANYCS
+          <a href="index.html" class="footer__logo-link" style="display: inline-block; margin-bottom: var(--space-md);" aria-label="NCSYF Home">
+            <img src="images/logo.png" alt="NCSYF — Nigeria Civil Service Youths' Forum" class="footer__logo-img">
           </a>
-          <p>The Association of Nigerian Youths in Civil Service — empowering young civil servants through capacity building, mentorship, networking, and innovation.</p>
+          <p>
+            <strong>Nigeria Civil Service Youths' Forum (NCSYF)</strong> — a non-partisan professional body established to promote excellence, innovation, integrity and transformative leadership across Nigeria's public service.
+          </p>
         </div>
         <div>
-          <div class="footer__heading">Quick Links</div>
-          <a href="about.html" class="footer__link">About Us</a>
-          <a href="objectives.html" class="footer__link">Objectives</a>
-          <a href="membership.html" class="footer__link">Membership</a>
-          <a href="governance.html" class="footer__link">Governance</a>
+          <div class="footer__heading">Navigation</div>
+          <a href="index.html" class="footer__link">Home</a>
+          <a href="about.html#who-we-are" class="footer__link">Who We Are</a>
+          <a href="objectives.html" class="footer__link">Core Objectives</a>
+          <a href="governance.html" class="footer__link">Governance Structure</a>
+          <a href="membership.html#classes" class="footer__link">Membership Classes</a>
         </div>
         <div>
-          <div class="footer__heading">Resources</div>
-          <a href="chapters.html" class="footer__link">Chapters</a>
-          <a href="finance.html" class="footer__link">Finance</a>
-          <a href="contact.html" class="footer__link">Contact</a>
+          <div class="footer__heading">Projects & Hubs</div>
+          <a href="projects.html#track-a" class="footer__link">Track A – Sector Projects</a>
+          <a href="projects.html#track-b" class="footer__link">Track B – State Chapters</a>
+          <a href="resources.html#news" class="footer__link">News & Press</a>
+          <a href="resources.html#elibrary" class="footer__link">e-Library</a>
+          <a href="resources.html#faqs" class="footer__link">Frequently Asked Questions</a>
         </div>
         <div>
-          <div class="footer__heading">Contact</div>
-          <a href="mailto:info@anycs.org.ng" class="footer__link">info@anycs.org.ng</a>
-          <a href="tel:+2348000000000" class="footer__link">+234 800 000 0000</a>
-          <a href="#" class="footer__link">Abuja, Nigeria</a>
+          <div class="footer__heading">Member Access</div>
+          <button class="btn btn--primary btn--sm" data-open-signin style="margin-bottom: var(--space-md); width: 100%; justify-content: center;">
+            Sign In to Portal
+          </button>
+          <a href="membership.html#register" class="footer__link">Register New Account</a>
+          <a href="contact.html" class="footer__link">Contact Secretariat</a>
+          <span class="footer__link" style="color: var(--color-gray);">Federal Secretariat, Abuja, Nigeria</span>
         </div>
       </div>
       <div class="footer__bottom">
-        <span>© 2026 ANYCS. All rights reserved.</span>
+        <span>© 2026 Nigeria Civil Service Youths' Forum (NCSYF). All rights reserved.</span>
         <div class="footer__socials">
           <a href="#" class="footer__social" aria-label="Facebook">f</a>
           <a href="#" class="footer__social" aria-label="Twitter">𝕏</a>
@@ -246,6 +722,79 @@
       </div>
     </div>
   </footer>
+
+  <!-- Sign In Modal Dialog Component -->
+  <div class="modal-overlay" id="signInModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-dialog">
+      <button class="modal-close-btn" aria-label="Close dialog">✕</button>
+
+      <!-- Main Sign In View -->
+      <div id="authMainSection">
+        <div class="modal-brand">
+          <img src="images/logo.png" alt="NCSYF Logo" class="modal-brand__logo">
+          <h3 id="modalTitle">Member Portal</h3>
+          <p>Sign in to access your member dashboard and chapter initiatives</p>
+        </div>
+
+        <form id="modalAuthForm">
+          <div class="form-group">
+            <label class="form-label" for="modalMemberId">Membership ID *</label>
+            <input type="text" id="modalMemberId" class="form-input" placeholder="e.g. ANYCS-2026-0842 or Staff ID" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="modalPassword">Password *</label>
+            <div class="password-wrapper">
+              <input type="password" id="modalPassword" class="form-input" placeholder="Enter your password" required>
+              <button type="button" class="password-toggle-btn" aria-label="Toggle password view">👁️</button>
+            </div>
+          </div>
+
+          <div class="form-extras">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--color-dark-gray);">
+              <input type="checkbox" name="rememberMe" style="accent-color: var(--color-primary);"> Remember me
+            </label>
+            <a href="#" class="forgot-link" id="forgotPasswordLink">Forget Password?</a>
+          </div>
+
+          <button type="submit" class="btn btn--primary" style="width: 100%; justify-content: center;">
+            Sign In to Portal
+          </button>
+
+          <p style="text-align: center; margin-top: var(--space-lg); font-size: var(--fs-sm); color: var(--color-gray);">
+            Not registered yet? <a href="membership.html#register" style="color: var(--color-primary); font-weight: 700;">Apply for Membership</a>
+          </p>
+        </form>
+      </div>
+
+      <!-- Forgot Password Section (Toggled dynamically) -->
+      <div id="forgotPasswordSection" style="display: none;">
+        <div class="modal-brand">
+          <div class="logo-icon">🔑</div>
+          <h3>Reset Password</h3>
+          <p>Enter your registered details to recover your account</p>
+        </div>
+
+        <form id="forgotPasswordForm">
+          <div class="form-group">
+            <label class="form-label" for="resetEmail">Registered Email or Membership ID *</label>
+            <input type="text" id="resetEmail" class="form-input" placeholder="name@mda.gov.ng or ANYCS-XXXX" required>
+          </div>
+
+          <button type="submit" class="btn btn--primary" style="width: 100%; justify-content: center; margin-top: var(--space-md);">
+            Send Recovery Instructions
+          </button>
+
+          <div style="text-align: center; margin-top: var(--space-lg);">
+            <button type="button" id="backToSignInBtn" style="background: none; border: none; color: var(--color-primary); font-weight: 700; cursor: pointer;">
+              ← Back to Sign In
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
 
   <script src="js/main.js"></script>
 </body>

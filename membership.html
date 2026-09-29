@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Join ANYCS — membership types and registration for young Nigerian civil servants.">
-  <title>Membership — ANYCS</title>
+  <meta name="description" content="Membership in Nigeria Civil Service Youths Forum (ANYCS) — Eligibility Criteria, Classes of Membership, and Official Registration Form.">
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -12,21 +15,151 @@
   <!-- Navbar -->
   <nav class="navbar" id="navbar">
     <div class="navbar__inner">
-      <a href="index.html" class="navbar__logo">
-        <div class="navbar__logo-icon">A</div>
-        ANYCS
+      <a href="index.html" class="navbar__logo" aria-label="NCSYF — Nigeria Civil Service Youths' Forum Home">
+        <img src="images/logo.png" alt="NCSYF — Nigeria Civil Service Youths' Forum" class="navbar__logo-img">
       </a>
       <div class="navbar__links" id="navLinks">
         <a href="index.html" class="navbar__link">Home</a>
-        <a href="about.html" class="navbar__link">About</a>
-        <a href="objectives.html" class="navbar__link">Objectives</a>
-        <a href="membership.html" class="navbar__link">Membership</a>
-        <a href="governance.html" class="navbar__link">Governance</a>
-        <a href="chapters.html" class="navbar__link">Chapters</a>
-        <a href="finance.html" class="navbar__link">Finance</a>
-        <a href="contact.html" class="navbar__link">Contact</a>
+
+        <!-- About Us Dropdown -->
+        <div class="navbar__dropdown">
+          <button class="navbar__dropdown-toggle" aria-expanded="false" aria-haspopup="true">
+            About Us
+            <svg class="navbar__dropdown-chevron" viewBox="0 0 20 20">
+              <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+            </svg>
+          </button>
+          <div class="navbar__dropdown-menu">
+            <a href="about.html#who-we-are" class="dropdown-link">
+              <div class="dropdown-link__icon">🏛️</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Who We Are</span>
+                <span class="dropdown-link__desc">Our Story, Vision, and Mission in Nigeria's public service</span>
+              </div>
+            </a>
+            <a href="objectives.html" class="dropdown-link">
+              <div class="dropdown-link__icon">🎯</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Core Objectives</span>
+                <span class="dropdown-link__desc">The 5 strategic priorities driving our nationwide impact</span>
+              </div>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="governance.html" class="dropdown-link">
+              <div class="dropdown-link__icon">👥</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Governance</span>
+                <span class="dropdown-link__desc">Patrons, Matrons, National Executive Council & Chapters</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Membership Dropdown -->
+        <div class="navbar__dropdown">
+          <button class="navbar__dropdown-toggle active" aria-expanded="false" aria-haspopup="true">
+            Membership
+            <svg class="navbar__dropdown-chevron" viewBox="0 0 20 20">
+              <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+            </svg>
+          </button>
+          <div class="navbar__dropdown-menu">
+            <a href="membership.html#eligibility" class="dropdown-link">
+              <div class="dropdown-link__icon">📋</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Eligibility Criteria</span>
+                <span class="dropdown-link__desc">Ages 18–35, serving civil servants & MDA verification</span>
+              </div>
+            </a>
+            <a href="membership.html#classes" class="dropdown-link">
+              <div class="dropdown-link__icon">🎖️</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Classes of Membership</span>
+                <span class="dropdown-link__desc">Full Member, Associate/Alumni Member, Honorary Member</span>
+              </div>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="membership.html#register" class="dropdown-link">
+              <div class="dropdown-link__icon">✍️</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Registration Form</span>
+                <span class="dropdown-link__desc">Complete your national membership application</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Projects Dropdown -->
+        <div class="navbar__dropdown">
+          <button class="navbar__dropdown-toggle" aria-expanded="false" aria-haspopup="true">
+            Projects
+            <svg class="navbar__dropdown-chevron" viewBox="0 0 20 20">
+              <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+            </svg>
+          </button>
+          <div class="navbar__dropdown-menu navbar__dropdown-menu--wide">
+            <a href="projects.html#track-a" class="dropdown-link">
+              <div class="dropdown-link__icon">🌐</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Track A – By Sector (Thematic)</span>
+                <span class="dropdown-link__desc">7 National Sectors running across multiple states simultaneously</span>
+              </div>
+            </a>
+            <a href="projects.html#track-b" class="dropdown-link">
+              <div class="dropdown-link__icon">📍</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Track B – By State (Locally Scoped)</span>
+                <span class="dropdown-link__desc">Grassroots projects owned by 36 State Chapters plus FCT</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Resources Dropdown -->
+        <div class="navbar__dropdown">
+          <button class="navbar__dropdown-toggle" aria-expanded="false" aria-haspopup="true">
+            Resources
+            <svg class="navbar__dropdown-chevron" viewBox="0 0 20 20">
+              <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+            </svg>
+          </button>
+          <div class="navbar__dropdown-menu">
+            <a href="resources.html#news" class="dropdown-link">
+              <div class="dropdown-link__icon">📰</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">News</span>
+                <span class="dropdown-link__desc">Latest public sector updates and Forum releases</span>
+              </div>
+            </a>
+            <a href="resources.html#media" class="dropdown-link">
+              <div class="dropdown-link__icon">📸</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">Media</span>
+                <span class="dropdown-link__desc">Photo galleries, event recordings, and briefings</span>
+              </div>
+            </a>
+            <a href="resources.html#elibrary" class="dropdown-link">
+              <div class="dropdown-link__icon">📚</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">e-Library</span>
+                <span class="dropdown-link__desc">Civil service circulars, whitepapers & research docs</span>
+              </div>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="resources.html#faqs" class="dropdown-link">
+              <div class="dropdown-link__icon">❓</div>
+              <div class="dropdown-link__content">
+                <span class="dropdown-link__title">FAQs</span>
+                <span class="dropdown-link__desc">Frequently asked questions & membership guides</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
         <div class="navbar__cta">
-          <a href="membership.html" class="btn btn--primary btn--sm">Sign In</a>
+          <button class="btn btn--accent btn--sm" data-open-signin>
+            <span>🔐 Sign In</span>
+          </button>
         </div>
       </div>
       <button class="navbar__toggle" id="navToggle" aria-label="Toggle navigation">
@@ -39,211 +172,253 @@
   <!-- Page Hero -->
   <section class="page-hero">
     <div class="container">
-      <div class="page-hero__content">
-        <span class="section-label">Membership</span>
-        <h1>Join ANYCS Today</h1>
-        <p>Become part of Nigeria's most dynamic network of young civil servants. Choose your membership type and register below.</p>
+      <div class="page-hero__content fade-in">
+        <span class="section-label">National Network</span>
+        <h1>Forum Membership</h1>
+        <p>Unifying young civil servants across Federal, State, and Local Government Councils throughout Nigeria.</p>
       </div>
     </div>
   </section>
 
-  <!-- Membership Types -->
-  <section class="section">
+  <!-- a. Eligibility Criteria -->
+  <section class="section" id="eligibility">
     <div class="container">
       <div class="text-center fade-in">
-        <span class="section-label">Choose Your Path</span>
-        <h2>Membership Categories</h2>
-        <p class="subtitle">We offer two membership categories to serve civil servants and allied professionals alike.</p>
+        <span class="section-label">Requirements</span>
+        <h2>Eligibility Criteria</h2>
+        <p class="subtitle">Please review the mandatory statutory qualifications for enrolling in the Forum.</p>
       </div>
-      <div class="grid grid--2" style="margin-top: var(--space-3xl); max-width: 900px; margin-left: auto; margin-right: auto;">
-        <div class="membership-type-card membership-type-card--featured fade-in">
-          <div class="membership-type-card__icon">🏛️</div>
-          <h3>Full Member</h3>
-          <p class="card__text">For active civil servants currently serving in any Nigerian MDA at federal, state, or local government level.</p>
-          <ul>
-            <li>Full voting rights</li>
-            <li>Eligible for executive positions</li>
-            <li>Access to all programs & training</li>
-            <li>Mentorship matching</li>
-            <li>Priority event registration</li>
-            <li>Certificate of membership</li>
-          </ul>
-          <a href="#register" class="btn btn--primary" style="width: 100%; justify-content: center;">Register as Full Member</a>
+
+      <div class="grid grid--3" style="margin-top: var(--space-3xl);">
+        <div class="card card--bordered fade-in" style="border-left-width: 5px;">
+          <div class="card__icon" style="background: var(--color-primary-subtle); color: var(--color-primary);">🎂</div>
+          <h3 class="card__title">1. Age Requirement</h3>
+          <p class="card__text" style="font-size: 1rem; color: var(--color-dark-gray); line-height: 1.8;">
+            Any Nigerian not less than eighteen (18) years and not more than thirty-five (35) years of age as at the date of the registration.
+          </p>
         </div>
-        <div class="membership-type-card fade-in">
-          <div class="membership-type-card__icon" style="background: var(--color-accent-subtle); color: var(--color-accent-dark);">🤝</div>
-          <h3>Associate Member</h3>
-          <p class="card__text">For professionals in allied organizations, NGOs, and public-sector adjacent roles who share our vision.</p>
-          <ul>
-            <li>Observer status at meetings</li>
-            <li>Access to networking events</li>
-            <li>Training program access</li>
-            <li>Newsletter & updates</li>
-            <li>Community forum access</li>
-            <li>Digital membership card</li>
-          </ul>
-          <a href="#register" class="btn btn--outline" style="width: 100%; justify-content: center;">Register as Associate</a>
+
+        <div class="card card--bordered fade-in" style="border-left-width: 5px; border-left-color: var(--color-accent-dark);">
+          <div class="card__icon" style="background: var(--color-accent-subtle); color: var(--color-accent-dark);">🏛️</div>
+          <h3 class="card__title">2. Serving Officer</h3>
+          <p class="card__text" style="font-size: 1rem; color: var(--color-dark-gray); line-height: 1.8;">
+            Is a serving officer in any Ministry, Department or Agency (MDA) of the Federal Government, a State Government or a Local Government Council in Nigeria.
+          </p>
+        </div>
+
+        <div class="card card--bordered fade-in" style="border-left-width: 5px;">
+          <div class="card__icon" style="background: var(--color-primary-subtle); color: var(--color-primary);">📄</div>
+          <h3 class="card__title">3. Official Verification</h3>
+          <p class="card__text" style="font-size: 1rem; color: var(--color-dark-gray); line-height: 1.8;">
+            Holds a valid letter of employment, appointment or an official Staff identification document from their MDA.
+          </p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Registration Form -->
-  <section class="section section--gray" id="register">
+  <!-- b. Classes of Membership -->
+  <section class="section section--gray" id="classes">
     <div class="container">
       <div class="text-center fade-in">
-        <span class="section-label">Registration</span>
-        <h2>Create Your Account</h2>
-        <p class="subtitle">Fill in the form below to begin your membership application. All fields marked with * are required.</p>
+        <span class="section-label">Categories</span>
+        <h2>Classes of Membership</h2>
+        <p class="subtitle">Structured recognition for serving public officers, alumni, and distinguished supporters.</p>
       </div>
 
-      <div style="max-width: 720px; margin: var(--space-3xl) auto 0;">
-        <!-- Tabs -->
-        <div class="tabs fade-in">
-          <button class="tab active" data-tab="fullMemberForm">Full Member</button>
-          <button class="tab" data-tab="associateMemberForm">Associate Member</button>
+      <div class="grid grid--3" style="margin-top: var(--space-3xl);">
+        <!-- Full Member -->
+        <div class="card fade-in" style="background: var(--color-white); border-top: 5px solid var(--color-primary); box-shadow: var(--shadow-md);">
+          <span style="font-size: var(--fs-xs); font-weight: 800; color: var(--color-primary); text-transform: uppercase; letter-spacing: 2px;">Core Tier</span>
+          <h3 style="font-size: var(--fs-xl); color: var(--color-primary); margin: 6px 0 var(--space-sm);">Full Member</h3>
+          <p style="font-size: var(--fs-sm); color: var(--color-dark-gray); line-height: 1.8;">
+            A serving civil servant aged 18–35 who has met all eligibility requirements.
+          </p>
+          <div style="background: var(--color-bg-page); padding: var(--space-md); border-radius: var(--radius-md); margin: var(--space-md) 0 var(--space-lg); border: 1px solid rgba(15, 69, 48, 0.08);">
+            <div style="font-size: var(--fs-xs); font-weight: 700; color: var(--color-primary); margin-bottom: 6px;">Privileges:</div>
+            <ul style="font-size: var(--fs-sm); color: var(--color-dark-gray); display: flex; flex-direction: column; gap: 6px;">
+              <li>✓ Full voting rights in NEC & State elections</li>
+              <li>✓ Eligibility to hold national & state offices</li>
+              <li>✓ Priority access to certified capacity building</li>
+              <li>✓ Direct deployment on Track A national sector teams</li>
+            </ul>
+          </div>
+          <a href="#register" class="btn btn--primary" style="width: 100%; justify-content: center;">Apply as Full Member</a>
         </div>
 
-        <!-- Full Member Form -->
-        <div class="tab-content active" id="fullMemberForm">
-          <form id="membershipForm" class="fade-in" novalidate>
-            <input type="hidden" name="memberType" value="full">
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="fullFirstName">First Name *</label>
-                <input class="form-input" type="text" id="fullFirstName" name="firstName" placeholder="Enter your first name" required>
-                <div class="form-error">Please enter your first name</div>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="fullLastName">Last Name *</label>
-                <input class="form-input" type="text" id="fullLastName" name="lastName" placeholder="Enter your last name" required>
-                <div class="form-error">Please enter your last name</div>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="fullPhone">Phone Number *</label>
-                <input class="form-input" type="tel" id="fullPhone" name="phone" placeholder="+234 800 000 0000" required>
-                <div class="form-error">Please enter a valid phone number</div>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="fullEmail">Email Address *</label>
-                <input class="form-input" type="email" id="fullEmail" name="email" placeholder="you@example.com" required>
-                <div class="form-error">Please enter a valid email address</div>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="fullDob">Date of Birth *</label>
-                <input class="form-input" type="date" id="fullDob" name="dob" required>
-                <div class="form-error">Please select your date of birth</div>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="fullState">State of Origin *</label>
-                <select class="form-input state-select" id="fullState" name="stateOfOrigin" required>
-                  <option value="">Select your state</option>
-                </select>
-                <div class="form-error">Please select your state</div>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="fullMda">MDA (Ministry/Department/Agency) *</label>
-                <input class="form-input" type="text" id="fullMda" name="mda" placeholder="e.g. Federal Ministry of Finance" required>
-                <div class="form-error">Please enter your MDA</div>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="fullStaffId">Staff ID *</label>
-                <input class="form-input" type="text" id="fullStaffId" name="staffId" placeholder="Enter your staff ID number" required>
-                <div class="form-error">Please enter your Staff ID</div>
-              </div>
-            </div>
-
-            <div style="margin-top: var(--space-xl);">
-              <button type="submit" class="btn btn--primary btn--lg" style="width: 100%; justify-content: center;">Submit Registration →</button>
-            </div>
-          </form>
+        <!-- Associate/ Alumni Member -->
+        <div class="card fade-in" style="background: var(--color-white); border-top: 5px solid var(--color-accent); box-shadow: var(--shadow-md);">
+          <span style="font-size: var(--fs-xs); font-weight: 800; color: var(--color-accent-dark); text-transform: uppercase; letter-spacing: 2px;">Alumni & Advisory</span>
+          <h3 style="font-size: var(--fs-xl); color: var(--color-primary); margin: 6px 0 var(--space-sm);">Associate/ Alumni Member</h3>
+          <p style="font-size: var(--fs-sm); color: var(--color-dark-gray); line-height: 1.8;">
+            A former full member who has exited on account of age or has left the Civil Service in good standing.
+          </p>
+          <div style="background: var(--color-bg-page); padding: var(--space-md); border-radius: var(--radius-md); margin: var(--space-md) 0 var(--space-lg); border: 1px solid rgba(15, 69, 48, 0.08);">
+            <div style="font-size: var(--fs-xs); font-weight: 700; color: var(--color-primary); margin-bottom: 6px;">Privileges:</div>
+            <ul style="font-size: var(--fs-sm); color: var(--color-dark-gray); display: flex; flex-direction: column; gap: 6px;">
+              <li>✓ Advisory role on State Working Committees</li>
+              <li>✓ Faculty access for mentoring young civil servants</li>
+              <li>✓ Permanent alumni network access</li>
+              <li>✓ National summit observer credentials</li>
+            </ul>
+          </div>
+          <a href="#register" class="btn btn--outline" style="width: 100%; justify-content: center;">Register as Associate/Alumni</a>
         </div>
 
-        <!-- Associate Member Form -->
-        <div class="tab-content" id="associateMemberForm">
-          <form id="membershipForm2" class="fade-in" novalidate>
-            <input type="hidden" name="memberType" value="associate">
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="assocFirstName">First Name *</label>
-                <input class="form-input" type="text" id="assocFirstName" name="firstName" placeholder="Enter your first name" required>
-                <div class="form-error">Please enter your first name</div>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="assocLastName">Last Name *</label>
-                <input class="form-input" type="text" id="assocLastName" name="lastName" placeholder="Enter your last name" required>
-                <div class="form-error">Please enter your last name</div>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="assocPhone">Phone Number *</label>
-                <input class="form-input" type="tel" id="assocPhone" name="phone" placeholder="+234 800 000 0000" required>
-                <div class="form-error">Please enter a valid phone number</div>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="assocEmail">Email Address *</label>
-                <input class="form-input" type="email" id="assocEmail" name="email" placeholder="you@example.com" required>
-                <div class="form-error">Please enter a valid email address</div>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="assocDob">Date of Birth *</label>
-                <input class="form-input" type="date" id="assocDob" name="dob" required>
-                <div class="form-error">Please select your date of birth</div>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="assocState">State of Origin *</label>
-                <select class="form-input state-select" id="assocState" name="stateOfOrigin" required>
-                  <option value="">Select your state</option>
-                </select>
-                <div class="form-error">Please select your state</div>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="assocOrg">Organization *</label>
-                <input class="form-input" type="text" id="assocOrg" name="organization" placeholder="e.g. Red Cross Nigeria" required>
-                <div class="form-error">Please enter your organization</div>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="assocBodyId">Body ID *</label>
-                <input class="form-input" type="text" id="assocBodyId" name="bodyId" placeholder="Enter your body ID number" required>
-                <div class="form-error">Please enter your Body ID</div>
-              </div>
-            </div>
-
-            <div style="margin-top: var(--space-xl);">
-              <button type="submit" class="btn btn--primary btn--lg" style="width: 100%; justify-content: center;">Submit Registration →</button>
-            </div>
-          </form>
+        <!-- Honorary Member -->
+        <div class="card fade-in" style="background: var(--color-white); border-top: 5px solid var(--color-primary-dark); box-shadow: var(--shadow-md);">
+          <span style="font-size: var(--fs-xs); font-weight: 800; color: var(--color-primary-dark); text-transform: uppercase; letter-spacing: 2px;">Conferred by NEC</span>
+          <h3 style="font-size: var(--fs-xl); color: var(--color-primary); margin: 6px 0 var(--space-sm);">Honorary Member</h3>
+          <p style="font-size: var(--fs-sm); color: var(--color-dark-gray); line-height: 1.8;">
+            A distinguished individual conferred with membership by the National Executive Council in recognition of support to the Forum’s objectives.
+          </p>
+          <div style="background: var(--color-bg-page); padding: var(--space-md); border-radius: var(--radius-md); margin: var(--space-md) 0 var(--space-lg); border: 1px solid rgba(15, 69, 48, 0.08);">
+            <div style="font-size: var(--fs-xs); font-weight: 700; color: var(--color-primary); margin-bottom: 6px;">Privileges:</div>
+            <ul style="font-size: var(--fs-sm); color: var(--color-dark-gray); display: flex; flex-direction: column; gap: 6px;">
+              <li>✓ Strategic council and institutional patronage</li>
+              <li>✓ Permanent honorific recognition</li>
+              <li>✓ Keynote addresses at national conventions</li>
+            </ul>
+          </div>
+          <a href="governance.html" class="btn btn--outline" style="width: 100%; justify-content: center;">Learn More</a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Benefits CTA -->
-  <section class="section section--sm">
+  <!-- c. Registration Form -->
+  <section class="section" id="register">
     <div class="container">
-      <div class="cta-banner fade-in">
-        <h2>Still Have Questions?</h2>
-        <p>Reach out to us and we'll help you understand how membership can benefit your career in civil service.</p>
-        <a href="contact.html" class="btn btn--white btn--lg">Contact Us →</a>
+      <div class="text-center fade-in">
+        <span class="section-label">Online Enrollment</span>
+        <h2>Registration Form</h2>
+        <p class="subtitle">Complete your membership application with your public service credentials.</p>
+      </div>
+
+      <div class="form-card-container fade-in">
+        <form id="membershipForm" novalidate>
+          <div style="margin-bottom: var(--space-2xl); border-bottom: 1px solid var(--color-light-gray); padding-bottom: var(--space-md);">
+            <h3 style="font-size: var(--fs-lg); color: var(--color-primary); margin-bottom: 4px;">1. Select Membership Category</h3>
+            <p style="font-size: var(--fs-sm); color: var(--color-gray); margin-bottom: var(--space-md);">Choose the class that corresponds to your civil service status:</p>
+            <div style="display: flex; gap: var(--space-md); flex-wrap: wrap;">
+              <label style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--color-dark); cursor: pointer;">
+                <input type="radio" name="memberType" id="memberType" value="full" checked style="accent-color: var(--color-primary);"> Full Member (Serving, 18–35 yrs)
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--color-dark); cursor: pointer;">
+                <input type="radio" name="memberType" value="associate" style="accent-color: var(--color-primary);"> Associate / Alumni Member
+              </label>
+            </div>
+          </div>
+
+          <div style="margin-bottom: var(--space-2xl); border-bottom: 1px solid var(--color-light-gray); padding-bottom: var(--space-md);">
+            <h3 style="font-size: var(--fs-lg); color: var(--color-primary); margin-bottom: var(--space-md);">2. Personal Details</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="firstName">First Name *</label>
+                <input type="text" id="firstName" class="form-input" placeholder="e.g. Amina" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="lastName">Last Name *</label>
+                <input type="text" id="lastName" class="form-input" placeholder="e.g. Ibrahim" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="dob">Date of Birth * (Must be 18–35 for Full Member)</label>
+                <input type="date" id="dob" class="form-input" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="gender">Gender *</label>
+                <select id="gender" class="form-input" required>
+                  <option value="">Select gender</option>
+                  <option value="female">Female</option>
+                  <option value="male">Male</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="phone">Phone Number *</label>
+                <input type="tel" id="phone" class="form-input" placeholder="+234 800 000 0000" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="email">Official / Personal Email Address *</label>
+                <input type="email" id="email" class="form-input" placeholder="amina@mda.gov.ng" required>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-bottom: var(--space-2xl); border-bottom: 1px solid var(--color-light-gray); padding-bottom: var(--space-md);">
+            <h3 style="font-size: var(--fs-lg); color: var(--color-primary); margin-bottom: var(--space-md);">3. Public Service Verification</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="tierOfGovernment">Tier of Public Service *</label>
+                <select id="tierOfGovernment" class="form-input" required>
+                  <option value="">Select tier</option>
+                  <option value="federal">Federal Government MDA</option>
+                  <option value="state">State Government MDA</option>
+                  <option value="lga">Local Government Council</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="mdaName">Ministry, Department, or Agency (MDA) *</label>
+                <input type="text" id="mdaName" class="form-input" placeholder="e.g. Federal Ministry of Health, Abuja" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="stateChapter">State Chapter *</label>
+                <select id="stateChapter" class="form-input state-select" required>
+                  <option value="">Select State Chapter</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="staffId">Staff Identification Number / File No. *</label>
+                <input type="text" id="staffId" class="form-input" placeholder="Official MDA Staff ID No." required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="docType">Verification Document Type *</label>
+              <select id="docType" class="form-input" required>
+                <option value="">Select document type presented</option>
+                <option value="appointment_letter">Valid Letter of Employment / Appointment</option>
+                <option value="staff_id_card">Official Staff Identification Card</option>
+                <option value="gazette">Official Civil Service Gazette Notice</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-bottom: var(--space-2xl);">
+            <h3 style="font-size: var(--fs-lg); color: var(--color-primary); margin-bottom: var(--space-md);">4. Portal Security</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="password">Create Password *</label>
+                <input type="password" id="password" class="form-input" placeholder="Minimum 8 characters" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="confirmPassword">Confirm Password *</label>
+                <input type="password" id="confirmPassword" class="form-input" placeholder="Re-enter password" required>
+              </div>
+            </div>
+
+            <div style="background: var(--color-bg-page); padding: var(--space-md); border-radius: var(--radius-md); border: 1px solid rgba(15, 69, 48, 0.1);">
+              <label style="display: flex; align-items: flex-start; gap: 10px; font-size: var(--fs-sm); color: var(--color-dark-gray); cursor: pointer;">
+                <input type="checkbox" required style="accent-color: var(--color-primary); margin-top: 3px;">
+                <span>
+                  I confirm that I meet the age and serving civil servant criteria, and that all information provided is accurate and verifiable by my MDA.
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn--primary btn--lg" style="width: 100%; justify-content: center;">
+            Submit Membership Application →
+          </button>
+        </form>
       </div>
     </div>
   </section>
@@ -253,34 +428,37 @@
     <div class="container">
       <div class="footer__grid">
         <div class="footer__brand">
-          <a href="index.html" class="navbar__logo" style="margin-bottom: var(--space-sm);">
-            <div class="navbar__logo-icon">A</div>
-            ANYCS
+          <a href="index.html" class="footer__logo-link" style="display: inline-block; margin-bottom: var(--space-md);" aria-label="NCSYF Home">
+            <img src="images/logo.png" alt="NCSYF — Nigeria Civil Service Youths' Forum" class="footer__logo-img">
           </a>
-          <p>The Association of Nigerian Youths in Civil Service — empowering young civil servants through capacity building, mentorship, networking, and innovation.</p>
+          <p>
+            <strong>Nigeria Civil Service Youths' Forum (NCSYF)</strong> — promoting excellence, innovation, integrity and transformative leadership across the Federal, States and Local Government Councils Public Service of Nigeria.
+          </p>
         </div>
         <div>
-          <div class="footer__heading">Quick Links</div>
-          <a href="about.html" class="footer__link">About Us</a>
-          <a href="objectives.html" class="footer__link">Objectives</a>
-          <a href="membership.html" class="footer__link">Membership</a>
-          <a href="governance.html" class="footer__link">Governance</a>
+          <div class="footer__heading">About Us</div>
+          <a href="about.html#who-we-are" class="footer__link">Our Story</a>
+          <a href="about.html#vision-mission" class="footer__link">Vision & Mission</a>
+          <a href="objectives.html" class="footer__link">Core Objectives</a>
+          <a href="governance.html" class="footer__link">Governance Structure</a>
         </div>
         <div>
-          <div class="footer__heading">Resources</div>
-          <a href="chapters.html" class="footer__link">Chapters</a>
-          <a href="finance.html" class="footer__link">Finance</a>
-          <a href="contact.html" class="footer__link">Contact</a>
+          <div class="footer__heading">Membership</div>
+          <a href="membership.html#eligibility" class="footer__link">Eligibility Criteria</a>
+          <a href="membership.html#classes" class="footer__link">Classes of Membership</a>
+          <a href="membership.html#register" class="footer__link">Registration Form</a>
+          <a href="projects.html" class="footer__link">Projects Framework</a>
         </div>
         <div>
-          <div class="footer__heading">Contact</div>
-          <a href="mailto:info@anycs.org.ng" class="footer__link">info@anycs.org.ng</a>
-          <a href="tel:+2348000000000" class="footer__link">+234 800 000 0000</a>
-          <a href="#" class="footer__link">Abuja, Nigeria</a>
+          <div class="footer__heading">Portal Access</div>
+          <button class="btn btn--primary btn--sm" data-open-signin style="margin-bottom: var(--space-md); width: 100%; justify-content: center;">
+            Sign In with Membership ID
+          </button>
+          <a href="contact.html" class="footer__link">Contact Secretariat</a>
         </div>
       </div>
       <div class="footer__bottom">
-        <span>© 2026 ANYCS. All rights reserved.</span>
+        <span>© 2026 Nigeria Civil Service Youths' Forum (NCSYF). All rights reserved.</span>
         <div class="footer__socials">
           <a href="#" class="footer__social" aria-label="Facebook">f</a>
           <a href="#" class="footer__social" aria-label="Twitter">𝕏</a>
@@ -291,30 +469,60 @@
     </div>
   </footer>
 
+  <!-- Sign In Modal -->
+  <div class="modal-overlay" id="signInModal" role="dialog" aria-modal="true">
+    <div class="modal-dialog">
+      <button class="modal-close-btn" aria-label="Close dialog">✕</button>
+      <div id="authMainSection">
+        <div class="modal-brand">
+          <img src="images/logo.png" alt="NCSYF Logo" class="modal-brand__logo">
+          <h3>Member Portal</h3>
+          <p>Sign in to access your member dashboard and chapter initiatives</p>
+        </div>
+        <form id="modalAuthForm">
+          <div class="form-group">
+            <label class="form-label" for="modalMemberId">Membership ID *</label>
+            <input type="text" id="modalMemberId" class="form-input" placeholder="e.g. ANYCS-2026-0842 or Staff ID" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="modalPassword">Password *</label>
+            <div class="password-wrapper">
+              <input type="password" id="modalPassword" class="form-input" placeholder="Enter password" required>
+              <button type="button" class="password-toggle-btn">👁️</button>
+            </div>
+          </div>
+          <div class="form-extras">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--color-dark-gray);">
+              <input type="checkbox" style="accent-color: var(--color-primary);"> Remember me
+            </label>
+            <a href="#" class="forgot-link" id="forgotPasswordLink">Forget Password?</a>
+          </div>
+          <button type="submit" class="btn btn--primary" style="width: 100%; justify-content: center;">Sign In to Portal</button>
+          <p style="text-align: center; margin-top: var(--space-lg); font-size: var(--fs-sm); color: var(--color-gray);">
+            Not registered yet? <a href="membership.html#register" style="color: var(--color-primary); font-weight: 700;">Apply for Membership</a>
+          </p>
+        </form>
+      </div>
+      <div id="forgotPasswordSection" style="display: none;">
+        <div class="modal-brand">
+          <div class="logo-icon">🔑</div>
+          <h3>Reset Password</h3>
+          <p>Enter your details to recover your account</p>
+        </div>
+        <form id="forgotPasswordForm">
+          <div class="form-group">
+            <label class="form-label" for="resetEmail">Registered Email or Membership ID *</label>
+            <input type="text" id="resetEmail" class="form-input" placeholder="name@mda.gov.ng" required>
+          </div>
+          <button type="submit" class="btn btn--primary" style="width: 100%; justify-content: center;">Send Recovery Instructions</button>
+          <div style="text-align: center; margin-top: var(--space-lg);">
+            <button type="button" id="backToSignInBtn" style="background: none; border: none; color: var(--color-primary); font-weight: 700; cursor: pointer;">← Back to Sign In</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script src="js/main.js"></script>
-  <script>
-    // Associate form also needs submit handler
-    const assocForm = document.getElementById('membershipForm2');
-    if (assocForm) {
-      assocForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const form = e.target;
-        form.querySelectorAll('.form-input, .form-select').forEach(input => input.classList.remove('error'));
-        let isValid = true;
-        form.querySelectorAll('[required]').forEach(input => {
-          if (!input.value.trim()) { input.classList.add('error'); isValid = false; }
-        });
-        const emailField = form.querySelector('input[type="email"]');
-        if (emailField && emailField.value.trim()) {
-          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailField.value.trim())) {
-            emailField.classList.add('error'); isValid = false;
-          }
-        }
-        if (!isValid) { showToast('Please fill in all required fields correctly.', 'error'); return; }
-        showToast('🎉 Registration submitted successfully! We will review your application and get back to you.', 'success');
-        form.reset();
-      });
-    }
-  </script>
 </body>
 </html>
