@@ -3183,6 +3183,36 @@ p {
   flex-wrap: wrap;
 }
 
+/* Membership Category Selection Cards */
+.membership-category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-md);
+  margin-top: var(--space-sm);
+}
+
+.category-select-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: var(--space-md);
+  border: 1px solid rgba(15, 69, 48, 0.15);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-page);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.category-select-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.category-select-card.active {
+  border: 2px solid var(--color-primary);
+  background: rgba(15, 69, 48, 0.04);
+}
+
 /* Consent Section */
 .consent-section {
   background: #FFFFFF;

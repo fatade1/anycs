@@ -243,7 +243,7 @@
               <li>✓ Direct deployment on Track A national sector teams</li>
             </ul>
           </div>
-          <a href="#register" class="btn btn--primary" style="width: 100%; justify-content: center;">Apply as Full Member</a>
+          <a href="#register" data-select-category="full" class="btn btn--primary" style="width: 100%; justify-content: center;">Apply as Full Member</a>
         </div>
 
         <!-- Associate/ Alumni Member -->
@@ -262,7 +262,7 @@
               <li>✓ National summit observer credentials</li>
             </ul>
           </div>
-          <a href="#register" class="btn btn--outline" style="width: 100%; justify-content: center;">Register as Associate/Alumni</a>
+          <a href="#register" data-select-category="associate" class="btn btn--outline" style="width: 100%; justify-content: center;">Register as Associate/Alumni</a>
         </div>
 
         <!-- Honorary Member -->
@@ -300,100 +300,133 @@
           <div style="margin-bottom: var(--space-2xl); border-bottom: 1px solid var(--color-light-gray); padding-bottom: var(--space-md);">
             <h3 style="font-size: var(--fs-lg); color: var(--color-primary); margin-bottom: 4px;">1. Select Membership Category</h3>
             <p style="font-size: var(--fs-sm); color: var(--color-gray); margin-bottom: var(--space-md);">Choose the class that corresponds to your civil service status:</p>
-            <div style="display: flex; gap: var(--space-md); flex-wrap: wrap;">
-              <label style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--color-dark); cursor: pointer;">
-                <input type="radio" name="memberType" id="memberType" value="full" checked style="accent-color: var(--color-primary);"> Full Member (Serving, 18–35 yrs)
+            <div class="membership-category-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--space-md);">
+              <label class="category-select-card" id="cardMemberFull" style="display: flex; align-items: flex-start; gap: 12px; padding: var(--space-md); border: 2px solid var(--color-primary); border-radius: var(--radius-md); background: rgba(15, 69, 48, 0.04); cursor: pointer; transition: all var(--transition-fast);">
+                <input type="radio" name="memberType" id="memberTypeFull" value="full" checked style="accent-color: var(--color-primary); margin-top: 3px;">
+                <div>
+                  <strong style="color: var(--color-primary); font-size: 0.95rem; display: block;">Full Member (Serving, 18–35 yrs)</strong>
+                  <span style="font-size: var(--fs-xs); color: var(--color-gray); display: block; margin-top: 2px;">Standard enrollment for active young civil servants with full MDA credentials</span>
+                </div>
               </label>
-              <label style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--color-dark); cursor: pointer;">
-                <input type="radio" name="memberType" value="associate" style="accent-color: var(--color-primary);"> Associate / Alumni Member
+              <label class="category-select-card" id="cardMemberAssociate" style="display: flex; align-items: flex-start; gap: 12px; padding: var(--space-md); border: 1px solid rgba(15, 69, 48, 0.15); border-radius: var(--radius-md); background: var(--color-bg-page); cursor: pointer; transition: all var(--transition-fast);">
+                <input type="radio" name="memberType" id="memberTypeAssociate" value="associate" style="accent-color: var(--color-primary); margin-top: 3px;">
+                <div>
+                  <strong style="color: var(--color-primary); font-size: 0.95rem; display: block;">Associate Member (After 35 yrs / Alumni)</strong>
+                  <span style="font-size: var(--fs-xs); color: var(--color-gray); display: block; margin-top: 2px;">Streamlined enrollment with Membership ID &amp; portal login access</span>
+                </div>
               </label>
             </div>
           </div>
 
-          <div style="margin-bottom: var(--space-2xl); border-bottom: 1px solid var(--color-light-gray); padding-bottom: var(--space-md);">
-            <h3 style="font-size: var(--fs-lg); color: var(--color-primary); margin-bottom: var(--space-md);">2. Personal Details</h3>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="firstName">First Name *</label>
-                <input type="text" id="firstName" class="form-input" placeholder="e.g. Amina" required>
+          <!-- FULL MEMBER DETAILS (Sections 2 & 3) -->
+          <div id="fullMemberFields">
+            <div style="margin-bottom: var(--space-2xl); border-bottom: 1px solid var(--color-light-gray); padding-bottom: var(--space-md);">
+              <h3 style="font-size: var(--fs-lg); color: var(--color-primary); margin-bottom: var(--space-md);">2. Personal Details</h3>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="firstName">First Name *</label>
+                  <input type="text" id="firstName" class="form-input" placeholder="e.g. Amina" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="lastName">Last Name *</label>
+                  <input type="text" id="lastName" class="form-input" placeholder="e.g. Ibrahim" required>
+                </div>
               </div>
-              <div class="form-group">
-                <label class="form-label" for="lastName">Last Name *</label>
-                <input type="text" id="lastName" class="form-input" placeholder="e.g. Ibrahim" required>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="dob">Date of Birth * (Must be 18–35 for Full Member)</label>
+                  <input type="date" id="dob" class="form-input" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="gender">Gender *</label>
+                  <select id="gender" class="form-input" required>
+                    <option value="">Select gender</option>
+                    <option value="female">Female</option>
+                    <option value="male">Male</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="phone">Phone Number *</label>
+                  <input type="tel" id="phone" class="form-input" placeholder="+234 800 000 0000" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="email">Official / Personal Email Address *</label>
+                  <input type="email" id="email" class="form-input" placeholder="amina@mda.gov.ng" required>
+                </div>
               </div>
             </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="dob">Date of Birth * (Must be 18–35 for Full Member)</label>
-                <input type="date" id="dob" class="form-input" required>
+            <div style="margin-bottom: var(--space-2xl); border-bottom: 1px solid var(--color-light-gray); padding-bottom: var(--space-md);">
+              <h3 style="font-size: var(--fs-lg); color: var(--color-primary); margin-bottom: var(--space-md);">3. Public Service Verification</h3>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="tierOfGovernment">Tier of Public Service *</label>
+                  <select id="tierOfGovernment" class="form-input" required>
+                    <option value="">Select tier</option>
+                    <option value="federal">Federal Government MDA</option>
+                    <option value="state">State Government MDA</option>
+                    <option value="lga">Local Government Council</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="mdaName">Ministry, Department, or Agency (MDA) *</label>
+                  <input type="text" id="mdaName" class="form-input" placeholder="e.g. Federal Ministry of Health, Abuja" required>
+                </div>
               </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="stateChapter">State Chapter *</label>
+                  <select id="stateChapter" class="form-input state-select" required>
+                    <option value="">Select State Chapter</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="staffId">Staff Identification Number / File No. *</label>
+                  <input type="text" id="staffId" class="form-input" placeholder="Official MDA Staff ID No." required>
+                </div>
+              </div>
+
               <div class="form-group">
-                <label class="form-label" for="gender">Gender *</label>
-                <select id="gender" class="form-input" required>
-                  <option value="">Select gender</option>
-                  <option value="female">Female</option>
-                  <option value="male">Male</option>
+                <label class="form-label" for="docType">Verification Document Type *</label>
+                <select id="docType" class="form-input" required>
+                  <option value="">Select document type presented</option>
+                  <option value="appointment_letter">Valid Letter of Employment / Appointment</option>
+                  <option value="staff_id_card">Official Staff Identification Card</option>
+                  <option value="gazette">Official Civil Service Gazette Notice</option>
                 </select>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="phone">Phone Number *</label>
-                <input type="tel" id="phone" class="form-input" placeholder="+234 800 000 0000" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="email">Official / Personal Email Address *</label>
-                <input type="email" id="email" class="form-input" placeholder="amina@mda.gov.ng" required>
               </div>
             </div>
           </div>
 
-          <div style="margin-bottom: var(--space-2xl); border-bottom: 1px solid var(--color-light-gray); padding-bottom: var(--space-md);">
-            <h3 style="font-size: var(--fs-lg); color: var(--color-primary); margin-bottom: var(--space-md);">3. Public Service Verification</h3>
-            <div class="form-row">
+          <!-- ASSOCIATE MEMBER DETAILS (Streamlined for after 35 years) -->
+          <div id="associateMemberFields" style="display: none;">
+            <div style="margin-bottom: var(--space-2xl); border-bottom: 1px solid var(--color-light-gray); padding-bottom: var(--space-md);">
+              <h3 style="font-size: var(--fs-lg); color: var(--color-primary); margin-bottom: 4px;">2. Associate / Alumni Verification</h3>
+              <p style="font-size: var(--fs-sm); color: var(--color-gray); margin-bottom: var(--space-md);">
+                This category is reserved for civil service members after 35 years of age or distinguished alumni. Enter your Membership ID or previous Staff ID:
+              </p>
               <div class="form-group">
-                <label class="form-label" for="tierOfGovernment">Tier of Public Service *</label>
-                <select id="tierOfGovernment" class="form-input" required>
-                  <option value="">Select tier</option>
-                  <option value="federal">Federal Government MDA</option>
-                  <option value="state">State Government MDA</option>
-                  <option value="lga">Local Government Council</option>
-                </select>
+                <label class="form-label" for="associateMemberId">Membership ID *</label>
+                <input type="text" id="associateMemberId" class="form-input" placeholder="e.g. ANYCS-2022-0842 or Staff ID" disabled>
+                <span style="font-size: var(--fs-xs); color: var(--color-gray); margin-top: 4px; display: block;">
+                  Enter your assigned ANYCS Membership ID or your previous civil service staff/file ID number.
+                </span>
               </div>
-              <div class="form-group">
-                <label class="form-label" for="mdaName">Ministry, Department, or Agency (MDA) *</label>
-                <input type="text" id="mdaName" class="form-input" placeholder="e.g. Federal Ministry of Health, Abuja" required>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="stateChapter">State Chapter *</label>
-                <select id="stateChapter" class="form-input state-select" required>
-                  <option value="">Select State Chapter</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="staffId">Staff Identification Number / File No. *</label>
-                <input type="text" id="staffId" class="form-input" placeholder="Official MDA Staff ID No." required>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="docType">Verification Document Type *</label>
-              <select id="docType" class="form-input" required>
-                <option value="">Select document type presented</option>
-                <option value="appointment_letter">Valid Letter of Employment / Appointment</option>
-                <option value="staff_id_card">Official Staff Identification Card</option>
-                <option value="gazette">Official Civil Service Gazette Notice</option>
-              </select>
             </div>
           </div>
 
           <div style="margin-bottom: var(--space-2xl);">
-            <h3 style="font-size: var(--fs-lg); color: var(--color-primary); margin-bottom: var(--space-md);">4. Portal Security</h3>
+            <h3 style="font-size: var(--fs-lg); color: var(--color-primary); margin-bottom: var(--space-md);">
+              <span id="portalSecurityStepNum">4</span>. Portal Security
+            </h3>
+            <p style="font-size: var(--fs-sm); color: var(--color-gray); margin-bottom: var(--space-md);">
+              Create your secure login password to access your member dashboard:
+            </p>
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label" for="password">Create Password *</label>
@@ -461,13 +494,13 @@
 
             <label class="consent-box" for="consentCriteria">
               <input type="checkbox" id="consentCriteria" required>
-              <span>
+              <span id="criteriaCheckboxLabel">
                 I confirm that I meet the age and serving civil servant criteria, and that all information provided is accurate and verifiable by my MDA.
               </span>
             </label>
           </div>
 
-          <button type="submit" class="btn btn--primary btn--lg" style="width: 100%; justify-content: center;">
+          <button type="submit" id="submitRegBtn" class="btn btn--primary btn--lg" style="width: 100%; justify-content: center;">
             Submit Registration
           </button>
         </form>

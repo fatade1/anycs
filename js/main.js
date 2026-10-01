@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initFaqAccordion();
   initProjectFilters();
   initTabs();
+  initCategorySwitch();
   initForms();
   populateStateDropdowns();
 });
@@ -464,6 +465,113 @@ function initForms() {
   });
 }
 
+// ---- Membership Category Dynamic Switcher ----
+function initCategorySwitch() {
+  const memberForm = document.getElementById('membershipForm');
+  if (!memberForm) return;
+
+  const radios = memberForm.querySelectorAll('input[name="memberType"]');
+  const fullFields = document.getElementById('fullMemberFields');
+  const associateFields = document.getElementById('associateMemberFields');
+  const stepNum = document.getElementById('portalSecurityStepNum');
+  const criteriaText = document.getElementById('criteriaCheckboxLabel');
+  const submitBtn = document.getElementById('submitRegBtn');
+  const cardFull = document.getElementById('cardMemberFull');
+  const cardAssociate = document.getElementById('cardMemberAssociate');
+
+  function updateCategory(type) {
+    const isAssociate = type === 'associate';
+
+    if (isAssociate) {
+      if (fullFields) {
+        fullFields.style.display = 'none';
+        fullFields.querySelectorAll('input, select').forEach(el => {
+          el.disabled = true;
+          el.classList.remove('error');
+        });
+      }
+      if (associateFields) {
+        associateFields.style.display = 'block';
+        associateFields.querySelectorAll('input, select').forEach(el => {
+          el.disabled = false;
+        });
+        const assocInput = document.getElementById('associateMemberId');
+        if (assocInput) assocInput.required = true;
+      }
+
+      if (stepNum) stepNum.textContent = '3';
+      if (criteriaText) {
+        criteriaText.textContent = 'I confirm that I am enrolling under the Associate / Alumni Member category (after 35 years of age), and that my provided Membership ID or civil service record is authentic.';
+      }
+      if (submitBtn) submitBtn.textContent = 'Submit Application';
+
+      if (cardFull) {
+        cardFull.style.borderColor = 'rgba(15, 69, 48, 0.15)';
+        cardFull.style.background = 'var(--color-bg-page)';
+      }
+      if (cardAssociate) {
+        cardAssociate.style.borderColor = 'var(--color-primary)';
+        cardAssociate.style.background = 'rgba(15, 69, 48, 0.05)';
+      }
+    } else {
+      if (fullFields) {
+        fullFields.style.display = 'block';
+        fullFields.querySelectorAll('input, select').forEach(el => {
+          el.disabled = false;
+        });
+      }
+      if (associateFields) {
+        associateFields.style.display = 'none';
+        associateFields.querySelectorAll('input, select').forEach(el => {
+          el.disabled = true;
+          el.classList.remove('error');
+        });
+        const assocInput = document.getElementById('associateMemberId');
+        if (assocInput) assocInput.required = false;
+      }
+
+      if (stepNum) stepNum.textContent = '4';
+      if (criteriaText) {
+        criteriaText.textContent = 'I confirm that I meet the age and serving civil servant criteria, and that all information provided is accurate and verifiable by my MDA.';
+      }
+      if (submitBtn) submitBtn.textContent = 'Submit Registration';
+
+      if (cardFull) {
+        cardFull.style.borderColor = 'var(--color-primary)';
+        cardFull.style.background = 'rgba(15, 69, 48, 0.05)';
+      }
+      if (cardAssociate) {
+        cardAssociate.style.borderColor = 'rgba(15, 69, 48, 0.15)';
+        cardAssociate.style.background = 'var(--color-bg-page)';
+      }
+    }
+  }
+
+  radios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      updateCategory(e.target.value);
+    });
+  });
+
+  // Handle external links targeting a specific category (e.g., from classes cards)
+  document.querySelectorAll('[data-select-category]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cat = btn.getAttribute('data-select-category');
+      const targetRadio = memberForm.querySelector(`input[name="memberType"][value="${cat}"]`);
+      if (targetRadio) {
+        targetRadio.checked = true;
+        updateCategory(cat);
+      }
+    });
+  });
+
+  // Initialize on load
+  const checked = memberForm.querySelector('input[name="memberType"]:checked');
+  if (checked) {
+    updateCategory(checked.value);
+  }
+}
+
 function handleMembershipSubmit(e) {
   e.preventDefault();
   const form = e.target;
@@ -476,9 +584,10 @@ function handleMembershipSubmit(e) {
   });
 
   let isValid = true;
+  const memberType = form.querySelector('input[name="memberType"]:checked')?.value || 'full';
 
-  // Validate required inputs
-  form.querySelectorAll('[required]').forEach(input => {
+  // Validate active non-disabled required inputs
+  form.querySelectorAll('[required]:not(:disabled)').forEach(input => {
     if (input.type === 'checkbox') {
       if (!input.checked) {
         const box = input.closest('.consent-box');
@@ -491,41 +600,75 @@ function handleMembershipSubmit(e) {
     }
   });
 
-  // Verify age between 18 and 35 per Forum criteria
-  const dobInput = form.querySelector('input[type="date"]');
-  if (dobInput && dobInput.value) {
-    const dob = new Date(dobInput.value);
-    const today = new Date();
-    let age = today.getFullYear() - dob.getFullYear();
-    const m = today.getMonth() - dob.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
-      age--;
+  // Category specific checks
+  if (memberType === 'full') {
+    // Verify age between 18 and 35 per Forum criteria
+    const dobInput = form.querySelector('input[type="date"]');
+    if (dobInput && dobInput.value) {
+      const dob = new Date(dobInput.value);
+      const today = new Date();
+      let age = today.getFullYear() - dob.getFullYear();
+      const m = today.getMonth() - dob.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+        age--;
+      }
+      if (age < 18 || age > 35) {
+        showToast('⚠️ Full Membership requires serving civil servants aged 18 to 35 years. Please select the Associate Member category if over 35.', 'error');
+        dobInput.classList.add('error');
+        isValid = false;
+      }
     }
-    const memberType = form.querySelector('#memberType') ? form.querySelector('#memberType').value : '';
-    if (memberType === 'full' && (age < 18 || age > 35)) {
-      showToast('⚠️ Full Membership requires serving civil servants aged 18 to 35 years. Consider Associate/Alumni membership.', 'error');
-      dobInput.classList.add('error');
+
+    // Email validation
+    const emailField = form.querySelector('input[type="email"]');
+    if (emailField && emailField.value.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(emailField.value.trim())) {
+        emailField.classList.add('error');
+        isValid = false;
+      }
+    }
+  } else if (memberType === 'associate') {
+    const assocInput = form.querySelector('#associateMemberId');
+    if (assocInput && !assocInput.value.trim()) {
+      assocInput.classList.add('error');
       isValid = false;
     }
   }
 
-  // Email validation
-  const emailField = form.querySelector('input[type="email"]');
-  if (emailField && emailField.value.trim()) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(emailField.value.trim())) {
-      emailField.classList.add('error');
+  // Password confirmation check
+  const pwd = form.querySelector('#password');
+  const confirmPwd = form.querySelector('#confirmPassword');
+  if (pwd && confirmPwd) {
+    if (pwd.value.length < 8) {
+      pwd.classList.add('error');
+      showToast('Password must be at least 8 characters long.', 'error');
+      isValid = false;
+    } else if (pwd.value !== confirmPwd.value) {
+      confirmPwd.classList.add('error');
+      showToast('Passwords do not match. Please re-enter your password.', 'error');
       isValid = false;
     }
   }
 
   if (!isValid) {
-    showToast('Please check the required fields and verify your eligibility criteria.', 'error');
+    showToast('Please check the required fields and verify your credentials.', 'error');
     return;
   }
 
-  showToast('🎉 Application submitted successfully! Your credentials and MDA verification are being reviewed by the Secretariat.', 'success');
+  if (memberType === 'associate') {
+    showToast('🎉 Associate Application submitted! Your Membership ID and portal credentials are being activated for sign in.', 'success');
+  } else {
+    showToast('🎉 Full Membership application submitted successfully! Your credentials and MDA verification are being reviewed by the Secretariat.', 'success');
+  }
   form.reset();
+
+  // Reset to default Full Member state
+  const defaultRadio = form.querySelector('input[name="memberType"][value="full"]');
+  if (defaultRadio) {
+    defaultRadio.checked = true;
+    defaultRadio.dispatchEvent(new Event('change'));
+  }
 }
 
 function handleContactSubmit(e) {
