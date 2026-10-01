@@ -8,7 +8,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
   <link rel="shortcut icon" href="favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
-  <link rel="stylesheet" href="css/styles.css?v=2.3">
+  <link rel="stylesheet" href="css/styles.css?v=2.4">
 </head>
 <body>
 
@@ -409,11 +409,8 @@
 
           <!-- Privacy Notice Document Box -->
           <div class="privacy-doc" id="privacyNoticeDocument">
-            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-xs); margin-bottom: var(--space-xs);">
+            <div style="margin-bottom: var(--space-xs);">
               <span class="privacy-doc__badge">📋 NDPA 2023 Compliance Document</span>
-              <button type="button" class="btn btn--outline btn--sm privacy-modal-trigger" style="font-size: 0.8rem; padding: 6px 14px;">
-                <span>⛶ Open in Popup Modal</span>
-              </button>
             </div>
             <h4 class="privacy-doc__title">Nigeria Civil Service Youths' Forum: Registration</h4>
             <div style="font-size: 1rem; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 4px;">Privacy Notice</div>
@@ -448,13 +445,6 @@
                 <strong>Complaints:</strong> You may lodge a complaint with the Nigeria Data Protection Commission (NDPC) at <a href="https://www.ndpc.gov.ng/" target="_blank" rel="noopener noreferrer">www.ndpc.gov.ng</a>.
               </div>
             </div>
-
-            <div class="privacy-doc__actions">
-              <span style="font-size: var(--fs-xs); color: var(--color-gray);">Scroll to read full document or view in popup modal</span>
-              <button type="button" class="btn btn--outline btn--sm privacy-modal-trigger">
-                <span>View Full Popup Modal ↗</span>
-              </button>
-            </div>
           </div>
 
           <!-- Consent Section -->
@@ -465,7 +455,7 @@
             <label class="consent-box" for="consentPrivacy">
               <input type="checkbox" id="consentPrivacy" required>
               <span>
-                I have read and understood the <a href="#privacyModal" data-open-privacy class="privacy-link">Privacy Notice</a> above, and I consent to the Forum collecting and processing my personal data for the purposes stated.
+                I have read and understood the Privacy Notice above, and I consent to the Forum collecting and processing my personal data for the purposes stated.
               </span>
             </label>
 
@@ -581,54 +571,6 @@
             <button type="button" id="backToSignInBtn" style="background: none; border: none; color: var(--color-primary); font-weight: 700; cursor: pointer;">← Back to Sign In</button>
           </div>
         </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Privacy Notice Popup Modal -->
-  <div class="modal-overlay" id="privacyModal" role="dialog" aria-modal="true" aria-labelledby="privacyModalTitle">
-    <div class="modal-dialog modal-dialog--wide">
-      <button class="modal-close-btn" data-close-privacy aria-label="Close Privacy Notice">✕</button>
-      <div class="modal-brand" style="margin-bottom: var(--space-md); text-align: left;">
-        <span class="privacy-doc__badge">📋 Official Document</span>
-        <h3 id="privacyModalTitle" style="color: var(--color-primary); margin-top: 6px; margin-bottom: 2px;">Nigeria Civil Service Youths' Forum: Registration</h3>
-        <p style="font-size: 1.05rem; font-weight: 700; color: var(--color-dark); margin-bottom: 4px;">Privacy Notice</p>
-        <span style="font-size: var(--fs-xs); color: var(--color-gray); display: block;">Issued pursuant to the Nigeria Data Protection Act (NDPA) 2023</span>
-      </div>
-
-      <div style="background: var(--color-bg-page); border: 1px solid rgba(15, 69, 48, 0.12); border-radius: var(--radius-md); padding: var(--space-lg); font-size: 0.9rem; line-height: 1.8; color: var(--color-dark-gray); margin-bottom: var(--space-lg); max-height: 48vh; overflow-y: auto;">
-        <div class="privacy-clause">
-          <strong>Who we are:</strong> The Nigeria Civil Service Youths' Forum ("the Forum") is the data controller for the personal data collected on this page. Contact: <a href="mailto:secretariat@anycs.org.ng">secretariat@anycs.org.ng</a> | <a href="tel:+2348002692764">+234 (0) 800 26927 64</a>.
-        </div>
-        <div class="privacy-clause">
-          <strong>What we collect:</strong> Your full name, gender, date of birth, email address, phone number, Ministry/Department/Agency (MDA), Tier of Public Service, State Chapter, Staff ID Number and any other details requested on this form.
-        </div>
-        <div class="privacy-clause">
-          <strong>Why we collect it:</strong> To register and verify your participation in the Forum, communicate programme updates, plan and administer events, and prepare anonymised reports and statistics.
-        </div>
-        <div class="privacy-clause">
-          <strong>Legal basis:</strong> Your consent, in line with the Nigeria Data Protection Act (NDPA) 2023.
-        </div>
-        <div class="privacy-clause">
-          <strong>Who sees it:</strong> Only authorised Forum officials and service providers who support our operations, under confidentiality obligations. We do not sell your data. We disclose it to third parties only with your consent or where required by law.
-        </div>
-        <div class="privacy-clause">
-          <strong>How long we keep it:</strong> For the duration of your membership or participation, and no longer than necessary afterwards, unless the law requires otherwise.
-        </div>
-        <div class="privacy-clause">
-          <strong>How we protect it:</strong> We apply appropriate technical and organisational measures to guard against unauthorised access, loss, or misuse.
-        </div>
-        <div class="privacy-clause">
-          <strong>Your rights:</strong> Under the NDPA, you may request access to, correction of, or deletion of your data. You may also object to or restrict its processing, request a copy in a portable format, and withdraw your consent at any time. Withdrawal does not affect processing already carried out. To exercise these rights, contact <a href="mailto:secretariat@anycs.org.ng">secretariat@anycs.org.ng</a>.
-        </div>
-        <div class="privacy-clause">
-          <strong>Complaints:</strong> You may lodge a complaint with the Nigeria Data Protection Commission (NDPC) at <a href="https://www.ndpc.gov.ng/" target="_blank" rel="noopener noreferrer">www.ndpc.gov.ng</a>.
-        </div>
-      </div>
-
-      <div style="display: flex; gap: var(--space-sm); justify-content: flex-end; flex-wrap: wrap;">
-        <button type="button" class="btn btn--outline btn--sm" data-close-privacy>Close</button>
-        <button type="button" class="btn btn--primary btn--sm" id="privacyModalAgreeBtn">I Have Read &amp; Understood (Accept Consent)</button>
       </div>
     </div>
   </div>
