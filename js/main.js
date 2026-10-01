@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initVisualSwitcher();
   initInteractiveNigeriaMap();
   initAuthModal();
+  initPrivacyModal();
   initFaqAccordion();
   initProjectFilters();
   initTabs();
@@ -328,6 +329,55 @@ function initAuthModal() {
   }
 }
 
+// ---- Privacy Notice Modal Controller ----
+function initPrivacyModal() {
+  const modal = document.getElementById('privacyModal');
+  if (!modal) return;
+
+  const openModal = (e) => {
+    if (e) e.preventDefault();
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeModal = (e) => {
+    if (e) e.preventDefault();
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+  };
+
+  document.querySelectorAll('[data-open-privacy], .privacy-modal-trigger').forEach(trigger => {
+    trigger.addEventListener('click', openModal);
+  });
+
+  const closeBtns = modal.querySelectorAll('.modal-close-btn, [data-close-privacy]');
+  closeBtns.forEach(btn => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  const consentAgreeBtn = modal.querySelector('#privacyModalAgreeBtn');
+  if (consentAgreeBtn) {
+    consentAgreeBtn.addEventListener('click', () => {
+      const checkbox = document.getElementById('consentPrivacy');
+      if (checkbox) {
+        checkbox.checked = true;
+      }
+      closeModal();
+      showToast('Privacy Notice acknowledged and consent marked.', 'success');
+    });
+  }
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('open')) {
+      closeModal();
+    }
+  });
+}
+
 // ---- FAQs Accordion ----
 function initFaqAccordion() {
   const faqItems = document.querySelectorAll('.faq-item');
@@ -402,6 +452,16 @@ function initForms() {
   if (contactForm) {
     contactForm.addEventListener('submit', handleContactSubmit);
   }
+
+  const consentBoxes = document.querySelectorAll('.consent-box input[type="checkbox"]');
+  consentBoxes.forEach(cb => {
+    cb.addEventListener('change', () => {
+      if (cb.checked) {
+        const box = cb.closest('.consent-box');
+        if (box) box.classList.remove('error');
+      }
+    });
+  });
 }
 
 function handleMembershipSubmit(e) {
@@ -411,12 +471,21 @@ function handleMembershipSubmit(e) {
   form.querySelectorAll('.form-input, .form-select').forEach(input => {
     input.classList.remove('error');
   });
+  form.querySelectorAll('.consent-box').forEach(box => {
+    box.classList.remove('error');
+  });
 
   let isValid = true;
 
   // Validate required inputs
   form.querySelectorAll('[required]').forEach(input => {
-    if (!input.value.trim()) {
+    if (input.type === 'checkbox') {
+      if (!input.checked) {
+        const box = input.closest('.consent-box');
+        if (box) box.classList.add('error');
+        isValid = false;
+      }
+    } else if (!input.value.trim()) {
       input.classList.add('error');
       isValid = false;
     }
