@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Portal | Nigeria Civil Service Youths' Forum (NCSYF)</title>
+  <meta name="description" content="Administrative Management Console for Nigeria Civil Service Youths' Forum — Member Verification, Project Uploads, and Resource Administration.">
+  <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../images/favicon-16x16.png">
+  <link rel="shortcut icon" href="../favicon.ico">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+  <!-- ========================================================================
+       1. LOGIN VIEW (Visible when logged out)
+       ======================================================================== -->
+  <div id="adminLoginView" class="admin-login-wrapper" style="display: none;">
+    <div class="admin-login-card">
+      <div class="admin-login-header">
+        <a href="../index.html" title="NCSYF Home">
+          <img src="../images/logo.png" alt="NCSYF Logo" class="admin-login-logo">
+        </a>
+        <h1 class="admin-login-title">Admin Management Portal</h1>
+        <p class="admin-login-subtitle">Nigeria Civil Service Youths' Forum (NCSYF)</p>
+        <span class="admin-login-badge">Internal Administration</span>
+      </div>
+
+      <div class="admin-demo-box">
+        <strong>⚡ Demo Mode (Backend Ready)</strong>
+        <span>Login details are not hardcoded. Enter any administrator credentials or click below to auto-fill demo data:</span>
+        <div class="admin-demo-actions">
+          <button type="button" class="btn-demo-fill" id="btnDemoSuperAdmin">Auto-Fill Demo Admin</button>
+        </div>
+      </div>
+
+      <form id="adminLoginForm">
+        <div class="admin-form-group">
+          <label class="admin-label" for="adminLoginEmail">Administrator Email / Username *</label>
+          <input type="text" id="adminLoginEmail" class="admin-input" placeholder="admin@anycs.org.ng" required autofocus>
+        </div>
+
+        <div class="admin-form-group">
+          <label class="admin-label" for="adminLoginPassword">Admin Security Password *</label>
+          <input type="password" id="adminLoginPassword" class="admin-input" placeholder="Enter password" required>
+        </div>
+
+        <div class="admin-form-group" style="display: flex; align-items: center; justify-content: space-between;">
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; cursor: pointer; color: var(--admin-text-muted);">
+            <input type="checkbox" id="adminRememberMe" style="accent-color: var(--admin-primary);"> Remember workstation
+          </label>
+          <span style="font-size: 0.78rem; color: var(--admin-text-muted);">Role: Official Admin</span>
+        </div>
+
+        <button type="submit" class="btn-admin btn-primary-green" style="width: 100%; margin-top: 8px;">
+          <span>Sign In to Admin Portal →</span>
+        </button>
+
+        <div style="text-align: center; margin-top: 24px;">
+          <a href="../index.html" style="font-size: 0.84rem; color: var(--admin-primary); font-weight: 700; text-decoration: none;">
+            ← Return to Public Website
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       2. DASHBOARD VIEW (Visible when authenticated)
+       ======================================================================== -->
+  <div id="adminDashboardView" class="admin-layout" style="display: none;">
+    
+    <!-- Mobile Sidebar Backdrop -->
+    <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside id="adminSidebar" class="admin-sidebar">
+      <div class="sidebar-brand">
+        <img src="../images/logo.png" alt="NCSYF Logo" class="sidebar-brand-img">
+        <div class="sidebar-brand-text">
+          <h2>NCSYF Admin</h2>
+          <span>National Console</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="sidebar-heading">Navigation</div>
+        
+        <a class="sidebar-link active" data-admin-tab="overview">
+          <span class="icon">📊</span>
+          <span>Overview</span>
+        </a>
+
+        <a class="sidebar-link" data-admin-tab="members">
+          <span class="icon">👥</span>
+          <span>Members</span>
+          <span class="badge" id="sidebarBadgeMembers">0</span>
+        </a>
+
+        <a class="sidebar-link" data-admin-tab="projects">
+          <span class="icon">💡</span>
+          <span>Projects</span>
+          <span class="badge" id="sidebarBadgeProjects">0</span>
+        </a>
+
+        <a class="sidebar-link" data-admin-tab="resources">
+          <span class="icon">📂</span>
+          <span>Resources</span>
+          <span class="badge" id="sidebarBadgeResources">0</span>
+        </a>
+
+        <div class="sidebar-heading">System &amp; Settings</div>
+
+        <a class="sidebar-link" data-admin-tab="settings">
+          <span class="icon">⚙️</span>
+          <span>Backend &amp; Settings</span>
+        </a>
+
+        <a href="../index.html" target="_blank" class="sidebar-link" title="Open public site in new tab">
+          <span class="icon">🌐</span>
+          <span>Public Website ↗</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="admin-user-card">
+          <div class="admin-user-avatar">AD</div>
+          <div class="admin-user-info">
+            <div class="admin-user-name">Secretariat Admin</div>
+            <div class="admin-user-role">Super Administrator</div>
+          </div>
+          <button class="btn-sidebar-logout" data-admin-logout title="Sign Out">
+            🚪
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="admin-main">
+      
+      <!-- Top Header Bar -->
+      <header class="admin-header">
+        <div class="admin-header-left">
+          <button id="btnSidebarToggle" class="btn-sidebar-toggle" aria-label="Toggle navigation drawer">
+            ☰
+          </button>
+          <div class="admin-page-title">
+            <h1 id="adminPageTitle">Dashboard Overview</h1>
+            <p id="adminPageSubtitle">National Forum metrics, registration stats and activity overview</p>
+          </div>
+        </div>
+
+        <div class="admin-header-right">
+          <button type="button" class="btn-header-action" onclick="openModal('newProjectModal')">
+            <span>+ New Project</span>
+          </button>
+          <button type="button" class="btn-header-action" onclick="openModal('newResourceModal')">
+            <span>+ Upload Resource</span>
+          </button>
+          <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" data-admin-logout>
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Content Workspace -->
+      <div class="admin-content">
+
+        <!-- ==================================================================
+             TAB 1: OVERVIEW
+             ================================================================== -->
+        <div id="tab-overview" class="admin-tab-pane">
+          <!-- Metric KPI Grid -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">Total Members</span>
+                <span class="stat-icon">👥</span>
+              </div>
+              <div class="stat-value" id="statTotalMembers">0</div>
+              <div class="stat-subtext">All verified &amp; pending enrollments</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">Full Members (18–35)</span>
+                <span class="stat-icon">🎖️</span>
+              </div>
+              <div class="stat-value" id="statFullMembers">0</div>
+              <div class="stat-subtext">Serving civil servants with full voting rights</div>
+            </div>
+
+            <div class="stat-card accent">
+              <div class="stat-header">
+                <span class="stat-label">Associate Members (35+)</span>
+                <span class="stat-icon">🎓</span>
+              </div>
+              <div class="stat-value" id="statAssociateMembers">0</div>
+              <div class="stat-subtext">Alumni &amp; senior advisory cohort</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">MDAs Represented</span>
+                <span class="stat-icon">🏛️</span>
+              </div>
+              <div class="stat-value" id="statDistinctMdas">0</div>
+              <div class="stat-subtext">Federal, State &amp; LGA public institutions</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">Active Projects</span>
+                <span class="stat-icon">💡</span>
+              </div>
+              <div class="stat-value" id="statActiveProjects">0</div>
+              <div class="stat-subtext">National priority public sector tracks</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">Resources Published</span>
+                <span class="stat-icon">📄</span>
+              </div>
+              <div class="stat-value" id="statPublishedResources">0</div>
+              <div class="stat-subtext">Official guidelines, briefs &amp; circulars</div>
+            </div>
+          </div>
+
+          <!-- Recent Applications Table Card -->
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <div class="admin-card-title">
+                <h3>Recent Member Applications</h3>
+                <p>Latest public servants who submitted enrollment requests on the portal</p>
+              </div>
+              <button class="btn-admin btn-admin-outline btn-admin-sm" data-admin-tab="members">
+                View All Members →
+              </button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Full Name</th>
+                    <th>Category</th>
+                    <th>Staff / Membership ID</th>
+                    <th>Ministry / Agency (MDA)</th>
+                    <th>Verification Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="recentMembersTableBody">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             TAB 2: MEMBERS MANAGEMENT
+             ================================================================== -->
+        <div id="tab-members" class="admin-tab-pane" style="display: none;">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <div class="admin-card-title">
+                <h3>Registered Members Directory</h3>
+                <p id="membersShowingCount">Showing all registered public servants</p>
+              </div>
+
+              <!-- Search & Filters Toolbar -->
+              <div class="admin-toolbar">
+                <div class="search-box">
+                  <span class="icon">🔍</span>
+                  <input type="text" id="memberSearchInput" placeholder="Search by name, MDA, Staff ID...">
+                </div>
+
+                <select id="memberCategoryFilter" class="filter-select">
+                  <option value="all">All Categories</option>
+                  <option value="full">Full Member (18–35 yrs)</option>
+                  <option value="associate">Associate Member (35+ yrs)</option>
+                </select>
+
+                <select id="memberStatusFilter" class="filter-select">
+                  <option value="all">All Statuses</option>
+                  <option value="verified">Verified</option>
+                  <option value="pending">Pending</option>
+                </select>
+
+                <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" id="btnExportMembersCsv">
+                  <span>📥 Export CSV</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Applicant / Member</th>
+                    <th>Category</th>
+                    <th>Staff / Member ID</th>
+                    <th>MDA &amp; Tier</th>
+                    <th>Chapter</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="membersTableBody">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+
+            <div class="admin-table-footer">
+              <span>Showing records synchronized from portal registrations</span>
+              <span style="font-size: 0.78rem; color: var(--admin-text-muted);">Real-time localStorage persistence</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             TAB 3: PROJECTS MANAGEMENT
+             ================================================================== -->
+        <div id="tab-projects" class="admin-tab-pane" style="display: none;">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <div class="admin-card-title">
+                <h3>National Priority Initiatives</h3>
+                <p id="projectsShowingCount">Projects and reform tracks across Federal, State and Local Governments</p>
+              </div>
+
+              <div class="admin-toolbar">
+                <div class="search-box">
+                  <span class="icon">🔍</span>
+                  <input type="text" id="projectSearchInput" placeholder="Search projects...">
+                </div>
+
+                <select id="projectSectorFilter" class="filter-select">
+                  <option value="all">All Priority Sectors</option>
+                  <option value="Technology">Technology &amp; Innovation</option>
+                  <option value="Agriculture">Agriculture &amp; Food Security</option>
+                  <option value="Healthcare">Healthcare &amp; Social Welfare</option>
+                  <option value="Governance">Governance &amp; Economy</option>
+                </select>
+
+                <button type="button" class="btn-admin btn-primary-green btn-admin-sm" onclick="openModal('newProjectModal')">
+                  <span>+ Add / Upload Project</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Projects Grid -->
+            <div class="items-grid" id="projectsGrid">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             TAB 4: RESOURCES MANAGEMENT
+             ================================================================== -->
+        <div id="tab-resources" class="admin-tab-pane" style="display: none;">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <div class="admin-card-title">
+                <h3>Official Publications &amp; Resources</h3>
+                <p id="resourcesShowingCount">Upload and administer public service briefs, manuals, and bye-laws</p>
+              </div>
+
+              <div class="admin-toolbar">
+                <div class="search-box">
+                  <span class="icon">🔍</span>
+                  <input type="text" id="resourceSearchInput" placeholder="Search publications...">
+                </div>
+
+                <select id="resourceCategoryFilter" class="filter-select">
+                  <option value="all">All Document Types</option>
+                  <option value="Legal Framework">Legal Framework &amp; Bye-laws</option>
+                  <option value="Constitution">Constitution &amp; Charter</option>
+                  <option value="Policy Brief">Policy Brief &amp; Circular</option>
+                  <option value="Training Manual">Training Manual &amp; Toolkit</option>
+                </select>
+
+                <button type="button" class="btn-admin btn-primary-green btn-admin-sm" onclick="openModal('newResourceModal')">
+                  <span>+ Upload New Resource</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Document Title &amp; Summary</th>
+                    <th>Category</th>
+                    <th>Issuing Authority / MDA</th>
+                    <th>Format</th>
+                    <th>Downloads</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="resourcesTableBody">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             TAB 5: SYSTEM & BACKEND SETTINGS
+             ================================================================== -->
+        <div id="tab-settings" class="admin-tab-pane" style="display: none;">
+          <div class="admin-card" style="max-width: 800px;">
+            <div class="admin-card-header">
+              <div class="admin-card-title">
+                <h3>Backend API Connection &amp; Architecture</h3>
+                <p>Configuration panel for connecting this admin dashboard to your production REST or GraphQL server</p>
+              </div>
+            </div>
+
+            <div style="padding: 24px;">
+              <div style="background: var(--admin-primary-subtle); border: 1px solid rgba(15, 69, 48, 0.2); border-radius: var(--radius-md); padding: 18px; margin-bottom: 24px;">
+                <h4 style="color: var(--admin-primary); margin-bottom: 6px; font-weight: 800;">🔌 Ready for Backend Integration</h4>
+                <p style="font-size: 0.88rem; line-height: 1.7; color: var(--admin-text-main);">
+                  This admin dashboard currently utilizes persistent, structured browser state (localStorage) as a fully operational mock layer. All member signups, projects, and resources follow REST API schema conventions. When your backend is ready (Node/Express, Django, Laravel, Supabase, or Firebase), simply update the API Base URL below to route all queries.
+                </p>
+              </div>
+
+              <div class="admin-form-group">
+                <label class="admin-label">Backend API Base Endpoint</label>
+                <input type="url" class="admin-input" value="https://api.anycs.org.ng/v1" placeholder="https://your-api.domain.com/v1" readonly>
+                <span style="font-size: 0.76rem; color: var(--admin-text-muted); margin-top: 4px; display: block;">Endpoint for membership, projects, and resource microservices</span>
+              </div>
+
+              <div class="admin-form-group">
+                <label class="admin-label">Authentication Mode</label>
+                <input type="text" class="admin-input" value="OAuth 2.0 / JWT Bearer Tokens (Configurable)" readonly>
+              </div>
+
+              <div style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
+                <button type="button" class="btn-admin btn-admin-primary" onclick="exportDatabaseJson()">
+                  <span>💾 Backup Database to JSON</span>
+                </button>
+                <button type="button" class="btn-admin btn-admin-outline" onclick="resetFactoryData()">
+                  <span>↺ Reset Demo Stores</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ========================================================================
+       MODALS
+       ======================================================================== -->
+
+  <!-- 1. Member Dossier Detail Modal -->
+  <div id="memberDossierModal" class="admin-modal-overlay">
+    <div class="admin-modal-card">
+      <div class="admin-modal-header">
+        <h3>Member Application Dossier</h3>
+        <button class="btn-modal-close" data-close-modal aria-label="Close modal">✕</button>
+      </div>
+      <div class="admin-modal-body" id="memberDossierContent">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. New Project Upload Modal -->
+  <div id="newProjectModal" class="admin-modal-overlay">
+    <div class="admin-modal-card">
+      <div class="admin-modal-header">
+        <h3>Upload / Add National Project</h3>
+        <button class="btn-modal-close" data-close-modal aria-label="Close modal">✕</button>
+      </div>
+      <form id="newProjectForm">
+        <div class="admin-modal-body">
+          <div class="admin-form-group">
+            <label class="admin-label" for="newProjectTitle">Project Title *</label>
+            <input type="text" id="newProjectTitle" class="admin-input" placeholder="e.g. Civil Service E-Governance Initiative" required>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div class="admin-form-group">
+              <label class="admin-label" for="newProjectSector">Priority Sector *</label>
+              <select id="newProjectSector" class="admin-select" required>
+                <option value="Technology & Innovation">Technology &amp; Innovation</option>
+                <option value="Agriculture & Food Security">Agriculture &amp; Food Security</option>
+                <option value="Healthcare & Social Welfare">Healthcare &amp; Social Welfare</option>
+                <option value="Governance & Economy">Governance &amp; Economy</option>
+                <option value="Education & Leadership">Education &amp; Leadership</option>
+              </select>
+            </div>
+
+            <div class="admin-form-group">
+              <label class="admin-label" for="newProjectStatus">Status *</label>
+              <select id="newProjectStatus" class="admin-select" required>
+                <option value="active">Active Implementation</option>
+                <option value="planning">Planning &amp; Review</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="admin-form-group">
+            <label class="admin-label" for="newProjectMda">Lead Ministry, Department or Agency (MDA) *</label>
+            <input type="text" id="newProjectMda" class="admin-input" placeholder="e.g. Federal Ministry of Communications" required>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div class="admin-form-group">
+              <label class="admin-label" for="newProjectBeneficiaries">Target Beneficiaries</label>
+              <input type="text" id="newProjectBeneficiaries" class="admin-input" placeholder="e.g. 10,000 Serving Youths">
+            </div>
+
+            <div class="admin-form-group">
+              <label class="admin-label" for="newProjectBudget">Estimated Budget / Allocation</label>
+              <input type="text" id="newProjectBudget" class="admin-input" placeholder="e.g. ₦50,000,000">
+            </div>
+          </div>
+
+          <div class="admin-form-group">
+            <label class="admin-label" for="newProjectDesc">Project Description &amp; Objectives *</label>
+            <textarea id="newProjectDesc" class="admin-textarea" rows="3" placeholder="Provide background, core activities, and expected transformation..." required></textarea>
+          </div>
+        </div>
+
+        <div class="admin-modal-footer">
+          <button type="button" class="btn-admin btn-admin-outline" data-close-modal>Cancel</button>
+          <button type="submit" class="btn-admin btn-primary-green">Publish Project Track</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. New Resource Upload Modal -->
+  <div id="newResourceModal" class="admin-modal-overlay">
+    <div class="admin-modal-card">
+      <div class="admin-modal-header">
+        <h3>Upload Publication / Resource</h3>
+        <button class="btn-modal-close" data-close-modal aria-label="Close modal">✕</button>
+      </div>
+      <form id="newResourceForm">
+        <div class="admin-modal-body">
+          <div class="admin-form-group">
+            <label class="admin-label" for="newResourceTitle">Document Title *</label>
+            <input type="text" id="newResourceTitle" class="admin-input" placeholder="e.g. 2026 Civil Service Reform Circular" required>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div class="admin-form-group">
+              <label class="admin-label" for="newResourceCategory">Category *</label>
+              <select id="newResourceCategory" class="admin-select" required>
+                <option value="Policy Brief & Circular">Policy Brief &amp; Circular</option>
+                <option value="Legal Framework & Bye-laws">Legal Framework &amp; Bye-laws</option>
+                <option value="Constitution & Charter">Constitution &amp; Charter</option>
+                <option value="Training Manual & Toolkit">Training Manual &amp; Toolkit</option>
+              </select>
+            </div>
+
+            <div class="admin-form-group">
+              <label class="admin-label" for="newResourceFormat">File Format</label>
+              <select id="newResourceFormat" class="admin-select">
+                <option value="PDF">Adobe PDF (.pdf)</option>
+                <option value="DOCX">Microsoft Word (.docx)</option>
+                <option value="XLSX">Excel Spreadsheet (.xlsx)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="admin-form-group">
+            <label class="admin-label" for="newResourceMda">Publishing Authority / MDA *</label>
+            <input type="text" id="newResourceMda" class="admin-input" placeholder="e.g. Office of Head of Civil Service of Federation" required>
+          </div>
+
+          <div class="admin-form-group">
+            <label class="admin-label" for="newResourceDesc">Executive Summary / Scope</label>
+            <textarea id="newResourceDesc" class="admin-textarea" rows="3" placeholder="Brief outline of document contents and guidelines..."></textarea>
+          </div>
+        </div>
+
+        <div class="admin-modal-footer">
+          <button type="button" class="btn-admin btn-admin-outline" data-close-modal>Cancel</button>
+          <button type="submit" class="btn-admin btn-primary-green">Upload &amp; Publish</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="adminToastContainer" class="admin-toast-container"></div>
+
+  <!-- Admin Scripts -->
+  <script src="js/admin.js"></script>
+
+  <script>
+    // Additional Global Utility Helpers for Settings Pane
+    function exportDatabaseJson() {
+      const db = {
+        exportedAt: new Date().toISOString(),
+        members: getStoredMembers(),
+        projects: getStoredProjects(),
+        resources: getStoredResources()
+      };
+      const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `NCSYF_Admin_FullBackup_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showAdminToast('Complete JSON database backup exported.');
+    }
+
+    function resetFactoryData() {
+      if (!confirm('Reset local demo stores back to official seeds? Any newly added records will be refreshed.')) return;
+      localStorage.removeItem(STORAGE_KEYS.MEMBERS);
+      localStorage.removeItem(STORAGE_KEYS.PROJECTS);
+      localStorage.removeItem(STORAGE_KEYS.RESOURCES);
+      getStoredMembers();
+      getStoredProjects();
+      getStoredResources();
+      renderDashboard();
+      renderMembersTable();
+      renderProjectsList();
+      renderResourcesList();
+      showAdminToast('Demo data restored successfully.');
+    }
+  </script>
+</body>
+</html>

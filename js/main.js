@@ -656,6 +656,105 @@ function handleMembershipSubmit(e) {
     return;
   }
 
+  // Synchronize new registration to localStorage so it instantly appears in the Admin Portal (/admin)
+  try {
+    const now = new Date();
+    const dateStr = now.toISOString().replace('T', ' ').substring(0, 19);
+    const randomSuffix = Math.floor(100 + Math.random() * 900);
+    const newMemberId = `MEM-${now.getFullYear()}-${randomSuffix}`;
+    let newMemberRecord;
+
+    if (memberType === 'associate') {
+      const assocId = form.querySelector('#associateMemberId')?.value.trim() || `ANYCS-ASC-${randomSuffix}`;
+      newMemberRecord = {
+        id: newMemberId,
+        firstName: 'Associate',
+        lastName: `Member (${assocId})`,
+        category: 'associate',
+        memberTypeLabel: 'Associate Member (After 35 yrs / Alumni)',
+        dob: 'Over 35 yrs',
+        age: 38,
+        gender: 'Serving / Senior Officer',
+        phone: 'Portal Access Requested',
+        email: assocId.toLowerCase().replace(/[^a-z0-9]/g, '') + '@civilservice.gov.ng',
+        tier: 'associate',
+        tierLabel: 'Associate / Alumni Roster',
+        mda: 'Civil Service Alumni / Senior Service Officer',
+        stateChapter: 'National Secretariat',
+        staffId: assocId,
+        docType: 'alumni_id',
+        docTypeLabel: 'Associate / Alumni Membership Credential',
+        status: 'pending',
+        registeredAt: dateStr
+      };
+    } else {
+      const fName = form.querySelector('#firstName')?.value.trim() || 'Serving';
+      const lName = form.querySelector('#lastName')?.value.trim() || 'Officer';
+      const dobVal = form.querySelector('#dob')?.value || '';
+      let calcAge = 28;
+      if (dobVal) {
+        const birth = new Date(dobVal);
+        calcAge = now.getFullYear() - birth.getFullYear();
+      }
+      const genderVal = form.querySelector('#gender')?.value || 'N/A';
+      const phoneVal = form.querySelector('#phone')?.value.trim() || 'N/A';
+      const emailVal = form.querySelector('#email')?.value.trim() || 'N/A';
+      const tierVal = form.querySelector('#tierOfGovernment')?.value || 'federal';
+      const tierLabels = {
+        federal: 'Federal Government MDA',
+        state: 'State Government MDA',
+        lga: 'Local Government Council'
+      };
+      const mdaVal = form.querySelector('#mdaName')?.value.trim() || 'Federal MDA';
+      const stateVal = form.querySelector('#stateChapter')?.value || 'FCT Abuja';
+      const staffIdVal = form.querySelector('#staffId')?.value.trim() || `CIV-${randomSuffix}`;
+      const docTypeVal = form.querySelector('#docType')?.value || 'staff_id_card';
+      const docTypeLabels = {
+        appointment_letter: 'Valid Letter of Employment / Appointment',
+        staff_id_card: 'Official Staff Identification Card',
+        gazette: 'Official Civil Service Gazette Notice'
+      };
+
+      newMemberRecord = {
+        id: newMemberId,
+        firstName: fName,
+        lastName: lName,
+        category: 'full',
+        memberTypeLabel: 'Full Member (18–35 yrs)',
+        dob: dobVal,
+        age: calcAge,
+        gender: genderVal,
+        phone: phoneVal,
+        email: emailVal,
+        tier: tierVal,
+        tierLabel: tierLabels[tierVal] || 'Public Service',
+        mda: mdaVal,
+        stateChapter: stateVal,
+        staffId: staffIdVal,
+        docType: docTypeVal,
+        docTypeLabel: docTypeLabels[docTypeVal] || 'Official Civil Service Record',
+        status: 'pending',
+        registeredAt: dateStr
+      };
+    }
+
+    const STORAGE_KEY_MEMBERS = 'ncsyf_registered_members';
+    const existing = localStorage.getItem(STORAGE_KEY_MEMBERS);
+    let membersList = [];
+    if (existing) {
+      try {
+        membersList = JSON.parse(existing);
+        if (!Array.isArray(membersList)) membersList = [];
+      } catch (err) {
+        membersList = [];
+      }
+    }
+    membersList.unshift(newMemberRecord);
+    localStorage.setItem(STORAGE_KEY_MEMBERS, JSON.stringify(membersList));
+  } catch (storageErr) {
+    console.warn('Could not sync registration to local store:', storageErr);
+  }
+
   if (memberType === 'associate') {
     showToast('🎉 Associate Application submitted! Your Membership ID and portal credentials are being activated for sign in.', 'success');
   } else {
