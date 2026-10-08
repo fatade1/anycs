@@ -1,0 +1,9 @@
+{
+  "name": "anycs",
+  "version": "1.0.0",
+  "description": "Nigeria Civil Service Youths Forum (NCSYF) Official Web Portal",
+  "scripts": {
+    "dev": "npx live-server --port=5501",
+    "start": "npx live-server --port=5501"
+  }
+}
