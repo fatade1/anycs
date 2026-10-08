@@ -396,9 +396,258 @@ function checkAuthAndRender() {
 }
 
 // ==========================================================================
+// DOCUMENT UPLOAD DROPZONE LOGIC
+// ==========================================================================
+let uploadedResourceFileData = null;
+let uploadedProjectFileData = null;
+
+function formatFileSize(bytes) {
+  if (!bytes || bytes === 0) return '0 KB';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+function getFileExtension(filename) {
+  if (!filename || !filename.includes('.')) return '';
+  return filename.slice((filename.lastIndexOf('.') - 1 >>> 0) + 2).toUpperCase();
+}
+
+function setupResourceDropzone() {
+  const dropzone = document.getElementById('resourceDropzone');
+  const fileInput = document.getElementById('newResourceFileInput');
+  const promptEl = document.getElementById('resourceDropzonePrompt');
+  const previewEl = document.getElementById('resourceFilePreview');
+  const badgeEl = document.getElementById('filePreviewBadge');
+  const nameEl = document.getElementById('filePreviewName');
+  const sizeEl = document.getElementById('filePreviewSize');
+  const removeBtn = document.getElementById('btnRemoveResourceFile');
+  const browseBtn = document.getElementById('btnResourceBrowse');
+  const formatSelect = document.getElementById('newResourceFormat');
+  const titleInput = document.getElementById('newResourceTitle');
+
+  if (!dropzone || !fileInput) return;
+
+  function handleFile(file) {
+    if (!file) return;
+
+    if (file.size > 25 * 1024 * 1024) {
+      showAdminToast('File exceeds the 25 MB size limit.', 'error');
+      return;
+    }
+
+    dropzone.classList.remove('has-error');
+    const ext = getFileExtension(file.name) || 'PDF';
+    const formattedSize = formatFileSize(file.size);
+
+    if (formatSelect) {
+      if (['PDF'].includes(ext)) formatSelect.value = 'PDF';
+      else if (['DOC', 'DOCX'].includes(ext)) formatSelect.value = 'DOCX';
+      else if (['XLS', 'XLSX'].includes(ext)) formatSelect.value = 'XLSX';
+      else if (['PPT', 'PPTX'].includes(ext)) formatSelect.value = 'PPTX';
+      else if (['TXT'].includes(ext)) formatSelect.value = 'TXT';
+    }
+
+    if (titleInput && !titleInput.value.trim()) {
+      const cleanName = file.name
+        .replace(/\.[^/.]+$/, '')
+        .replace(/[_-]+/g, ' ')
+        .trim();
+      if (cleanName) {
+        titleInput.value = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
+      }
+    }
+
+    if (nameEl) nameEl.textContent = file.name;
+    if (sizeEl) sizeEl.textContent = formattedSize;
+    if (badgeEl) {
+      badgeEl.textContent = ext.slice(0, 4);
+      badgeEl.className = 'file-preview-icon ' + ext.toLowerCase();
+    }
+
+    if (promptEl) promptEl.style.display = 'none';
+    if (previewEl) previewEl.style.display = 'block';
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      uploadedResourceFileData = {
+        name: file.name,
+        size: formattedSize,
+        bytes: file.size,
+        type: ext,
+        mime: file.type,
+        dataUrl: e.target.result
+      };
+    };
+    reader.readAsDataURL(file);
+  }
+
+  dropzone.addEventListener('click', (e) => {
+    if (e.target.closest('#btnRemoveResourceFile')) return;
+    fileInput.click();
+  });
+
+  if (browseBtn) {
+    browseBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      fileInput.click();
+    });
+  }
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files && fileInput.files[0]) {
+      handleFile(fileInput.files[0]);
+    }
+  });
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.add('dragover');
+    });
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.remove('dragover');
+    });
+  });
+
+  dropzone.addEventListener('drop', (e) => {
+    const dt = e.dataTransfer;
+    if (dt && dt.files && dt.files[0]) {
+      fileInput.files = dt.files;
+      handleFile(dt.files[0]);
+    }
+  });
+
+  if (removeBtn) {
+    removeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      resetResourceDropzone();
+    });
+  }
+}
+
+function resetResourceDropzone() {
+  const fileInput = document.getElementById('newResourceFileInput');
+  const promptEl = document.getElementById('resourceDropzonePrompt');
+  const previewEl = document.getElementById('resourceFilePreview');
+  const dropzone = document.getElementById('resourceDropzone');
+
+  if (fileInput) fileInput.value = '';
+  uploadedResourceFileData = null;
+  if (promptEl) promptEl.style.display = 'flex';
+  if (previewEl) previewEl.style.display = 'none';
+  if (dropzone) dropzone.classList.remove('has-error');
+}
+
+function setupProjectDropzone() {
+  const dropzone = document.getElementById('projectDropzone');
+  const fileInput = document.getElementById('newProjectFileInput');
+  const promptEl = document.getElementById('projectDropzonePrompt');
+  const previewEl = document.getElementById('projectFilePreview');
+  const badgeEl = document.getElementById('projectFileBadge');
+  const nameEl = document.getElementById('projectFileName');
+  const sizeEl = document.getElementById('projectFileSize');
+  const removeBtn = document.getElementById('btnRemoveProjectFile');
+
+  if (!dropzone || !fileInput) return;
+
+  function handleFile(file) {
+    if (!file) return;
+    const ext = getFileExtension(file.name) || 'PDF';
+    const formattedSize = formatFileSize(file.size);
+
+    if (nameEl) nameEl.textContent = file.name;
+    if (sizeEl) sizeEl.textContent = formattedSize;
+    if (badgeEl) {
+      badgeEl.textContent = ext.slice(0, 4);
+      badgeEl.className = 'file-preview-icon compact ' + ext.toLowerCase();
+    }
+
+    if (promptEl) promptEl.style.display = 'none';
+    if (previewEl) previewEl.style.display = 'block';
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      uploadedProjectFileData = {
+        name: file.name,
+        size: formattedSize,
+        bytes: file.size,
+        type: ext,
+        dataUrl: e.target.result
+      };
+    };
+    reader.readAsDataURL(file);
+  }
+
+  dropzone.addEventListener('click', (e) => {
+    if (e.target.closest('#btnRemoveProjectFile')) return;
+    fileInput.click();
+  });
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files && fileInput.files[0]) {
+      handleFile(fileInput.files[0]);
+    }
+  });
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.add('dragover');
+    });
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.remove('dragover');
+    });
+  });
+
+  dropzone.addEventListener('drop', (e) => {
+    const dt = e.dataTransfer;
+    if (dt && dt.files && dt.files[0]) {
+      fileInput.files = dt.files;
+      handleFile(dt.files[0]);
+    }
+  });
+
+  if (removeBtn) {
+    removeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      resetProjectDropzone();
+    });
+  }
+}
+
+function resetProjectDropzone() {
+  const fileInput = document.getElementById('newProjectFileInput');
+  const promptEl = document.getElementById('projectDropzonePrompt');
+  const previewEl = document.getElementById('projectFilePreview');
+
+  if (fileInput) fileInput.value = '';
+  uploadedProjectFileData = null;
+  if (promptEl) promptEl.style.display = 'flex';
+  if (previewEl) previewEl.style.display = 'none';
+}
+
+// ==========================================================================
 // EVENT LISTENERS & NAVIGATION
 // ==========================================================================
 function setupEventListeners() {
+  // Initialize dropzones
+  setupResourceDropzone();
+  setupProjectDropzone();
+
   // Login Form
   const loginForm = document.getElementById('adminLoginForm');
   if (loginForm) {
@@ -1064,11 +1313,18 @@ function handleAddProject(e) {
     dateAdded: new Date().toISOString().split('T')[0]
   };
 
+  if (uploadedProjectFileData) {
+    newProject.attachedDocName = uploadedProjectFileData.name;
+    newProject.attachedDocSize = uploadedProjectFileData.size;
+    newProject.attachedDocData = uploadedProjectFileData.dataUrl;
+  }
+
   projects.unshift(newProject);
   saveProjects(projects);
 
   showAdminToast('🎉 New national priority project uploaded and published to system!');
   form.reset();
+  resetProjectDropzone();
   closeAllModals();
   renderDashboard();
   renderProjectsList();
@@ -1137,9 +1393,10 @@ function renderResourcesList() {
         </td>
         <td style="font-size: 0.84rem;">${r.publishingMda}</td>
         <td>
-          <span style="display: inline-block; background: #EEF2F6; color: #1E293B; font-weight: 800; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px;">
-            ${r.fileType || 'PDF'} • ${r.fileSize || '2 MB'}
+          <span style="display: inline-flex; align-items: center; gap: 4px; background: #EEF2F6; color: #1E293B; font-weight: 800; font-size: 0.72rem; padding: 2px 7px; border-radius: 4px;">
+            📄 ${r.fileType || 'PDF'} • ${r.fileSize || '2 MB'}
           </span>
+          ${r.fileName ? `<div style="font-size: 0.72rem; color: var(--admin-text-muted); margin-top: 3px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${r.fileName}">📎 ${r.fileName}</div>` : ''}
         </td>
         <td style="font-size: 0.82rem; color: var(--admin-text-muted);">${r.downloads || 0}</td>
         <td>
@@ -1165,6 +1422,13 @@ function handleAddResource(e) {
   const mda = form.querySelector('#newResourceMda').value.trim();
   const fileType = form.querySelector('#newResourceFormat').value;
   const desc = form.querySelector('#newResourceDesc').value.trim();
+  const dropzone = document.getElementById('resourceDropzone');
+
+  if (!uploadedResourceFileData) {
+    if (dropzone) dropzone.classList.add('has-error');
+    showAdminToast('⚠️ Please attach or choose a document file to upload.', 'error');
+    return;
+  }
 
   if (!title || !mda) {
     showAdminToast('Please fill in the document title and publishing authority.', 'error');
@@ -1177,8 +1441,10 @@ function handleAddResource(e) {
     title,
     category,
     publishingMda: mda,
-    fileType,
-    fileSize: '2.4 MB',
+    fileType: uploadedResourceFileData.type || fileType,
+    fileName: uploadedResourceFileData.name,
+    fileSize: uploadedResourceFileData.size || '2.4 MB',
+    fileData: uploadedResourceFileData.dataUrl,
     downloads: 0,
     description: desc || 'Official publication issued for the Nigeria Civil Service Youths\' Forum.',
     dateAdded: new Date().toISOString().split('T')[0]
@@ -1187,8 +1453,9 @@ function handleAddResource(e) {
   resources.unshift(newResource);
   saveResources(resources);
 
-  showAdminToast('📄 Official resource / policy document uploaded and added to library!');
+  showAdminToast(`📄 Document "${uploadedResourceFileData.name}" uploaded successfully!`);
   form.reset();
+  resetResourceDropzone();
   closeAllModals();
   renderDashboard();
   renderResourcesList();
@@ -1203,8 +1470,20 @@ window.downloadResource = function(resourceId) {
   saveResources(resources);
   renderResourcesList();
 
-  // Create simulated download blob
-  const textContent = `=====================================================\nNIGERIA CIVIL SERVICE YOUTHS' FORUM (NCSYF)\nOfficial Document: ${r.title}\nCategory: ${r.category}\nIssuing Authority: ${r.publishingMda}\n=====================================================\n\nSummary:\n${r.description}\n\nDocument verified pursuant to civil service guidelines.`;
+  // If this resource has an actual uploaded file (dataUrl), download that exact file!
+  if (r.fileData) {
+    const a = document.createElement('a');
+    a.href = r.fileData;
+    a.download = r.fileName || `${r.title.replace(/[^a-zA-Z0-9]/g, '_')}.${(r.fileType || 'pdf').toLowerCase()}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    showAdminToast(`Downloading: ${r.fileName || r.title}`);
+    return;
+  }
+
+  // Simulated download for pre-seeded documents
+  const textContent = `=====================================================\nNIGERIA CIVIL SERVICE YOUTHS' FORUM (NCSYF)\nOfficial Document: ${r.title}\nCategory: ${r.category}\nIssuing Authority: ${r.publishingMda}\nFile Format: ${r.fileType || 'PDF'}\n=====================================================\n\nSummary:\n${r.description}\n\nDocument verified pursuant to civil service guidelines.`;
   const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1242,6 +1521,8 @@ window.closeAllModals = function() {
   document.querySelectorAll('.admin-modal-overlay').forEach(modal => {
     modal.classList.remove('active');
   });
+  resetResourceDropzone();
+  resetProjectDropzone();
 };
 
 function showAdminToast(message, type = 'success') {

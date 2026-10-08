@@ -533,6 +533,32 @@
             <label class="admin-label" for="newProjectDesc">Project Description &amp; Objectives *</label>
             <textarea id="newProjectDesc" class="admin-textarea" rows="3" placeholder="Provide background, core activities, and expected transformation..." required></textarea>
           </div>
+
+          <div class="admin-form-group">
+            <label class="admin-label">
+              Attach Project Charter / Concept Note
+              <span style="font-weight: 400; font-size: 0.76rem; color: var(--admin-text-muted);">(Optional — PDF, DOCX)</span>
+            </label>
+            <div id="projectDropzone" class="admin-dropzone compact" tabindex="0" role="button">
+              <input type="file" id="newProjectFileInput" accept=".pdf,.doc,.docx" style="display: none;">
+              <div id="projectDropzonePrompt" class="dropzone-prompt compact">
+                <span style="font-size: 1.25rem;">📎</span>
+                <span style="font-size: 0.82rem; color: var(--admin-text-muted);">
+                  Attach official Project Charter / Concept Document (<span style="color: var(--admin-primary); font-weight: 700; text-decoration: underline;">Browse</span>)
+                </span>
+              </div>
+              <div id="projectFilePreview" class="dropzone-preview" style="display: none;">
+                <div class="file-preview-card compact">
+                  <div class="file-preview-icon compact" id="projectFileBadge">PDF</div>
+                  <div class="file-preview-details">
+                    <div class="file-preview-name" id="projectFileName">charter.pdf</div>
+                    <div class="file-preview-meta" id="projectFileSize">0 KB</div>
+                  </div>
+                  <button type="button" class="btn-remove-file" id="btnRemoveProjectFile" title="Remove attached file">✕</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="admin-modal-footer">
@@ -552,6 +578,55 @@
       </div>
       <form id="newResourceForm">
         <div class="admin-modal-body">
+          
+          <!-- Document File Upload Allocation -->
+          <div class="admin-form-group">
+            <label class="admin-label">
+              Upload Document File *
+              <span style="font-weight: 400; font-size: 0.76rem; color: var(--admin-text-muted);">(PDF, DOCX, XLSX, PPTX, TXT — Max 25 MB)</span>
+            </label>
+
+            <div id="resourceDropzone" class="admin-dropzone" tabindex="0" role="button" aria-label="Upload document file dropzone">
+              <input type="file" id="newResourceFileInput" class="admin-file-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt" style="display: none;">
+              
+              <!-- State 1: Dropzone Prompt -->
+              <div id="resourceDropzonePrompt" class="dropzone-prompt">
+                <div class="dropzone-icon">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                  </svg>
+                </div>
+                <div class="dropzone-title">
+                  <strong>Click to browse</strong> or drag &amp; drop document file here
+                </div>
+                <div class="dropzone-subtitle">
+                  Supports Adobe PDF (.pdf), Microsoft Word (.docx), Excel (.xlsx), PowerPoint (.pptx) or Plain Text (.txt)
+                </div>
+                <button type="button" class="btn-browse-trigger" id="btnResourceBrowse">
+                  Choose Document File
+                </button>
+              </div>
+
+              <!-- State 2: Selected File Preview -->
+              <div id="resourceFilePreview" class="dropzone-preview" style="display: none;">
+                <div class="file-preview-card">
+                  <div class="file-preview-icon" id="filePreviewBadge">PDF</div>
+                  <div class="file-preview-details">
+                    <div class="file-preview-name" id="filePreviewName">document.pdf</div>
+                    <div class="file-preview-meta">
+                      <span id="filePreviewSize">0 KB</span> • <span class="file-preview-status">✓ Ready to upload</span>
+                    </div>
+                  </div>
+                  <button type="button" class="btn-remove-file" id="btnRemoveResourceFile" title="Remove selected file">
+                    ✕
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="admin-form-group">
             <label class="admin-label" for="newResourceTitle">Document Title *</label>
             <input type="text" id="newResourceTitle" class="admin-input" placeholder="e.g. 2026 Civil Service Reform Circular" required>
@@ -574,6 +649,8 @@
                 <option value="PDF">Adobe PDF (.pdf)</option>
                 <option value="DOCX">Microsoft Word (.docx)</option>
                 <option value="XLSX">Excel Spreadsheet (.xlsx)</option>
+                <option value="PPTX">PowerPoint Presentation (.pptx)</option>
+                <option value="TXT">Plain Text (.txt)</option>
               </select>
             </div>
           </div>
