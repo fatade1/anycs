@@ -749,17 +749,42 @@ function handleMembershipSubmit(e) {
         membersList = [];
       }
     }
-    membersList.unshift(newMemberRecord);
+
+    // Check if applicant previously had an application (matching email or staffId)
+    const prevIndex = membersList.findIndex(m => 
+      (m.email && newMemberRecord.email && m.email.toLowerCase() === newMemberRecord.email.toLowerCase()) ||
+      (m.staffId && newMemberRecord.staffId && m.staffId.toLowerCase() === newMemberRecord.staffId.toLowerCase())
+    );
+
+    let isReapplication = false;
+    if (prevIndex !== -1 && membersList[prevIndex].status === 'disapproved') {
+      isReapplication = true;
+      newMemberRecord.id = membersList[prevIndex].id; // Retain original ID
+      newMemberRecord.reappliedAt = dateStr;
+      newMemberRecord.previousDisapproval = membersList[prevIndex].disapprovedReason || 'Previous verification issue';
+      membersList[prevIndex] = newMemberRecord;
+    } else {
+      membersList.unshift(newMemberRecord);
+    }
+
     localStorage.setItem(STORAGE_KEY_MEMBERS, JSON.stringify(membersList));
+
+    if (isReapplication) {
+      showToast('🎉 Corrected reapplication submitted! Your updated credentials have been submitted to the Secretariat for re-evaluation.', 'success');
+    } else if (memberType === 'associate') {
+      showToast('🎉 Associate Application submitted! Your Membership ID and portal credentials are being activated for sign in.', 'success');
+    } else {
+      showToast('🎉 Full Membership application submitted successfully! Your credentials and MDA verification are being reviewed by the Secretariat.', 'success');
+    }
   } catch (storageErr) {
     console.warn('Could not sync registration to local store:', storageErr);
+    if (memberType === 'associate') {
+      showToast('🎉 Associate Application submitted! Your Membership ID and portal credentials are being activated for sign in.', 'success');
+    } else {
+      showToast('🎉 Full Membership application submitted successfully! Your credentials and MDA verification are being reviewed by the Secretariat.', 'success');
+    }
   }
 
-  if (memberType === 'associate') {
-    showToast('🎉 Associate Application submitted! Your Membership ID and portal credentials are being activated for sign in.', 'success');
-  } else {
-    showToast('🎉 Full Membership application submitted successfully! Your credentials and MDA verification are being reviewed by the Secretariat.', 'success');
-  }
   form.reset();
 
   // Reset to default Full Member state

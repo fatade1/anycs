@@ -180,6 +180,31 @@ const SEED_MEMBERS = [
     docTypeLabel: 'Valid Letter of Employment / Appointment',
     status: 'verified',
     registeredAt: '2026-10-04 12:05:41'
+  },
+  {
+    id: 'MEM-2026-009',
+    firstName: 'Tari',
+    lastName: 'Ebiware',
+    category: 'full',
+    memberTypeLabel: 'Full Member (18–35 yrs)',
+    dob: '1999-05-18',
+    age: 27,
+    gender: 'male',
+    phone: '+234 805 119 7720',
+    email: 'tari.ebiware@bayelsa.gov.ng',
+    tier: 'state',
+    tierLabel: 'State Government MDA',
+    mda: 'Bayelsa State Ministry of Environment',
+    stateChapter: 'Bayelsa',
+    staffId: 'BY/ENV/2023/502',
+    docType: 'staff_id_card',
+    docTypeLabel: 'Official Staff Identification Card',
+    status: 'disapproved',
+    disapprovedReason: 'Official Staff ID / File number could not be authenticated with MDA records',
+    disapprovedNotes: 'The staff file number provided could not be matched against the official State Ministry nominal roll. Please reapply uploading your formal Letter of Appointment.',
+    disapprovedAt: '2026-10-06 14:10:00',
+    canReapply: true,
+    registeredAt: '2026-10-05 11:32:15'
   }
 ];
 
@@ -749,6 +774,12 @@ function setupEventListeners() {
     newResourceForm.addEventListener('submit', handleAddResource);
   }
 
+  // Disapprove Member Verification Form Modal
+  const disapproveMemberForm = document.getElementById('disapproveMemberForm');
+  if (disapproveMemberForm) {
+    disapproveMemberForm.addEventListener('submit', handleDisapproveMember);
+  }
+
   // Generic modal close triggers
   document.querySelectorAll('[data-close-modal]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -921,8 +952,16 @@ function renderRecentMembersOverview(recentMembers) {
       ? `<span class="badge-category full">Full (18–35)</span>` 
       : `<span class="badge-category associate">Associate (35+)</span>`;
     
-    const statusClass = m.status === 'verified' ? 'verified' : (m.status === 'pending' ? 'pending' : 'review');
-    const statusBadge = `<span class="badge-status ${statusClass}">● ${m.status.toUpperCase()}</span>`;
+    let statusClass = 'pending';
+    let statusLabel = 'PENDING';
+    if (m.status === 'verified') {
+      statusClass = 'verified';
+      statusLabel = 'VERIFIED';
+    } else if (m.status === 'disapproved') {
+      statusClass = 'disapproved';
+      statusLabel = 'DISAPPROVED';
+    }
+    const statusBadge = `<span class="badge-status ${statusClass}">● ${statusLabel}</span>`;
 
     return `
       <tr>
@@ -1001,8 +1040,16 @@ function renderMembersTable() {
       ? `<span class="badge-category full">Full (18–35)</span>` 
       : `<span class="badge-category associate">Associate (35+)</span>`;
     
-    const statusClass = m.status === 'verified' ? 'verified' : (m.status === 'pending' ? 'pending' : 'review');
-    const statusLabel = m.status.toUpperCase();
+    let statusClass = 'pending';
+    let statusLabel = 'PENDING REVIEW';
+    if (m.status === 'verified') {
+      statusClass = 'verified';
+      statusLabel = 'VERIFIED';
+    } else if (m.status === 'disapproved') {
+      statusClass = 'disapproved';
+      statusLabel = 'DISAPPROVED (REAPPLY)';
+    }
+
     const statusBadge = `<span class="badge-status ${statusClass}">● ${statusLabel}</span>`;
 
     return `
@@ -1022,17 +1069,23 @@ function renderMembersTable() {
         <td style="font-size: 0.78rem; color: var(--admin-text-muted); white-space: nowrap;">${m.registeredAt ? m.registeredAt.split(' ')[0] : 'Recent'}</td>
         <td>
           <div class="table-actions">
-            <button class="btn-icon-sm" title="View Full Dossier" onclick="viewMemberDossier('${m.id}')">
+            <button class="btn-icon-sm" title="View Full Application Dossier" onclick="viewMemberDossier('${m.id}')">
               👁️
             </button>
             ${m.status !== 'verified' ? `
-              <button class="btn-icon-sm" style="color: #15803D;" title="Approve & Verify" onclick="updateMemberStatus('${m.id}', 'verified')">
+              <button class="btn-icon-sm" style="color: #15803D;" title="Approve & Verify Application" onclick="updateMemberStatus('${m.id}', 'verified')">
                 ✓
               </button>
             ` : ''}
-            <button class="btn-icon-sm delete" title="Delete Record" onclick="deleteMember('${m.id}')">
-              🗑️
-            </button>
+            ${m.status !== 'disapproved' ? `
+              <button class="btn-icon-sm disapprove" title="Disapprove Verification (Allow Reapply)" onclick="openDisapproveModal('${m.id}')">
+                ✕
+              </button>
+            ` : `
+              <button class="btn-icon-sm" style="color: #D97706;" title="Reset to Pending Review" onclick="updateMemberStatus('${m.id}', 'pending')">
+                ↺
+              </button>
+            `}
           </div>
         </td>
       </tr>
@@ -1057,8 +1110,10 @@ window.viewMemberDossier = function(memberId) {
     ? `<span class="badge-category full">Full Member (Serving, 18–35 yrs)</span>` 
     : `<span class="badge-category associate">Associate Member (After 35 yrs / Alumni)</span>`;
 
-  const statusClass = m.status === 'verified' ? 'verified' : (m.status === 'pending' ? 'pending' : 'review');
-  const statusBadge = `<span class="badge-status ${statusClass}">● ${m.status.toUpperCase()}</span>`;
+  const isDisapproved = m.status === 'disapproved';
+  const statusClass = m.status === 'verified' ? 'verified' : (isDisapproved ? 'disapproved' : 'pending');
+  const statusLabel = m.status === 'verified' ? 'VERIFIED' : (isDisapproved ? 'DISAPPROVED (CAN REAPPLY)' : 'PENDING REVIEW');
+  const statusBadge = `<span class="badge-status ${statusClass}">● ${statusLabel}</span>`;
 
   content.innerHTML = `
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--admin-border); flex-wrap: wrap; gap: 10px;">
@@ -1071,6 +1126,28 @@ window.viewMemberDossier = function(memberId) {
         ${statusBadge}
       </div>
     </div>
+
+    ${isDisapproved ? `
+      <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+          <span style="font-weight: 800; color: #991B1B; font-size: 0.92rem; display: flex; align-items: center; gap: 6px;">
+            <span>⚠️</span> Verification Disapproved — Reapplication Permitted
+          </span>
+          <span style="background: #FEE2E2; color: #991B1B; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 12px; border: 1px solid rgba(220, 38, 38, 0.25);">CAN REAPPLY</span>
+        </div>
+        <div style="font-size: 0.85rem; color: #7F1D1D; margin-bottom: 4px;">
+          <strong>Disapproval Reason:</strong> ${m.disapprovedReason || 'Official credentials could not be authenticated with MDA nominal roll.'}
+        </div>
+        ${m.disapprovedNotes ? `
+          <div style="font-size: 0.8rem; color: #991B1B; background: rgba(255,255,255,0.7); padding: 8px 10px; border-radius: 4px; margin-top: 6px;">
+            <strong>Secretariat Guidance:</strong> ${m.disapprovedNotes}
+          </div>
+        ` : ''}
+        <div style="font-size: 0.74rem; color: #B91C1C; margin-top: 6px;">
+          Decision recorded on: ${m.disapprovedAt || 'Recent'} • Applicant is permitted to submit a corrected application anytime.
+        </div>
+      </div>
+    ` : ''}
 
     <div class="dossier-grid">
       <div class="dossier-item">
@@ -1115,28 +1192,83 @@ window.viewMemberDossier = function(memberId) {
       </div>
       <div class="dossier-item full-width">
         <label>Registration Date &amp; Legal Consent</label>
-        <span>Submitted on ${m.registeredAt || 'Recent'} • NDPA 2023 Consent Confirmed ✓</span>
+        <span>Submitted on ${m.registeredAt || 'Recent'} • NDPA 2023 Consent Confirmed ✓ ${m.reappliedAt ? `• Reapplied: ${m.reappliedAt}` : ''}</span>
       </div>
     </div>
 
-    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-      ${m.status !== 'verified' ? `
+    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
+      ${isDisapproved ? `
         <button type="button" class="btn-admin btn-admin-primary btn-admin-sm" onclick="updateMemberStatus('${m.id}', 'verified'); closeAllModals();">
-          ✓ Approve &amp; Verify Application
+          ✓ Override &amp; Approve Verification
+        </button>
+        <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" onclick="updateMemberStatus('${m.id}', 'pending'); closeAllModals();">
+          ↺ Reset to Pending Review
         </button>
       ` : `
-        <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" onclick="updateMemberStatus('${m.id}', 'pending'); closeAllModals();">
-          Mark as Pending Review
+        ${m.status !== 'verified' ? `
+          <button type="button" class="btn-admin btn-admin-primary btn-admin-sm" onclick="updateMemberStatus('${m.id}', 'verified'); closeAllModals();">
+            ✓ Approve &amp; Verify Application
+          </button>
+        ` : `
+          <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" onclick="updateMemberStatus('${m.id}', 'pending'); closeAllModals();">
+            Mark as Pending Review
+          </button>
+        `}
+        <button type="button" class="btn-admin btn-admin-danger btn-admin-sm" style="background: #DC2626;" onclick="closeAllModals(); openDisapproveModal('${m.id}');">
+          ✕ Disapprove Verification (Allow Reapply)
         </button>
       `}
-      <button type="button" class="btn-admin btn-admin-danger btn-admin-sm" onclick="deleteMember('${m.id}'); closeAllModals();">
-        🗑️ Delete Record
-      </button>
     </div>
   `;
 
   modal.classList.add('active');
 };
+
+window.openDisapproveModal = function(memberId) {
+  const members = getStoredMembers();
+  const m = members.find(item => item.id === memberId);
+  if (!m) return;
+
+  const modal = document.getElementById('disapproveMemberModal');
+  const idInput = document.getElementById('disapproveMemberId');
+  const nameEl = document.getElementById('disapproveMemberName');
+  const detailsEl = document.getElementById('disapproveMemberDetails');
+  const notesInput = document.getElementById('disapproveNotes');
+
+  if (idInput) idInput.value = m.id;
+  if (nameEl) nameEl.textContent = `${m.firstName || ''} ${m.lastName || ''} — ${m.memberTypeLabel || m.category}`;
+  if (detailsEl) detailsEl.textContent = `Staff ID: ${m.staffId || m.id} • ${m.mda || 'MDA not specified'}`;
+  if (notesInput) notesInput.value = '';
+
+  if (modal) modal.classList.add('active');
+};
+
+function handleDisapproveMember(e) {
+  e.preventDefault();
+  const form = e.target;
+  const memberId = form.querySelector('#disapproveMemberId').value;
+  const reason = form.querySelector('#disapproveReasonSelect').value;
+  const notes = form.querySelector('#disapproveNotes').value.trim();
+
+  const members = getStoredMembers();
+  const index = members.findIndex(m => m.id === memberId);
+  if (index === -1) return;
+
+  const now = new Date();
+  const dateStr = now.toISOString().replace('T', ' ').substring(0, 19);
+
+  members[index].status = 'disapproved';
+  members[index].disapprovedReason = reason;
+  members[index].disapprovedNotes = notes;
+  members[index].disapprovedAt = dateStr;
+  members[index].canReapply = true;
+
+  saveMembers(members);
+  showAdminToast(`⚠️ Application for ${members[index].firstName} ${members[index].lastName} disapproved. Member may reapply with corrected credentials.`);
+  closeAllModals();
+  renderDashboard();
+  renderMembersTable();
+}
 
 window.updateMemberStatus = function(memberId, newStatus) {
   const members = getStoredMembers();
@@ -1144,6 +1276,9 @@ window.updateMemberStatus = function(memberId, newStatus) {
   if (index === -1) return;
 
   members[index].status = newStatus;
+  if (newStatus === 'verified') {
+    members[index].verifiedAt = new Date().toISOString().replace('T', ' ').substring(0, 19);
+  }
   saveMembers(members);
   showAdminToast(`Member application status updated to: ${newStatus.toUpperCase()}`);
   renderDashboard();
@@ -1170,7 +1305,7 @@ function exportMembersCsv() {
     return;
   }
 
-  const headers = ['Record_ID', 'First_Name', 'Last_Name', 'Category', 'Staff_or_Member_ID', 'MDA', 'Tier', 'State_Chapter', 'Email', 'Phone', 'Gender', 'DOB', 'Document_Type', 'Status', 'Registered_At'];
+  const headers = ['Record_ID', 'First_Name', 'Last_Name', 'Category', 'Staff_or_Member_ID', 'MDA', 'Tier', 'State_Chapter', 'Email', 'Phone', 'Gender', 'DOB', 'Document_Type', 'Status', 'Disapproval_Reason', 'Can_Reapply', 'Registered_At'];
   
   const csvRows = [];
   csvRows.push(headers.join(','));
@@ -1191,6 +1326,8 @@ function exportMembersCsv() {
       m.dob || '',
       `"${(m.docType || '').replace(/"/g, '""')}"`,
       m.status || '',
+      `"${(m.disapprovedReason || '').replace(/"/g, '""')}"`,
+      m.status === 'disapproved' || m.canReapply ? 'YES' : 'NO',
       m.registeredAt || ''
     ];
     csvRows.push(row.join(','));

@@ -287,7 +287,8 @@
                 <select id="memberStatusFilter" class="filter-select">
                   <option value="all">All Statuses</option>
                   <option value="verified">Verified</option>
-                  <option value="pending">Pending</option>
+                  <option value="pending">Pending Review</option>
+                  <option value="disapproved">Disapproved (Can Reapply)</option>
                 </select>
 
                 <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" id="btnExportMembersCsv">
@@ -669,6 +670,52 @@
         <div class="admin-modal-footer">
           <button type="button" class="btn-admin btn-admin-outline" data-close-modal>Cancel</button>
           <button type="submit" class="btn-admin btn-primary-green">Upload &amp; Publish</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Disapprove Member Verification Modal -->
+  <div id="disapproveMemberModal" class="admin-modal-overlay">
+    <div class="admin-modal-card" style="max-width: 520px;">
+      <div class="admin-modal-header" style="background: #FEF2F2; border-bottom: 1px solid #FECACA;">
+        <h3 style="color: #991B1B; display: flex; align-items: center; gap: 8px;">
+          <span>⚠️</span> Disapprove Member Verification
+        </h3>
+        <button class="btn-modal-close" data-close-modal aria-label="Close modal">✕</button>
+      </div>
+      <form id="disapproveMemberForm">
+        <input type="hidden" id="disapproveMemberId" value="">
+        <div class="admin-modal-body">
+          <p style="font-size: 0.88rem; color: var(--admin-text-main); margin-bottom: 14px; line-height: 1.6;">
+            Disapproving will mark the application as <strong>Disapproved (Eligible to Reapply)</strong> instead of permanently deleting their record. The applicant will be advised on the reason so they can submit corrected credentials.
+          </p>
+
+          <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 18px;">
+            <div style="font-size: 0.86rem; font-weight: 700; color: #92400E;" id="disapproveMemberName">Applicant Name</div>
+            <div style="font-size: 0.78rem; color: #78350F; margin-top: 3px;" id="disapproveMemberDetails">Staff ID • MDA</div>
+          </div>
+
+          <div class="admin-form-group">
+            <label class="admin-label" for="disapproveReasonSelect">Primary Reason for Disapproval *</label>
+            <select id="disapproveReasonSelect" class="admin-select" required>
+              <option value="Official Staff ID / File number could not be authenticated with MDA records">Official Staff ID / File number could not be authenticated with MDA records</option>
+              <option value="Submitted document is illegible, incomplete, or expired">Submitted document is illegible, incomplete, or expired</option>
+              <option value="Ministry / Agency (MDA) credentials could not be verified by Secretariat">Ministry / Agency (MDA) credentials could not be verified by Secretariat</option>
+              <option value="Age criterion does not match Full Member category (18–35 yrs)">Age criterion does not match Full Member category (18–35 yrs)</option>
+              <option value="Other verification discrepancy (see guidance notes below)">Other verification discrepancy</option>
+            </select>
+          </div>
+
+          <div class="admin-form-group">
+            <label class="admin-label" for="disapproveNotes">Secretariat Guidance Notes for Reapplication (Optional)</label>
+            <textarea id="disapproveNotes" class="admin-textarea" rows="3" placeholder="Provide advice for the applicant when they reapply (e.g. Please re-upload an official appointment letter signed by Director of HR)..."></textarea>
+          </div>
+        </div>
+
+        <div class="admin-modal-footer">
+          <button type="button" class="btn-admin btn-admin-outline" data-close-modal>Cancel</button>
+          <button type="submit" class="btn-admin btn-admin-danger" style="background: #DC2626;">Disapprove &amp; Allow Reapply</button>
         </div>
       </form>
     </div>

@@ -731,9 +731,11 @@ body {
   color: var(--status-info);
 }
 
-.badge-status.rejected {
+.badge-status.rejected,
+.badge-status.disapproved {
   background: var(--status-danger-bg);
   color: var(--status-danger);
+  border: 1px solid rgba(220, 38, 38, 0.2);
 }
 
 /* Action Buttons inside Table */
@@ -762,6 +764,16 @@ body {
   background: var(--admin-primary);
   color: #FFFFFF;
   border-color: var(--admin-primary);
+}
+
+.btn-icon-sm.disapprove {
+  color: #DC2626;
+}
+
+.btn-icon-sm.disapprove:hover {
+  background: #DC2626;
+  border-color: #DC2626;
+  color: #FFFFFF;
 }
 
 .btn-icon-sm.delete:hover {
