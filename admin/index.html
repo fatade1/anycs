@@ -111,6 +111,12 @@
           <span class="badge" id="sidebarBadgeResources">0</span>
         </a>
 
+        <a class="sidebar-link" data-admin-tab="gallery" id="sidebarLinkGallery">
+          <span class="icon"><i data-lucide="camera"></i></span>
+          <span>Media Gallery</span>
+          <span class="badge" id="sidebarBadgeGallery">0</span>
+        </a>
+
         <div class="sidebar-heading" id="sidebarHeadingAdminManage">Administration &amp; System</div>
 
         <a class="sidebar-link" data-admin-tab="admins" id="sidebarLinkAdmins">
@@ -161,6 +167,9 @@
 
         <div class="admin-header-right">
           <span class="header-role-pill" id="headerRoleBadge"><i data-lucide="shield"></i> <span id="headerRoleText">Super Admin</span></span>
+          <button type="button" class="btn-header-action" onclick="openCreateGalleryModal()">
+            <i data-lucide="camera"></i><span>+ Upload Photos</span>
+          </button>
           <button type="button" class="btn-header-action" onclick="openModal('newProjectModal')">
             <span>+ New Project</span>
           </button>
@@ -234,6 +243,15 @@
               </div>
               <div class="stat-value" id="statPublishedResources">0</div>
               <div class="stat-subtext">Official guidelines, briefs &amp; circulars</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">Media Gallery Albums</span>
+                <span class="stat-icon"><i data-lucide="camera"></i></span>
+              </div>
+              <div class="stat-value" id="statGalleryAlbums">0</div>
+              <div class="stat-subtext">Summits, state chapters &amp; photo stream</div>
             </div>
           </div>
 
@@ -420,6 +438,44 @@
                   <!-- Populated by JS -->
                 </tbody>
               </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             TAB 4B: MEDIA GALLERY & PHOTO STREAM
+             ================================================================== -->
+        <div id="tab-gallery" class="admin-tab-pane" style="display: none;">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <div class="admin-card-title">
+                <h3>Media Gallery &amp; Photo Stream</h3>
+                <p id="galleryShowingCount">Upload, manage and publish multi-picture albums to the website Media Gallery (resources.html#media)</p>
+              </div>
+
+              <div class="admin-toolbar">
+                <div class="search-box">
+                  <span class="icon"><i data-lucide="search"></i></span>
+                  <input type="text" id="gallerySearchInput" placeholder="Search albums, photos or events...">
+                </div>
+
+                <select id="galleryCategoryFilter" class="filter-select">
+                  <option value="all">All Photo Categories</option>
+                  <option value="Summits & Conferences">Summits &amp; Conferences</option>
+                  <option value="State Chapter Invocations">State Chapter Invocations</option>
+                  <option value="Training & Workshops">Training &amp; Workshops</option>
+                  <option value="Community Outreach">Community Outreach</option>
+                  <option value="Executive Engagements">Executive Engagements</option>
+                </select>
+
+                <button type="button" class="btn-admin btn-primary-green btn-admin-sm" onclick="openCreateGalleryModal()">
+                  <i data-lucide="camera"></i><span>+ Upload Gallery Album</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="items-grid" id="galleryGrid">
+              <!-- Populated by JS -->
             </div>
           </div>
         </div>
@@ -850,6 +906,80 @@
         <div class="admin-modal-footer">
           <button type="button" class="btn-admin btn-admin-outline" data-close-modal>Cancel</button>
           <button type="submit" class="btn-admin btn-primary-green">Create Administrator Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 6. New Media Gallery Album Upload & Edit Modal -->
+  <div id="newGalleryModal" class="admin-modal-overlay">
+    <div class="admin-modal-card" style="max-width: 680px;">
+      <div class="admin-modal-header">
+        <h3 id="galleryModalTitle">Upload / Add Media Gallery Album</h3>
+        <button class="btn-modal-close" data-close-modal aria-label="Close modal"><i data-lucide="x"></i></button>
+      </div>
+      <form id="newGalleryForm">
+        <input type="hidden" id="editingGalleryId" value="">
+        <div class="admin-modal-body">
+          <p style="font-size: 0.85rem; color: var(--admin-text-muted); margin-bottom: 14px;">
+            Upload high-resolution event photographs for the public website Media Gallery (<a href="../resources.html#media" target="_blank" style="color: var(--admin-primary); text-decoration: underline; font-weight: 600;">resources.html#media</a>). Photos are automatically optimized for web performance.
+          </p>
+
+          <div class="admin-form-group">
+            <label class="admin-label" for="newGalleryTitle">Album / Event Title *</label>
+            <input type="text" id="newGalleryTitle" class="admin-input" placeholder="e.g. National Youth Public Service Innovation Summit 2026" required>
+          </div>
+
+          <div class="admin-form-grid-2">
+            <div class="admin-form-group">
+              <label class="admin-label" for="newGalleryCategory">Event Category *</label>
+              <select id="newGalleryCategory" class="admin-select" required>
+                <option value="Summits & Conferences">Summits &amp; Conferences</option>
+                <option value="State Chapter Invocations">State Chapter Invocations</option>
+                <option value="Training & Workshops">Training &amp; Workshops</option>
+                <option value="Community Outreach">Community Outreach</option>
+                <option value="Executive Engagements">Executive Engagements</option>
+              </select>
+            </div>
+
+            <div class="admin-form-group">
+              <label class="admin-label" for="newGalleryDate">Event Date *</label>
+              <input type="date" id="newGalleryDate" class="admin-input" required>
+            </div>
+          </div>
+
+          <div class="admin-form-group">
+            <label class="admin-label" for="newGalleryLocation">Location / Host Chapter *</label>
+            <input type="text" id="newGalleryLocation" class="admin-input" placeholder="e.g. International Conference Centre, Abuja FCT" required>
+          </div>
+
+          <div class="admin-form-group">
+            <label class="admin-label" for="newGalleryDesc">Event Description &amp; Highlights *</label>
+            <textarea id="newGalleryDesc" class="admin-textarea" rows="3" placeholder="Provide event context, participating MDAs, leadership attendance and key outcomes..." required></textarea>
+          </div>
+
+          <!-- Multi-Picture Upload Dropzone for Media Gallery -->
+          <div class="admin-form-group">
+            <label class="admin-label">
+              Upload Album Photos *
+              <span style="font-weight: 400; font-size: 0.76rem; color: var(--admin-text-muted);">(Select multiple event photos — JPG, PNG, WebP)</span>
+            </label>
+            <div class="image-upload-box" id="galleryImageDropzone">
+              <input type="file" id="newGalleryImagesInput" accept="image/*" multiple style="display: none;">
+              <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" id="btnBrowseGalleryImages">
+                  <i data-lucide="image-plus"></i><span>Choose Pictures (Multiple)</span>
+                </button>
+                <span style="font-size: 0.78rem; color: var(--admin-text-muted);" id="galleryImagesCountBadge">0 pictures selected</span>
+              </div>
+              <div class="image-preview-grid" id="galleryImagesPreviewGrid"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-modal-footer">
+          <button type="button" class="btn-admin btn-admin-outline" data-close-modal>Cancel</button>
+          <button type="submit" class="btn-admin btn-primary-green" id="btnSubmitGallery">Publish to Media Gallery</button>
         </div>
       </form>
     </div>

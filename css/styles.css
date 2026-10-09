@@ -3549,7 +3549,8 @@ p {
 }
 
 /* Modal Overlay */
-.project-modal-overlay {
+.project-modal-overlay,
+.media-modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(15, 23, 42, 0.75);
@@ -3563,7 +3564,8 @@ p {
   transition: opacity 0.3s ease;
 }
 
-.project-modal-overlay.active {
+.project-modal-overlay.active,
+.media-modal-overlay.active {
   display: flex;
   opacity: 1;
 }
@@ -3871,6 +3873,178 @@ p {
 
   .project-modal-body {
     padding: 16px;
+  }
+}
+
+/* ==========================================================================
+   PUBLIC MEDIA GALLERY & PHOTO STREAM COMPONENT (resources.html#media)
+   ========================================================================== */
+.media-gallery-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: var(--space-2xl);
+  margin-bottom: var(--space-xl);
+}
+
+.media-filter-pill {
+  padding: 8px 18px;
+  border-radius: 30px;
+  border: 1px solid rgba(15, 69, 48, 0.15);
+  background: var(--color-white);
+  color: var(--color-dark);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.media-filter-pill:hover,
+.media-filter-pill.active {
+  background: var(--color-primary);
+  color: var(--color-white);
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(15, 69, 48, 0.2);
+}
+
+.media-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--space-xl);
+  margin-top: var(--space-lg);
+}
+
+.media-album-card {
+  background: var(--color-white);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(15, 69, 48, 0.08);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.28s ease;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.media-album-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.12);
+  border-color: var(--color-primary);
+}
+
+.media-album-card__cover {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  background: #0F172A;
+}
+
+.media-album-card__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.45s ease;
+}
+
+.media-album-card:hover .media-album-card__cover img {
+  transform: scale(1.06);
+}
+
+.media-album-card__badge-cat {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(15, 69, 48, 0.92);
+  color: #E9CE74;
+  font-size: 0.70rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(4px);
+}
+
+.media-album-card__badge-count {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(15, 23, 42, 0.85);
+  color: #fff;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  backdrop-filter: blur(6px);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.media-album-card__body {
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.media-album-card__title {
+  font-size: var(--fs-base);
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.media-album-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: var(--fs-xs);
+  color: var(--color-gray);
+  margin-bottom: 10px;
+}
+
+.media-album-card__meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.media-album-card__desc {
+  font-size: var(--fs-xs);
+  color: var(--color-dark-gray);
+  line-height: 1.65;
+  margin-bottom: 16px;
+  flex: 1;
+}
+
+.media-album-card__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-xs);
+  font-weight: 800;
+  color: var(--color-primary);
+  margin-top: auto;
+  transition: transform var(--transition-fast);
+}
+
+.media-album-card:hover .media-album-card__btn {
+  transform: translateX(4px);
+}
+
+@media (max-width: 640px) {
+  .media-gallery-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+  }
+
+  .media-album-card__cover {
+    height: 190px;
   }
 }
 

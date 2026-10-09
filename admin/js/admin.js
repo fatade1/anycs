@@ -9,6 +9,7 @@ const STORAGE_KEYS = {
   MEMBERS: 'ncsyf_registered_members',
   PROJECTS: 'ncsyf_admin_projects',
   RESOURCES: 'ncsyf_admin_resources',
+  GALLERY: 'ncsyf_admin_gallery',
   API_CONFIG: 'ncsyf_admin_api_config'
 };
 
@@ -353,6 +354,62 @@ const SEED_RESOURCES = [
   }
 ];
 
+const SEED_GALLERY_ALBUMS = [
+  {
+    id: 'GAL-001',
+    title: 'National Public Service Innovation Summit 2026',
+    category: 'Summits & Conferences',
+    location: 'International Conference Centre, Abuja FCT',
+    date: '2026-09-18',
+    description: 'High-level federal assembly gathering 1,500+ young civil servants from all 36 States and FCT to formulate digital service delivery roadmaps and paperless workflows.',
+    images: [
+      'images/gallery_national_summit.jpg',
+      'images/african-youth-civil-servants.jpg',
+      'images/project_digital_office.jpg'
+    ],
+    dateAdded: '2026-09-18'
+  },
+  {
+    id: 'GAL-002',
+    title: 'State Chapter Official Leadership Inauguration & Induction',
+    category: 'State Chapter Invocations',
+    location: 'Public Service Staff Hall, Lagos & FCT Secretariat',
+    date: '2026-09-22',
+    description: 'Formal swearing-in ceremony for newly appointed State Chapter Executive Committees and zonal youth coordinators driving Track B public service modernization.',
+    images: [
+      'images/gallery_state_inauguration.jpg',
+      'images/project_governance.jpg'
+    ],
+    dateAdded: '2026-09-22'
+  },
+  {
+    id: 'GAL-003',
+    title: 'Civil Service E-Governance & Artificial Intelligence Workshop',
+    category: 'Training & Workshops',
+    location: 'Digital Transformation Academy, Area 1, Garki, Abuja',
+    date: '2026-09-29',
+    description: 'Hands-on practical training equipping desk officers with AI productivity tools, secure data pipelines, and electronic document routing techniques.',
+    images: [
+      'images/gallery_digital_training.jpg',
+      'images/project_agritech.jpg'
+    ],
+    dateAdded: '2026-09-29'
+  },
+  {
+    id: 'GAL-004',
+    title: 'Primary Healthcare Community Outreach & Health Mission',
+    category: 'Community Outreach',
+    location: 'Kano State Chapter & FCT Area Councils',
+    date: '2026-10-04',
+    description: 'Youth civil servants in public health cadres conducting grassroots health assessments, immunization logistic verification, and medical supply audits.',
+    images: [
+      'images/project_healthcare.jpg',
+      'images/african-youth-civil-servants.jpg'
+    ],
+    dateAdded: '2026-10-04'
+  }
+];
+
 // ---- Store Helpers ----
 function getStoredAdminUsers() {
   const data = localStorage.getItem(STORAGE_KEYS.ADMIN_USERS);
@@ -470,6 +527,25 @@ function saveResources(resources) {
   localStorage.setItem(STORAGE_KEYS.RESOURCES, JSON.stringify(resources));
 }
 
+function getStoredGallery() {
+  const data = localStorage.getItem(STORAGE_KEYS.GALLERY);
+  if (!data) {
+    localStorage.setItem(STORAGE_KEYS.GALLERY, JSON.stringify(SEED_GALLERY_ALBUMS));
+    return SEED_GALLERY_ALBUMS;
+  }
+  try {
+    const parsed = JSON.parse(data);
+    if (Array.isArray(parsed) && parsed.length) return parsed;
+    return SEED_GALLERY_ALBUMS;
+  } catch (e) {
+    return SEED_GALLERY_ALBUMS;
+  }
+}
+
+function saveGallery(gallery) {
+  localStorage.setItem(STORAGE_KEYS.GALLERY, JSON.stringify(gallery));
+}
+
 function getAuthSession() {
   const session = sessionStorage.getItem(STORAGE_KEYS.AUTH) || localStorage.getItem(STORAGE_KEYS.AUTH);
   if (!session) return null;
@@ -575,6 +651,7 @@ function checkAuthAndRender() {
 // ==========================================================================
 let uploadedProjectImages = [];
 let uploadedResourceImages = [];
+let uploadedGalleryImages = [];
 
 function compressImageFile(file, maxDimension = 1280, quality = 0.82) {
   return new Promise((resolve) => {
@@ -771,6 +848,92 @@ function setupResourceImagesUpload() {
           }
         }
         renderResourceImagePreviews();
+      }
+    });
+  }
+}
+
+// ---- Media Gallery Multi-Image Upload Manager ----
+function renderGalleryImagePreviews() {
+  const grid = document.getElementById('galleryImagesPreviewGrid');
+  const countBadge = document.getElementById('galleryImagesCountBadge');
+  if (!grid) return;
+
+  if (countBadge) {
+    countBadge.textContent = `${uploadedGalleryImages.length} picture${uploadedGalleryImages.length === 1 ? '' : 's'} selected`;
+  }
+
+  if (!uploadedGalleryImages.length) {
+    grid.innerHTML = '';
+    return;
+  }
+
+  grid.innerHTML = uploadedGalleryImages.map((imgSrc, index) => {
+    return `
+      <div class="image-thumb-card">
+        <img src="${imgSrc}" alt="Gallery picture ${index + 1}">
+        <button type="button" class="image-thumb-remove" onclick="removeGalleryImage(${index})" title="Remove picture">
+          ${getIconSvg('x', { size: 12 })}
+        </button>
+      </div>
+    `;
+  }).join('');
+}
+
+window.removeGalleryImage = function(index) {
+  uploadedGalleryImages.splice(index, 1);
+  renderGalleryImagePreviews();
+};
+
+function setupGalleryImagesUpload() {
+  const fileInput = document.getElementById('newGalleryImagesInput');
+  const browseBtn = document.getElementById('btnBrowseGalleryImages');
+  const dropzone = document.getElementById('galleryImageDropzone');
+
+  if (browseBtn && fileInput) {
+    browseBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      fileInput.click();
+    });
+  }
+
+  if (fileInput) {
+    fileInput.addEventListener('change', async () => {
+      if (fileInput.files && fileInput.files.length) {
+        for (let i = 0; i < fileInput.files.length; i++) {
+          const res = await compressImageFile(fileInput.files[i]);
+          if (res) uploadedGalleryImages.push(res);
+        }
+        renderGalleryImagePreviews();
+        fileInput.value = '';
+      }
+    });
+  }
+
+  if (dropzone) {
+    ['dragenter', 'dragover'].forEach(name => {
+      dropzone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+      });
+    });
+    ['dragleave', 'drop'].forEach(name => {
+      dropzone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+      });
+    });
+    dropzone.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      const files = e.dataTransfer ? e.dataTransfer.files : null;
+      if (files && files.length) {
+        for (let i = 0; i < files.length; i++) {
+          if (files[i].type.startsWith('image/')) {
+            const res = await compressImageFile(files[i]);
+            if (res) uploadedGalleryImages.push(res);
+          }
+        }
+        renderGalleryImagePreviews();
       }
     });
   }
@@ -1034,6 +1197,7 @@ function setupEventListeners() {
   setupProjectDropzone();
   setupProjectImagesUpload();
   setupResourceImagesUpload();
+  setupGalleryImagesUpload();
 
   // Login Form
   const loginForm = document.getElementById('adminLoginForm');
@@ -1166,6 +1330,18 @@ function setupEventListeners() {
   const newResourceForm = document.getElementById('newResourceForm');
   if (newResourceForm) {
     newResourceForm.addEventListener('submit', handleAddResource);
+  }
+
+  // Media Gallery filter & search
+  const gallerySearch = document.getElementById('gallerySearchInput');
+  const galleryCategoryFilter = document.getElementById('galleryCategoryFilter');
+  if (gallerySearch) gallerySearch.addEventListener('input', renderGalleryList);
+  if (galleryCategoryFilter) galleryCategoryFilter.addEventListener('change', renderGalleryList);
+
+  // New Media Gallery Form Modal
+  const newGalleryForm = document.getElementById('newGalleryForm');
+  if (newGalleryForm) {
+    newGalleryForm.addEventListener('submit', handleSaveGallery);
   }
 
   // New Admin Form Modal (Super Admin only)
@@ -1301,6 +1477,7 @@ function switchTab(tabId) {
     members: { title: 'Registered Members', subtitle: 'Full and Associate member enrollment database and verification' },
     projects: { title: 'National Projects', subtitle: 'Priority initiatives across Federal, State and LGA public services' },
     resources: { title: 'Publications & Resources', subtitle: 'Policy briefs, constitution, bye-laws and public service toolkits' },
+    gallery: { title: 'Media Gallery & Photo Stream', subtitle: 'Upload and administer official photographs, summits and event albums' },
     admins: { title: 'Admin Team & Roles', subtitle: 'Manage administrator accounts, assign permissions and revoke access' },
     settings: { title: 'System & Backend Settings', subtitle: 'Configure future backend API endpoints and manage data' }
   };
@@ -1315,6 +1492,7 @@ function switchTab(tabId) {
   if (tabId === 'members') renderMembersTable();
   if (tabId === 'projects') renderProjectsList();
   if (tabId === 'resources') renderResourcesList();
+  if (tabId === 'gallery') renderGalleryList();
   if (tabId === 'admins') renderAdminsTable();
 }
 
@@ -1325,6 +1503,7 @@ function renderDashboard() {
   const members = getStoredMembers();
   const projects = getStoredProjects();
   const resources = getStoredResources();
+  const gallery = getStoredGallery();
 
   const totalMembers = members.length;
   const fullMembers = members.filter(m => m.category === 'full').length;
@@ -1340,6 +1519,7 @@ function renderDashboard() {
   const elMdas = document.getElementById('statDistinctMdas');
   const elProjects = document.getElementById('statActiveProjects');
   const elResources = document.getElementById('statPublishedResources');
+  const elGallery = document.getElementById('statGalleryAlbums');
 
   if (elTotal) elTotal.textContent = totalMembers;
   if (elFull) elFull.textContent = fullMembers;
@@ -1347,15 +1527,18 @@ function renderDashboard() {
   if (elMdas) elMdas.textContent = distinctMdas;
   if (elProjects) elProjects.textContent = projects.length;
   if (elResources) elResources.textContent = resources.length;
+  if (elGallery) elGallery.textContent = gallery.length;
 
   // Update sidebar counter badges
   const badgeMembers = document.getElementById('sidebarBadgeMembers');
   const badgeProjects = document.getElementById('sidebarBadgeProjects');
   const badgeResources = document.getElementById('sidebarBadgeResources');
+  const badgeGallery = document.getElementById('sidebarBadgeGallery');
 
   if (badgeMembers) badgeMembers.textContent = totalMembers;
   if (badgeProjects) badgeProjects.textContent = projects.length;
   if (badgeResources) badgeResources.textContent = resources.length;
+  if (badgeGallery) badgeGallery.textContent = gallery.length;
 
   // Render recent registrations on Overview
   renderRecentMembersOverview(members.slice(0, 5));
@@ -2581,10 +2764,228 @@ window.closeAllModals = function() {
   });
   const projectEditId = document.getElementById('editingProjectId');
   const resourceEditId = document.getElementById('editingResourceId');
+  const galleryEditId = document.getElementById('editingGalleryId');
   if (projectEditId) projectEditId.value = '';
   if (resourceEditId) resourceEditId.value = '';
+  if (galleryEditId) galleryEditId.value = '';
   resetResourceDropzone();
   resetProjectDropzone();
+};
+
+// ==========================================================================
+// MEDIA GALLERY CONTROLLER & ALBUM CRUD
+// ==========================================================================
+function renderGalleryList() {
+  const grid = document.getElementById('galleryGrid');
+  const countEl = document.getElementById('galleryShowingCount');
+  if (!grid) return;
+
+  const albums = getStoredGallery();
+  const search = (document.getElementById('gallerySearchInput')?.value || '').toLowerCase().trim();
+  const categoryFilter = document.getElementById('galleryCategoryFilter')?.value || 'all';
+
+  const filtered = albums.filter(a => {
+    const matchesSearch = !search ||
+      a.title.toLowerCase().includes(search) ||
+      (a.location && a.location.toLowerCase().includes(search)) ||
+      (a.description && a.description.toLowerCase().includes(search));
+    const matchesCat = categoryFilter === 'all' || a.category === categoryFilter;
+    return matchesSearch && matchesCat;
+  });
+
+  if (countEl) {
+    countEl.textContent = `Showing ${filtered.length} of ${albums.length} media albums and photo streams`;
+  }
+
+  if (!filtered.length) {
+    grid.innerHTML = `
+      <div style="grid-column: 1/-1; text-align: center; padding: 48px 20px; background: var(--admin-card-bg); border-radius: var(--radius-md); border: 1px dashed var(--admin-border);">
+        <div style="color: var(--admin-text-muted); margin-bottom: 8px;">${getIconSvg('camera', { size: 36 })}</div>
+        <h4 style="font-size: 1rem; color: var(--admin-text); margin-bottom: 4px;">No Media Albums Found</h4>
+        <p style="font-size: 0.82rem; color: var(--admin-text-muted); margin-bottom: 16px;">Upload high-resolution event photographs to publish to the public Media Gallery.</p>
+        <button type="button" class="btn-admin btn-primary-green btn-admin-sm" onclick="openCreateGalleryModal()">
+          ${getIconSvg('image-plus', { size: 14 })} <span>Upload First Album</span>
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  const isSuper = isSuperAdmin();
+
+  grid.innerHTML = filtered.map(a => {
+    const hasImages = a.images && Array.isArray(a.images) && a.images.length > 0;
+    const cover = hasImages ? a.images[0] : 'images/african-youth-civil-servants.jpg';
+    const imgCount = hasImages ? a.images.length : 0;
+
+    return `
+      <div class="item-card">
+        <div style="position: relative; height: 180px; border-radius: var(--radius-sm); overflow: hidden; margin-bottom: 12px; background: #0F172A;">
+          <img src="${cover}" alt="${a.title}" style="width: 100%; height: 100%; object-fit: cover;">
+          <span style="position: absolute; bottom: 8px; right: 8px; background: rgba(15,23,42,0.85); color: #fff; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; backdrop-filter: blur(4px); display: inline-flex; align-items: center; gap: 4px;">
+            ${getIconSvg('camera', { size: 12 })} ${imgCount} photo${imgCount === 1 ? '' : 's'}
+          </span>
+          <span style="position: absolute; top: 8px; left: 8px; background: rgba(15, 69, 48, 0.9); color: #E9CE74; font-size: 0.70rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; text-transform: uppercase;">
+            ${a.category || 'Event'}
+          </span>
+        </div>
+
+        <h4 class="item-title" style="margin-bottom: 6px;">${a.title}</h4>
+        
+        <div style="display: flex; flex-direction: column; gap: 3px; font-size: 0.78rem; color: var(--admin-text-muted); margin-bottom: 10px;">
+          <div style="display: flex; align-items: center; gap: 5px;">
+            ${getIconSvg('map-pin', { size: 13 })} <span>${a.location || 'National Secretariat'}</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 5px;">
+            ${getIconSvg('calendar', { size: 13 })} <span>${a.date || 'September 2026'}</span>
+          </div>
+        </div>
+
+        <p class="item-desc" style="margin-bottom: 14px;">${a.description}</p>
+
+        <div class="item-meta">
+          <span style="font-size: 0.75rem; color: var(--admin-text-muted);">Published: ${a.dateAdded || a.date}</span>
+          <div class="item-actions">
+            <button class="btn-icon-sm edit" title="Edit Album & Photos" onclick="openEditGalleryModal('${a.id}')">
+              ${getIconSvg('edit', { size: 15 })}
+            </button>
+            ${isSuper ? `
+              <button class="btn-icon-sm delete" title="Delete Album (Super Admin Only)" onclick="deleteGallery('${a.id}')">
+                ${getIconSvg('trash-2', { size: 15 })}
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+window.openCreateGalleryModal = function() {
+  const form = document.getElementById('newGalleryForm');
+  if (form) form.reset();
+  const idInput = document.getElementById('editingGalleryId');
+  const titleEl = document.getElementById('galleryModalTitle');
+  const submitBtn = document.getElementById('btnSubmitGallery');
+  if (idInput) idInput.value = '';
+  if (titleEl) titleEl.textContent = 'Upload / Add Media Gallery Album';
+  if (submitBtn) submitBtn.textContent = 'Publish to Media Gallery';
+  
+  const dateInput = document.getElementById('newGalleryDate');
+  if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+
+  uploadedGalleryImages = [];
+  renderGalleryImagePreviews();
+  openModal('newGalleryModal');
+};
+
+window.openEditGalleryModal = function(galleryId) {
+  const albums = getStoredGallery();
+  const a = albums.find(item => item.id === galleryId);
+  if (!a) return;
+
+  const idInput = document.getElementById('editingGalleryId');
+  const titleEl = document.getElementById('galleryModalTitle');
+  const submitBtn = document.getElementById('btnSubmitGallery');
+
+  if (idInput) idInput.value = a.id;
+  if (titleEl) titleEl.textContent = 'Edit Media Gallery Album';
+  if (submitBtn) submitBtn.textContent = 'Save Album Changes';
+
+  const titleInput = document.getElementById('newGalleryTitle');
+  const categorySelect = document.getElementById('newGalleryCategory');
+  const dateInput = document.getElementById('newGalleryDate');
+  const locationInput = document.getElementById('newGalleryLocation');
+  const descInput = document.getElementById('newGalleryDesc');
+
+  if (titleInput) titleInput.value = a.title || '';
+  if (categorySelect) categorySelect.value = a.category || 'Summits & Conferences';
+  if (dateInput) dateInput.value = a.date || '';
+  if (locationInput) locationInput.value = a.location || '';
+  if (descInput) descInput.value = a.description || '';
+
+  uploadedGalleryImages = (a.images && Array.isArray(a.images)) ? [...a.images] : [];
+  renderGalleryImagePreviews();
+
+  openModal('newGalleryModal');
+};
+
+function handleSaveGallery(e) {
+  e.preventDefault();
+  const form = e.target;
+  const editingId = document.getElementById('editingGalleryId')?.value.trim() || '';
+
+  const title = document.getElementById('newGalleryTitle')?.value.trim();
+  const category = document.getElementById('newGalleryCategory')?.value;
+  const date = document.getElementById('newGalleryDate')?.value;
+  const location = document.getElementById('newGalleryLocation')?.value.trim();
+  const description = document.getElementById('newGalleryDesc')?.value.trim();
+
+  if (!title || !location || !description) {
+    showAdminToast('Please fill in all required album fields.', 'error');
+    return;
+  }
+
+  if (!uploadedGalleryImages.length) {
+    showAdminToast('Please select at least one picture for the gallery album.', 'error');
+    return;
+  }
+
+  const albums = getStoredGallery();
+
+  if (editingId) {
+    const index = albums.findIndex(item => item.id === editingId);
+    if (index === -1) {
+      showAdminToast('Album record not found.', 'error');
+      return;
+    }
+
+    albums[index].title = title;
+    albums[index].category = category;
+    albums[index].date = date;
+    albums[index].location = location;
+    albums[index].description = description;
+    albums[index].images = [...uploadedGalleryImages];
+
+    saveGallery(albums);
+    showAdminToast(`Media Album "${title}" updated successfully!`);
+  } else {
+    const newAlbum = {
+      id: `GAL-${String(albums.length + 1).padStart(3, '0')}`,
+      title,
+      category,
+      date,
+      location,
+      description,
+      images: [...uploadedGalleryImages],
+      dateAdded: new Date().toISOString().split('T')[0]
+    };
+    albums.unshift(newAlbum);
+    saveGallery(albums);
+    showAdminToast('New Media Gallery album published to public website!');
+  }
+
+  form.reset();
+  uploadedGalleryImages = [];
+  renderGalleryImagePreviews();
+  closeAllModals();
+  renderDashboard();
+  renderGalleryList();
+}
+
+window.deleteGallery = function(galleryId) {
+  if (!isSuperAdmin()) {
+    showAdminToast('Access Denied: Only Super Administrators can delete gallery albums.', 'error');
+    return;
+  }
+  if (!confirm('Are you sure you want to permanently delete this media album and its photos?')) return;
+
+  const albums = getStoredGallery();
+  const filtered = albums.filter(a => a.id !== galleryId);
+  saveGallery(filtered);
+  showAdminToast('Media album removed successfully.');
+  renderDashboard();
+  renderGalleryList();
 };
 
 function showAdminToast(message, type = 'success') {

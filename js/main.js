@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initDynamicProjects();
   initProjectGalleryModal();
   initDynamicResources();
+  initDynamicMediaGallery();
 });
 
 // ---- Navbar scroll effect & active page highlighting ----
@@ -1424,3 +1425,321 @@ window.downloadPublicResource = function(resourceId) {
     showToast('Downloading document...');
   }
 };
+
+// ==========================================================================
+// DYNAMIC MEDIA GALLERY & PHOTO STREAM SYNCHRONIZATION (resources.html#media)
+// ==========================================================================
+const DEFAULT_SITE_GALLERY = [
+  {
+    id: 'GAL-001',
+    title: 'National Public Service Innovation Summit 2026',
+    category: 'Summits & Conferences',
+    location: 'International Conference Centre, Abuja FCT',
+    date: '2026-09-18',
+    description: 'High-level federal assembly gathering 1,500+ young civil servants from all 36 States and FCT to formulate digital service delivery roadmaps and paperless workflows.',
+    images: [
+      'images/gallery_national_summit.jpg',
+      'images/african-youth-civil-servants.jpg',
+      'images/project_digital_office.jpg'
+    ],
+    dateAdded: '2026-09-18'
+  },
+  {
+    id: 'GAL-002',
+    title: 'State Chapter Official Leadership Inauguration & Induction',
+    category: 'State Chapter Invocations',
+    location: 'Public Service Staff Hall, Lagos & FCT Secretariat',
+    date: '2026-09-22',
+    description: 'Formal swearing-in ceremony for newly appointed State Chapter Executive Committees and zonal youth coordinators driving Track B public service modernization.',
+    images: [
+      'images/gallery_state_inauguration.jpg',
+      'images/project_governance.jpg'
+    ],
+    dateAdded: '2026-09-22'
+  },
+  {
+    id: 'GAL-003',
+    title: 'Civil Service E-Governance & Artificial Intelligence Workshop',
+    category: 'Training & Workshops',
+    location: 'Digital Transformation Academy, Area 1, Garki, Abuja',
+    date: '2026-09-29',
+    description: 'Hands-on practical training equipping desk officers with AI productivity tools, secure data pipelines, and electronic document routing techniques.',
+    images: [
+      'images/gallery_digital_training.jpg',
+      'images/project_agritech.jpg'
+    ],
+    dateAdded: '2026-09-29'
+  },
+  {
+    id: 'GAL-004',
+    title: 'Primary Healthcare Community Outreach & Health Mission',
+    category: 'Community Outreach',
+    location: 'Kano State Chapter & FCT Area Councils',
+    date: '2026-10-04',
+    description: 'Youth civil servants in public health cadres conducting grassroots health assessments, immunization logistic verification, and medical supply audits.',
+    images: [
+      'images/project_healthcare.jpg',
+      'images/african-youth-civil-servants.jpg'
+    ],
+    dateAdded: '2026-10-04'
+  }
+];
+
+function getSiteGallery() {
+  const data = localStorage.getItem('ncsyf_admin_gallery');
+  if (data) {
+    try {
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed) && parsed.length) return parsed;
+    } catch (e) {}
+  }
+  return DEFAULT_SITE_GALLERY;
+}
+
+let activeMediaGalleryAlbum = null;
+let activeMediaGalleryIndex = 0;
+
+function initDynamicMediaGallery() {
+  const grid = document.getElementById('dynamicMediaGalleryGrid');
+  if (!grid) return;
+
+  const albums = getSiteGallery();
+  let currentFilter = 'all';
+
+  function renderGalleryCards() {
+    const filtered = currentFilter === 'all'
+      ? albums
+      : albums.filter(a => (a.category || '').toLowerCase() === currentFilter.toLowerCase());
+
+    if (!filtered.length) {
+      grid.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; background: var(--color-white); border-radius: var(--radius-xl); border: 1px dashed var(--color-light-gray);">
+          <div style="font-size: 2.4rem; margin-bottom: 12px; color: var(--color-gray);">${typeof getIconSvg === 'function' ? getIconSvg('image', { size: 40 }) : '📷'}</div>
+          <h4 style="font-size: var(--fs-lg); color: var(--color-dark); margin-bottom: 6px;">No Photo Albums in this Category</h4>
+          <p style="font-size: var(--fs-sm); color: var(--color-gray); margin-bottom: 0;">Upload new event pictures from the Admin Dashboard to feature them here.</p>
+        </div>
+      `;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(album => {
+      const images = (album.images && Array.isArray(album.images) && album.images.length > 0)
+        ? album.images
+        : ['images/gallery_national_summit.jpg'];
+      const cover = images[0];
+      const count = images.length;
+
+      return `
+        <div class="media-album-card fade-in" data-album-id="${album.id}">
+          <div class="media-album-card__cover">
+            <img src="${cover}" alt="${album.title}" loading="lazy">
+            <span class="media-album-card__badge-cat">${album.category || 'Event'}</span>
+            <span class="media-album-card__badge-count">
+              ${typeof getIconSvg === 'function' ? getIconSvg('camera', { size: 13 }) : '📷'}
+              <span>${count} photo${count === 1 ? '' : 's'}</span>
+            </span>
+          </div>
+          <div class="media-album-card__body">
+            <h3 class="media-album-card__title">${album.title}</h3>
+            <div class="media-album-card__meta">
+              <span>
+                ${typeof getIconSvg === 'function' ? getIconSvg('calendar', { size: 13 }) : '📅'}
+                ${album.date || album.dateAdded || '2026'}
+              </span>
+              <span>
+                ${typeof getIconSvg === 'function' ? getIconSvg('map-pin', { size: 13 }) : '📍'}
+                ${album.location || 'Nigeria'}
+              </span>
+            </div>
+            <p class="media-album-card__desc">${album.description || 'Public service forum event documentation.'}</p>
+            <div class="media-album-card__btn">
+              <span>View ${count} Photos &amp; Highlights</span>
+              ${typeof getIconSvg === 'function' ? getIconSvg('arrow-right', { size: 14 }) : '→'}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Attach click events to cards
+    grid.querySelectorAll('.media-album-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const albumId = card.getAttribute('data-album-id');
+        openMediaGalleryModal(albumId);
+      });
+    });
+
+    if (typeof refreshIcons === 'function') {
+      refreshIcons(grid);
+    }
+  }
+
+  // Filter pills
+  const filterPills = document.querySelectorAll('#mediaGalleryFilterBar .media-filter-pill');
+  filterPills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      filterPills.forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      currentFilter = pill.getAttribute('data-gallery-filter') || 'all';
+      renderGalleryCards();
+    });
+  });
+
+  renderGalleryCards();
+  initMediaGalleryModalEvents();
+}
+
+function openMediaGalleryModal(albumId) {
+  const modal = document.getElementById('mediaGalleryModal');
+  if (!modal) return;
+
+  const albums = getSiteGallery();
+  activeMediaGalleryAlbum = albums.find(a => a.id === albumId) || albums[0];
+  if (!activeMediaGalleryAlbum) return;
+
+  activeMediaGalleryIndex = 0;
+
+  // Set modal texts
+  const titleEl = document.getElementById('mediaGalleryModalTitle');
+  const catEl = document.getElementById('mediaGalleryModalCategory');
+  const dateEl = document.getElementById('mediaGalleryModalDate');
+  const locEl = document.getElementById('mediaGalleryModalLocation');
+  const catMetaEl = document.getElementById('mediaGalleryModalCatMeta');
+  const countMetaEl = document.getElementById('mediaGalleryModalCount');
+  const descEl = document.getElementById('mediaGalleryModalDesc');
+
+  if (titleEl) titleEl.textContent = activeMediaGalleryAlbum.title;
+  if (catEl) catEl.textContent = activeMediaGalleryAlbum.category || 'Event';
+  if (dateEl) {
+    dateEl.innerHTML = `${typeof getIconSvg === 'function' ? getIconSvg('calendar', { size: 14 }) : '📅'} ${activeMediaGalleryAlbum.date || activeMediaGalleryAlbum.dateAdded || '2026'}`;
+  }
+  if (locEl) {
+    locEl.innerHTML = `${typeof getIconSvg === 'function' ? getIconSvg('map-pin', { size: 14 }) : '📍'} ${activeMediaGalleryAlbum.location || 'Federal Republic of Nigeria'}`;
+  }
+  if (catMetaEl) {
+    catMetaEl.innerHTML = `${typeof getIconSvg === 'function' ? getIconSvg('tag', { size: 14 }) : '🏷️'} ${activeMediaGalleryAlbum.category || 'General'}`;
+  }
+  const images = (activeMediaGalleryAlbum.images && Array.isArray(activeMediaGalleryAlbum.images) && activeMediaGalleryAlbum.images.length > 0)
+    ? activeMediaGalleryAlbum.images
+    : ['images/gallery_national_summit.jpg'];
+  if (countMetaEl) {
+    countMetaEl.innerHTML = `${typeof getIconSvg === 'function' ? getIconSvg('camera', { size: 14 }) : '📷'} ${images.length} High-Resolution Photograph${images.length === 1 ? '' : 's'}`;
+  }
+  if (descEl) descEl.textContent = activeMediaGalleryAlbum.description || '';
+
+  renderMediaGalleryView();
+
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+
+  if (typeof refreshIcons === 'function') {
+    refreshIcons(modal);
+  }
+}
+
+function renderMediaGalleryView() {
+  if (!activeMediaGalleryAlbum) return;
+
+  const images = (activeMediaGalleryAlbum.images && Array.isArray(activeMediaGalleryAlbum.images) && activeMediaGalleryAlbum.images.length > 0)
+    ? activeMediaGalleryAlbum.images
+    : ['images/gallery_national_summit.jpg'];
+
+  if (activeMediaGalleryIndex < 0) activeMediaGalleryIndex = images.length - 1;
+  if (activeMediaGalleryIndex >= images.length) activeMediaGalleryIndex = 0;
+
+  const mainImg = document.getElementById('mediaGalleryMainImg');
+  const counter = document.getElementById('mediaGalleryCounter');
+  const thumbsContainer = document.getElementById('mediaGalleryThumbs');
+  const prevBtn = document.getElementById('btnMediaGalleryPrev');
+  const nextBtn = document.getElementById('btnMediaGalleryNext');
+
+  if (mainImg) {
+    mainImg.style.opacity = '0.5';
+    mainImg.src = images[activeMediaGalleryIndex];
+    setTimeout(() => { mainImg.style.opacity = '1'; }, 100);
+  }
+
+  if (counter) {
+    counter.textContent = `Photo ${activeMediaGalleryIndex + 1} of ${images.length}`;
+  }
+
+  if (prevBtn && nextBtn) {
+    const showNav = images.length > 1;
+    prevBtn.style.display = showNav ? 'flex' : 'none';
+    nextBtn.style.display = showNav ? 'flex' : 'none';
+  }
+
+  if (thumbsContainer) {
+    if (images.length <= 1) {
+      thumbsContainer.style.display = 'none';
+      thumbsContainer.innerHTML = '';
+    } else {
+      thumbsContainer.style.display = 'flex';
+      thumbsContainer.innerHTML = images.map((src, idx) => `
+        <div class="project-thumb-item ${idx === activeMediaGalleryIndex ? 'active' : ''}" data-thumb-index="${idx}">
+          <img src="${src}" alt="Thumb ${idx + 1}">
+        </div>
+      `).join('');
+
+      thumbsContainer.querySelectorAll('.project-thumb-item').forEach(thumb => {
+        thumb.addEventListener('click', () => {
+          activeMediaGalleryIndex = parseInt(thumb.getAttribute('data-thumb-index'), 10);
+          renderMediaGalleryView();
+        });
+      });
+    }
+  }
+}
+
+function initMediaGalleryModalEvents() {
+  const modal = document.getElementById('mediaGalleryModal');
+  const closeBtn = document.getElementById('btnCloseMediaGalleryModal');
+  const prevBtn = document.getElementById('btnMediaGalleryPrev');
+  const nextBtn = document.getElementById('btnMediaGalleryNext');
+
+  if (closeBtn && modal) {
+    closeBtn.addEventListener('click', () => {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    });
+  }
+
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    });
+  }
+
+  if (prevBtn) {
+    prevBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      activeMediaGalleryIndex--;
+      renderMediaGalleryView();
+    });
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      activeMediaGalleryIndex++;
+      renderMediaGalleryView();
+    });
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (!modal || !modal.classList.contains('active')) return;
+    if (e.key === 'Escape') {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    } else if (e.key === 'ArrowLeft') {
+      activeMediaGalleryIndex--;
+      renderMediaGalleryView();
+    } else if (e.key === 'ArrowRight') {
+      activeMediaGalleryIndex++;
+      renderMediaGalleryView();
+    }
+  });
+}
