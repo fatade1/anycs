@@ -5,16 +5,42 @@
 
 const STORAGE_KEYS = {
   AUTH: 'ncsyf_admin_auth',
+  ADMIN_USERS: 'ncsyf_admin_users',
   MEMBERS: 'ncsyf_registered_members',
   PROJECTS: 'ncsyf_admin_projects',
   RESOURCES: 'ncsyf_admin_resources',
   API_CONFIG: 'ncsyf_admin_api_config'
 };
 
+// ---- Administrator Accounts Seed Data ----
+const SEED_ADMIN_USERS = [
+  {
+    id: 'ADM-001',
+    name: 'National Secretariat Super Admin',
+    email: 'admin@anycs.org.ng',
+    password: 'Secretariat@2026',
+    role: 'super_admin',
+    roleLabel: 'Super Administrator',
+    createdAt: '2026-09-01',
+    status: 'active'
+  },
+  {
+    id: 'ADM-002',
+    name: 'Desk Operations Regular Admin',
+    email: 'officer@anycs.org.ng',
+    password: 'Officer@2026',
+    role: 'regular_admin',
+    roleLabel: 'Regular Administrator',
+    createdAt: '2026-09-15',
+    status: 'active'
+  }
+];
+
 // ---- Realistic Initial Seed Data ----
 const SEED_MEMBERS = [
   {
-    id: 'MEM-2026-001',
+    id: 'NCSYF-1995-0001',
+    memberId: 'NCSYF-1995-0001',
     firstName: 'Amina',
     lastName: 'Ibrahim',
     category: 'full',
@@ -35,7 +61,8 @@ const SEED_MEMBERS = [
     registeredAt: '2026-09-28 14:22:10'
   },
   {
-    id: 'MEM-2026-002',
+    id: 'NCSYF-1998-0001',
+    memberId: 'NCSYF-1998-0001',
     firstName: 'Chidiebere',
     lastName: 'Okonkwo',
     category: 'full',
@@ -56,7 +83,8 @@ const SEED_MEMBERS = [
     registeredAt: '2026-09-29 09:14:05'
   },
   {
-    id: 'MEM-2026-003',
+    id: 'NCSYF-1987-0001',
+    memberId: 'NCSYF-1987-0001',
     firstName: 'Babatunde',
     lastName: 'Adeleke',
     category: 'associate',
@@ -77,7 +105,8 @@ const SEED_MEMBERS = [
     registeredAt: '2026-09-29 16:45:30'
   },
   {
-    id: 'MEM-2026-004',
+    id: 'NCSYF-1996-0001',
+    memberId: 'NCSYF-1996-0001',
     firstName: 'Fatima',
     lastName: 'Bello',
     category: 'full',
@@ -98,7 +127,8 @@ const SEED_MEMBERS = [
     registeredAt: '2026-09-30 11:08:44'
   },
   {
-    id: 'MEM-2026-005',
+    id: 'NCSYF-1984-0001',
+    memberId: 'NCSYF-1984-0001',
     firstName: 'Emeka',
     lastName: 'Nwosu',
     category: 'associate',
@@ -119,7 +149,8 @@ const SEED_MEMBERS = [
     registeredAt: '2026-10-01 10:30:19'
   },
   {
-    id: 'MEM-2026-006',
+    id: 'NCSYF-2000-0001',
+    memberId: 'NCSYF-2000-0001',
     firstName: 'Zainab',
     lastName: 'Mustapha',
     category: 'full',
@@ -140,7 +171,8 @@ const SEED_MEMBERS = [
     registeredAt: '2026-10-02 08:40:22'
   },
   {
-    id: 'MEM-2026-007',
+    id: 'NCSYF-1997-0001',
+    memberId: 'NCSYF-1997-0001',
     firstName: 'Oluwaseun',
     lastName: 'Ajayi',
     category: 'full',
@@ -161,7 +193,8 @@ const SEED_MEMBERS = [
     registeredAt: '2026-10-03 15:19:00'
   },
   {
-    id: 'MEM-2026-008',
+    id: 'NCSYF-1986-0001',
+    memberId: 'NCSYF-1986-0001',
     firstName: 'Halima',
     lastName: 'Danjuma',
     category: 'associate',
@@ -182,7 +215,8 @@ const SEED_MEMBERS = [
     registeredAt: '2026-10-04 12:05:41'
   },
   {
-    id: 'MEM-2026-009',
+    id: 'NCSYF-1999-0001',
+    memberId: 'NCSYF-1999-0001',
     firstName: 'Tari',
     lastName: 'Ebiware',
     category: 'full',
@@ -219,6 +253,10 @@ const SEED_PROJECTS = [
     targetBeneficiaries: '15,000+ Young Public Servants',
     budget: '₦85,000,000',
     description: 'A nationwide transformation program training serving youths in MDAs on digital records management, workflow automation, and collaborative paperless administration.',
+    images: [
+      'images/project_digital_office.jpg',
+      'images/african-youth-civil-servants.jpg'
+    ],
     dateAdded: '2026-09-15'
   },
   {
@@ -231,6 +269,9 @@ const SEED_PROJECTS = [
     targetBeneficiaries: '36 State Chapters & FCT',
     budget: '₦120,000,000',
     description: 'Empowering young desk officers and agricultural extension public servants with satellite-guided crop monitoring and grain reserve logistics tracking systems.',
+    images: [
+      'images/project_agritech.jpg'
+    ],
     dateAdded: '2026-09-20'
   },
   {
@@ -243,6 +284,9 @@ const SEED_PROJECTS = [
     targetBeneficiaries: '774 LGAs Nationwide',
     budget: '₦95,000,000',
     description: 'Modernizing vaccine cold-chain reporting and primary healthcare center tracking by mobilizing LGA youth health officers.',
+    images: [
+      'images/project_healthcare.jpg'
+    ],
     dateAdded: '2026-09-28'
   },
   {
@@ -255,6 +299,9 @@ const SEED_PROJECTS = [
     targetBeneficiaries: 'All Federal MDAs',
     budget: '₦40,000,000',
     description: 'An open-source procurement analytics dashboard managed by young procurement and finance officers to track contract delivery benchmarks.',
+    images: [
+      'images/project_governance.jpg'
+    ],
     dateAdded: '2026-10-01'
   }
 ];
@@ -307,18 +354,67 @@ const SEED_RESOURCES = [
 ];
 
 // ---- Store Helpers ----
-function getStoredMembers() {
-  const data = localStorage.getItem(STORAGE_KEYS.MEMBERS);
+function getStoredAdminUsers() {
+  const data = localStorage.getItem(STORAGE_KEYS.ADMIN_USERS);
   if (!data) {
-    localStorage.setItem(STORAGE_KEYS.MEMBERS, JSON.stringify(SEED_MEMBERS));
-    return SEED_MEMBERS;
+    localStorage.setItem(STORAGE_KEYS.ADMIN_USERS, JSON.stringify(SEED_ADMIN_USERS));
+    return SEED_ADMIN_USERS;
   }
   try {
     const parsed = JSON.parse(data);
-    return Array.isArray(parsed) && parsed.length ? parsed : SEED_MEMBERS;
+    return Array.isArray(parsed) && parsed.length ? parsed : SEED_ADMIN_USERS;
   } catch (e) {
-    return SEED_MEMBERS;
+    return SEED_ADMIN_USERS;
   }
+}
+
+function saveAdminUsers(users) {
+  localStorage.setItem(STORAGE_KEYS.ADMIN_USERS, JSON.stringify(users));
+}
+
+function getStoredMembers() {
+  const data = localStorage.getItem(STORAGE_KEYS.MEMBERS);
+  let members = SEED_MEMBERS;
+  if (data) {
+    try {
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed) && parsed.length) members = parsed;
+    } catch (e) {}
+  }
+
+  // Ensure every member has a valid Member ID: NCSYF-YYYY-XXXX (distinct from Staff ID)
+  let modified = false;
+  const yearCounters = {};
+
+  members.forEach(m => {
+    let year = '2026';
+    if (m.dob && m.dob.includes('-')) {
+      const parts = m.dob.split('-');
+      if (parts[0] && parts[0].length === 4) year = parts[0];
+    } else if (m.age) {
+      year = String(new Date().getFullYear() - m.age);
+    }
+
+    if (!m.memberId || !m.memberId.startsWith('NCSYF-')) {
+      yearCounters[year] = (yearCounters[year] || 0) + 1;
+      m.memberId = `NCSYF-${year}-${String(yearCounters[year]).padStart(4, '0')}`;
+      modified = true;
+    } else {
+      const match = m.memberId.match(/NCSYF-(\d{4})-(\d+)/);
+      if (match) {
+        const y = match[1];
+        const num = parseInt(match[2], 10);
+        if (!yearCounters[y] || num > yearCounters[y]) {
+          yearCounters[y] = num;
+        }
+      }
+    }
+  });
+
+  if (modified || !data) {
+    localStorage.setItem(STORAGE_KEYS.MEMBERS, JSON.stringify(members));
+  }
+  return members;
 }
 
 function saveMembers(members) {
@@ -333,7 +429,20 @@ function getStoredProjects() {
   }
   try {
     const parsed = JSON.parse(data);
-    return Array.isArray(parsed) && parsed.length ? parsed : SEED_PROJECTS;
+    if (Array.isArray(parsed) && parsed.length) {
+      // Ensure seed projects have images populated if previously empty
+      let updated = false;
+      parsed.forEach(p => {
+        const seed = SEED_PROJECTS.find(s => s.id === p.id);
+        if (seed && (!p.images || !p.images.length) && seed.images) {
+          p.images = seed.images;
+          updated = true;
+        }
+      });
+      if (updated) localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(parsed));
+      return parsed;
+    }
+    return SEED_PROJECTS;
   } catch (e) {
     return SEED_PROJECTS;
   }
@@ -369,6 +478,12 @@ function getAuthSession() {
   } catch (e) {
     return null;
   }
+}
+
+function isSuperAdmin() {
+  const session = getAuthSession();
+  if (!session) return false;
+  return session.role === 'super_admin' || session.role === 'Super Administrator' || session.role === 'Super Admin';
 }
 
 function setAuthSession(user, remember = false) {
@@ -412,11 +527,252 @@ function checkAuthAndRender() {
     if (loginView) loginView.style.display = 'none';
     if (dashboardView) {
       dashboardView.style.display = 'flex';
+
+      // Update User Card in Sidebar & Header
+      const userNameEl = document.getElementById('adminUserName');
+      const userRoleBadge = document.getElementById('adminUserRoleBadge');
+      const userAvatarEl = document.getElementById('adminUserAvatar');
+      const headerRoleText = document.getElementById('headerRoleText');
+      const headerRoleBadge = document.getElementById('headerRoleBadge');
+      const linkAdmins = document.getElementById('sidebarLinkAdmins');
+      const linkSettings = document.getElementById('sidebarLinkSettings');
+      const headingAdminManage = document.getElementById('sidebarHeadingAdminManage');
+
+      const isSuper = isSuperAdmin();
+
+      if (userNameEl) userNameEl.textContent = session.name || 'Admin Official';
+      if (userAvatarEl) userAvatarEl.textContent = (session.name || 'AD').substring(0, 2).toUpperCase();
+      if (userRoleBadge) {
+        userRoleBadge.innerHTML = isSuper 
+          ? `<span class="badge-role super">Super Administrator</span>` 
+          : `<span class="badge-role regular">Regular Administrator</span>`;
+      }
+      if (headerRoleText) {
+        headerRoleText.textContent = isSuper ? 'Super Admin' : 'Regular Admin';
+      }
+      if (headerRoleBadge) {
+        headerRoleBadge.innerHTML = `<i data-lucide="${isSuper ? 'shield-alert' : 'shield'}"></i> <span id="headerRoleText">${isSuper ? 'Super Admin' : 'Regular Admin'}</span>`;
+        if (window.lucide && typeof lucide.createIcons === 'function') {
+          lucide.createIcons({ root: headerRoleBadge });
+        }
+      }
+
+      // Role permission restrictions in Sidebar
+      if (linkAdmins) linkAdmins.style.display = isSuper ? 'flex' : 'none';
+      if (linkSettings) linkSettings.style.display = isSuper ? 'flex' : 'none';
+      if (headingAdminManage) headingAdminManage.style.display = isSuper ? 'block' : 'none';
+
       renderDashboard();
     }
   } else {
     if (loginView) loginView.style.display = 'flex';
     if (dashboardView) dashboardView.style.display = 'none';
+  }
+}
+
+// ==========================================================================
+// IMAGE RESIZING & MULTI-PICTURE DROPZONE HELPERS
+// ==========================================================================
+let uploadedProjectImages = [];
+let uploadedResourceImages = [];
+
+function compressImageFile(file, maxDimension = 1280, quality = 0.82) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => resolve(e.target.result);
+      img.src = e.target.result;
+    };
+    reader.onerror = () => resolve(null);
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderProjectImagePreviews() {
+  const grid = document.getElementById('projectImagesPreviewGrid');
+  const countBadge = document.getElementById('projectImagesCountBadge');
+  if (!grid) return;
+
+  if (countBadge) {
+    countBadge.textContent = `${uploadedProjectImages.length} picture${uploadedProjectImages.length === 1 ? '' : 's'} selected`;
+  }
+
+  if (!uploadedProjectImages.length) {
+    grid.innerHTML = '';
+    return;
+  }
+
+  grid.innerHTML = uploadedProjectImages.map((imgSrc, index) => {
+    return `
+      <div class="image-thumb-card">
+        <img src="${imgSrc}" alt="Project picture ${index + 1}">
+        <button type="button" class="image-thumb-remove" onclick="removeProjectImage(${index})" title="Remove picture">
+          ${getIconSvg('x', { size: 12 })}
+        </button>
+      </div>
+    `;
+  }).join('');
+}
+
+window.removeProjectImage = function(index) {
+  uploadedProjectImages.splice(index, 1);
+  renderProjectImagePreviews();
+};
+
+function setupProjectImagesUpload() {
+  const fileInput = document.getElementById('newProjectImagesInput');
+  const browseBtn = document.getElementById('btnBrowseProjectImages');
+  const dropzone = document.getElementById('projectImageDropzone');
+
+  if (browseBtn && fileInput) {
+    browseBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      fileInput.click();
+    });
+  }
+
+  if (fileInput) {
+    fileInput.addEventListener('change', async () => {
+      if (fileInput.files && fileInput.files.length) {
+        for (let i = 0; i < fileInput.files.length; i++) {
+          const res = await compressImageFile(fileInput.files[i]);
+          if (res) uploadedProjectImages.push(res);
+        }
+        renderProjectImagePreviews();
+        fileInput.value = '';
+      }
+    });
+  }
+
+  if (dropzone) {
+    ['dragenter', 'dragover'].forEach(name => {
+      dropzone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+      });
+    });
+    ['dragleave', 'drop'].forEach(name => {
+      dropzone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+      });
+    });
+    dropzone.addEventListener('drop', async (e) => {
+      const files = e.dataTransfer ? e.dataTransfer.files : null;
+      if (files && files.length) {
+        for (let i = 0; i < files.length; i++) {
+          if (files[i].type.startsWith('image/')) {
+            const res = await compressImageFile(files[i]);
+            if (res) uploadedProjectImages.push(res);
+          }
+        }
+        renderProjectImagePreviews();
+      }
+    });
+  }
+}
+
+function renderResourceImagePreviews() {
+  const grid = document.getElementById('resourceImagesPreviewGrid');
+  const countBadge = document.getElementById('resourceImagesCountBadge');
+  if (!grid) return;
+
+  if (countBadge) {
+    countBadge.textContent = `${uploadedResourceImages.length} picture${uploadedResourceImages.length === 1 ? '' : 's'} selected`;
+  }
+
+  if (!uploadedResourceImages.length) {
+    grid.innerHTML = '';
+    return;
+  }
+
+  grid.innerHTML = uploadedResourceImages.map((imgSrc, index) => {
+    return `
+      <div class="image-thumb-card">
+        <img src="${imgSrc}" alt="Resource picture ${index + 1}">
+        <button type="button" class="image-thumb-remove" onclick="removeResourceImage(${index})" title="Remove picture">
+          ${getIconSvg('x', { size: 12 })}
+        </button>
+      </div>
+    `;
+  }).join('');
+}
+
+window.removeResourceImage = function(index) {
+  uploadedResourceImages.splice(index, 1);
+  renderResourceImagePreviews();
+};
+
+function setupResourceImagesUpload() {
+  const fileInput = document.getElementById('newResourceImagesInput');
+  const browseBtn = document.getElementById('btnBrowseResourceImages');
+  const dropzone = document.getElementById('resourceImageDropzone');
+
+  if (browseBtn && fileInput) {
+    browseBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      fileInput.click();
+    });
+  }
+
+  if (fileInput) {
+    fileInput.addEventListener('change', async () => {
+      if (fileInput.files && fileInput.files.length) {
+        for (let i = 0; i < fileInput.files.length; i++) {
+          const res = await compressImageFile(fileInput.files[i]);
+          if (res) uploadedResourceImages.push(res);
+        }
+        renderResourceImagePreviews();
+        fileInput.value = '';
+      }
+    });
+  }
+
+  if (dropzone) {
+    ['dragenter', 'dragover'].forEach(name => {
+      dropzone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+      });
+    });
+    ['dragleave', 'drop'].forEach(name => {
+      dropzone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+      });
+    });
+    dropzone.addEventListener('drop', async (e) => {
+      const files = e.dataTransfer ? e.dataTransfer.files : null;
+      if (files && files.length) {
+        for (let i = 0; i < files.length; i++) {
+          if (files[i].type.startsWith('image/')) {
+            const res = await compressImageFile(files[i]);
+            if (res) uploadedResourceImages.push(res);
+          }
+        }
+        renderResourceImagePreviews();
+      }
+    });
   }
 }
 
@@ -566,6 +922,8 @@ function resetResourceDropzone() {
 
   if (fileInput) fileInput.value = '';
   uploadedResourceFileData = null;
+  uploadedResourceImages = [];
+  renderResourceImagePreviews();
   if (promptEl) promptEl.style.display = 'flex';
   if (previewEl) previewEl.style.display = 'none';
   if (dropzone) dropzone.classList.remove('has-error');
@@ -661,6 +1019,8 @@ function resetProjectDropzone() {
 
   if (fileInput) fileInput.value = '';
   uploadedProjectFileData = null;
+  uploadedProjectImages = [];
+  renderProjectImagePreviews();
   if (promptEl) promptEl.style.display = 'flex';
   if (previewEl) previewEl.style.display = 'none';
 }
@@ -672,6 +1032,8 @@ function setupEventListeners() {
   // Initialize dropzones
   setupResourceDropzone();
   setupProjectDropzone();
+  setupProjectImagesUpload();
+  setupResourceImagesUpload();
 
   // Login Form
   const loginForm = document.getElementById('adminLoginForm');
@@ -679,7 +1041,7 @@ function setupEventListeners() {
     loginForm.addEventListener('submit', handleLogin);
   }
 
-  // 1-Click Demo Fill
+  // 1-Click Demo Fill: Super Admin
   const btnDemoSuperAdmin = document.getElementById('btnDemoSuperAdmin');
   if (btnDemoSuperAdmin) {
     btnDemoSuperAdmin.addEventListener('click', () => {
@@ -687,7 +1049,19 @@ function setupEventListeners() {
       const passInput = document.getElementById('adminLoginPassword');
       if (emailInput) emailInput.value = 'admin@anycs.org.ng';
       if (passInput) passInput.value = 'Secretariat@2026';
-      showAdminToast('Demo credentials auto-filled. Click "Sign In to Admin Portal" to proceed.');
+      showAdminToast('Super Admin demo credentials auto-filled. Click "Sign In" to proceed.');
+    });
+  }
+
+  // 1-Click Demo Fill: Regular Admin
+  const btnDemoRegularAdmin = document.getElementById('btnDemoRegularAdmin');
+  if (btnDemoRegularAdmin) {
+    btnDemoRegularAdmin.addEventListener('click', () => {
+      const emailInput = document.getElementById('adminLoginEmail');
+      const passInput = document.getElementById('adminLoginPassword');
+      if (emailInput) emailInput.value = 'officer@anycs.org.ng';
+      if (passInput) passInput.value = 'Officer@2026';
+      showAdminToast('Regular Admin demo credentials auto-filled. Click "Sign In" to proceed.');
     });
   }
 
@@ -794,6 +1168,12 @@ function setupEventListeners() {
     newResourceForm.addEventListener('submit', handleAddResource);
   }
 
+  // New Admin Form Modal (Super Admin only)
+  const newAdminForm = document.getElementById('newAdminForm');
+  if (newAdminForm) {
+    newAdminForm.addEventListener('submit', handleAddAdmin);
+  }
+
   // Disapprove Member Verification Form Modal
   const disapproveMemberForm = document.getElementById('disapproveMemberForm');
   if (disapproveMemberForm) {
@@ -821,7 +1201,7 @@ function setupEventListeners() {
 }
 
 // ==========================================================================
-// AUTHENTICATION LOGIC (Dummy / Non-hardcoded for future backend readiness)
+// AUTHENTICATION LOGIC (Super Admin vs Regular Admin)
 // ==========================================================================
 function handleLogin(e) {
   e.preventDefault();
@@ -839,15 +1219,30 @@ function handleLogin(e) {
     return;
   }
 
-  // Flexible login: Accepts any administrator credentials entered (ready for backend API link)
-  // Derive name and role from email address
-  let role = 'Administrator';
+  // Look up credentials in the Admin accounts registry
+  const adminUsers = getStoredAdminUsers();
+  const matched = adminUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+  let role = 'regular_admin';
   let displayName = 'Admin Official';
 
-  if (email.toLowerCase().includes('super') || email.toLowerCase().includes('secretariat')) {
-    role = 'Super Admin';
-    displayName = 'National Secretariat Admin';
-  } else if (email.includes('@')) {
+  if (matched) {
+    if (matched.status === 'revoked') {
+      showAdminToast('Access Denied: This administrator account has been revoked by Super Admin.', 'error');
+      return;
+    }
+    role = matched.role;
+    displayName = matched.name;
+  } else if (
+    email.toLowerCase() === 'admin@anycs.org.ng' || 
+    email.toLowerCase().includes('super') || 
+    email.toLowerCase().includes('secretariat') || 
+    password === 'Secretariat@2026'
+  ) {
+    role = 'super_admin';
+    displayName = 'National Secretariat Super Admin';
+  } else {
+    role = 'regular_admin';
     const prefix = email.split('@')[0];
     displayName = prefix.charAt(0).toUpperCase() + prefix.slice(1).replace('.', ' ');
   }
@@ -861,7 +1256,7 @@ function handleLogin(e) {
   };
 
   setAuthSession(session, remember);
-  showAdminToast(`Welcome back, ${displayName}! Loading admin dashboard...`);
+  showAdminToast(`Welcome, ${displayName}! Signed in as ${role === 'super_admin' ? 'Super Admin' : 'Regular Admin'}.`);
 
   setTimeout(() => {
     checkAuthAndRender();
@@ -872,6 +1267,13 @@ function handleLogin(e) {
 // TAB CONTROLLER
 // ==========================================================================
 function switchTab(tabId) {
+  // Permission Guard: Restrict Admins and Settings to Super Admin only
+  if ((tabId === 'admins' || tabId === 'settings') && !isSuperAdmin()) {
+    showAdminToast('Access Denied: Super Administrator privileges required.', 'error');
+    switchTab('overview');
+    return;
+  }
+
   // Update sidebar active classes
   document.querySelectorAll('.sidebar-link').forEach(link => {
     if (link.getAttribute('data-admin-tab') === tabId) {
@@ -899,6 +1301,7 @@ function switchTab(tabId) {
     members: { title: 'Registered Members', subtitle: 'Full and Associate member enrollment database and verification' },
     projects: { title: 'National Projects', subtitle: 'Priority initiatives across Federal, State and LGA public services' },
     resources: { title: 'Publications & Resources', subtitle: 'Policy briefs, constitution, bye-laws and public service toolkits' },
+    admins: { title: 'Admin Team & Roles', subtitle: 'Manage administrator accounts, assign permissions and revoke access' },
     settings: { title: 'System & Backend Settings', subtitle: 'Configure future backend API endpoints and manage data' }
   };
 
@@ -912,6 +1315,7 @@ function switchTab(tabId) {
   if (tabId === 'members') renderMembersTable();
   if (tabId === 'projects') renderProjectsList();
   if (tabId === 'resources') renderResourcesList();
+  if (tabId === 'admins') renderAdminsTable();
 }
 
 // ==========================================================================
@@ -962,7 +1366,7 @@ function renderRecentMembersOverview(recentMembers) {
   if (!tbody) return;
 
   if (!recentMembers.length) {
-    tbody.innerHTML = `<tr><td colspan="6" class="table-empty-cell" style="text-align: center; padding: 24px; color: var(--admin-text-muted);">No member registrations recorded yet.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" class="table-empty-cell" style="text-align: center; padding: 24px; color: var(--admin-text-muted);">No member registrations recorded yet.</td></tr>`;
     return;
   }
 
@@ -987,7 +1391,8 @@ function renderRecentMembersOverview(recentMembers) {
       <tr>
         <td data-label="Full Name"><strong>${m.firstName || ''} ${m.lastName || ''}</strong></td>
         <td data-label="Category">${catBadge}</td>
-        <td data-label="Staff ID"><code>${m.staffId || m.id}</code></td>
+        <td data-label="Member ID"><span class="member-id-tag">${m.memberId || m.id}</span></td>
+        <td data-label="Staff ID"><code>${m.staffId || 'N/A'}</code></td>
         <td data-label="Ministry / MDA" style="max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${m.mda || 'Not specified'}">${m.mda || 'N/A'}</td>
         <td data-label="Status">${statusBadge}</td>
         <td data-label="Action" class="cell-actions">
@@ -1022,6 +1427,7 @@ function renderMembersTable() {
     const matchesStatus = selectedStatus === 'all' || m.status === selectedStatus;
     
     const fullName = `${m.firstName || ''} ${m.lastName || ''}`.toLowerCase();
+    const memberId = (m.memberId || '').toLowerCase();
     const staffId = (m.staffId || '').toLowerCase();
     const mda = (m.mda || '').toLowerCase();
     const email = (m.email || '').toLowerCase();
@@ -1029,6 +1435,7 @@ function renderMembersTable() {
 
     const matchesQuery = !query || 
       fullName.includes(query) || 
+      memberId.includes(query) ||
       staffId.includes(query) || 
       mda.includes(query) || 
       email.includes(query) || 
@@ -1044,7 +1451,7 @@ function renderMembersTable() {
   if (!filtered.length) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="8" class="table-empty-cell" style="text-align: center; padding: 36px; color: var(--admin-text-muted);">
+        <td colspan="9" class="table-empty-cell" style="text-align: center; padding: 36px; color: var(--admin-text-muted);">
           <div style="margin-bottom: 8px; color: var(--admin-text-muted);">${getIconSvg('search', { size: 32 })}</div>
           <strong>No matching member applications found</strong>
           <p style="font-size: 0.82rem; margin-top: 4px;">Try adjusting your search criteria or category filters.</p>
@@ -1053,6 +1460,8 @@ function renderMembersTable() {
     `;
     return;
   }
+
+  const isSuper = isSuperAdmin();
 
   tbody.innerHTML = filtered.map(m => {
     const isFull = m.category === 'full';
@@ -1081,7 +1490,8 @@ function renderMembersTable() {
           </div>
         </td>
         <td data-label="Category">${catBadge}</td>
-        <td data-label="Staff ID"><code>${m.staffId || m.id}</code></td>
+        <td data-label="Member ID"><span class="member-id-tag">${m.memberId || m.id}</span></td>
+        <td data-label="Staff ID / File No."><code>${m.staffId || 'N/A'}</code></td>
         <td data-label="MDA & Tier">
           <div class="member-mda-block">
             <div style="font-weight: 600; font-size: 0.85rem;">${m.mda || 'N/A'}</div>
@@ -1110,6 +1520,11 @@ function renderMembersTable() {
                 ${getIconSvg('rotate-ccw', { size: 15 })}
               </button>
             `}
+            ${isSuper ? `
+              <button class="btn-icon-sm delete" title="Permanently Delete Member (Super Admin Only)" onclick="deleteMember('${m.id}')">
+                ${getIconSvg('trash-2', { size: 15 })}
+              </button>
+            ` : ''}
           </div>
         </td>
       </tr>
@@ -1138,6 +1553,7 @@ window.viewMemberDossier = function(memberId) {
   const statusClass = m.status === 'verified' ? 'verified' : (isDisapproved ? 'disapproved' : 'pending');
   const statusLabel = m.status === 'verified' ? 'VERIFIED' : (isDisapproved ? 'DISAPPROVED (CAN REAPPLY)' : 'PENDING REVIEW');
   const statusBadge = `<span class="badge-status ${statusClass}">● ${statusLabel}</span>`;
+  const isSuper = isSuperAdmin();
 
   content.innerHTML = `
     <div class="dossier-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--admin-border); flex-wrap: wrap; gap: 10px;">
@@ -1175,20 +1591,24 @@ window.viewMemberDossier = function(memberId) {
 
     <div class="dossier-grid">
       <div class="dossier-item">
+        <label>Permanent Member ID</label>
+        <span><span class="member-id-tag">${m.memberId || m.id}</span></span>
+      </div>
+      <div class="dossier-item">
+        <label>MDA Staff ID / File No.</label>
+        <span><code>${m.staffId || 'Not provided'}</code></span>
+      </div>
+      <div class="dossier-item">
         <label>Membership Category</label>
         <span>${m.memberTypeLabel || (isFull ? 'Full Member (18–35 yrs)' : 'Associate Member (After 35 yrs)')}</span>
       </div>
       <div class="dossier-item">
-        <label>Staff ID / Membership ID</label>
-        <span><code>${m.staffId || m.id}</code></span>
+        <label>Tier of Public Service</label>
+        <span>${m.tierLabel || m.tier || 'Civil Service'}</span>
       </div>
       <div class="dossier-item full-width">
         <label>Ministry, Department or Agency (MDA)</label>
         <span>${m.mda || 'Not specified / Alumni transition'}</span>
-      </div>
-      <div class="dossier-item">
-        <label>Tier of Public Service</label>
-        <span>${m.tierLabel || m.tier || 'Civil Service'}</span>
       </div>
       <div class="dossier-item">
         <label>State Chapter</label>
@@ -1244,6 +1664,11 @@ window.viewMemberDossier = function(memberId) {
           ${getIconSvg('ban', { size: 14 })} Disapprove Verification (Allow Reapply)
         </button>
       `}
+      ${isSuper ? `
+        <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" style="color: #DC2626; border-color: #FECACA;" onclick="closeAllModals(); deleteMember('${m.id}');">
+          ${getIconSvg('trash-2', { size: 14 })} Delete Record
+        </button>
+      ` : ''}
     </div>
   `;
 
@@ -1263,7 +1688,7 @@ window.openDisapproveModal = function(memberId) {
 
   if (idInput) idInput.value = m.id;
   if (nameEl) nameEl.textContent = `${m.firstName || ''} ${m.lastName || ''} — ${m.memberTypeLabel || m.category}`;
-  if (detailsEl) detailsEl.textContent = `Staff ID: ${m.staffId || m.id} • ${m.mda || 'MDA not specified'}`;
+  if (detailsEl) detailsEl.textContent = `Member ID: ${m.memberId || m.id} • Staff ID: ${m.staffId || 'N/A'} • ${m.mda || 'MDA not specified'}`;
   if (notesInput) notesInput.value = '';
 
   if (modal) modal.classList.add('active');
@@ -1312,6 +1737,10 @@ window.updateMemberStatus = function(memberId, newStatus) {
 };
 
 window.deleteMember = function(memberId) {
+  if (!isSuperAdmin()) {
+    showAdminToast('Access Denied: Only Super Administrators can permanently delete member records.', 'error');
+    return;
+  }
   if (!confirm('Are you sure you want to permanently delete this member record?')) return;
   let members = getStoredMembers();
   members = members.filter(m => m.id !== memberId);
@@ -1405,11 +1834,13 @@ function renderProjectsList() {
       <div style="grid-column: 1 / -1; text-align: center; padding: 48px; color: var(--admin-text-muted);">
         <div style="margin-bottom: 8px; color: var(--admin-text-muted);">${getIconSvg('lightbulb', { size: 36 })}</div>
         <strong>No initiatives found matching your filter</strong>
-        <p style="font-size: 0.85rem; margin-top: 4px;">Click "Add / Upload Project" to initiate a new priority track.</p>
+        <p style="font-size: 0.85rem; margin-top: 4px;">Click "+ New Project" to initiate a new priority track.</p>
       </div>
     `;
     return;
   }
+
+  const isSuper = isSuperAdmin();
 
   grid.innerHTML = filtered.map(p => {
     const isCompleted = p.status === 'completed';
@@ -1418,14 +1849,27 @@ function renderProjectsList() {
       ? `<span class="badge-status verified">● ACTIVE</span>` 
       : (isCompleted ? `<span class="badge-status" style="background: #E0E7FF; color: #3730A3;">● COMPLETED</span>` : `<span class="badge-status pending">● PLANNING</span>`);
 
+    const hasImages = p.images && Array.isArray(p.images) && p.images.length > 0;
+
     return `
       <div class="item-card">
+        ${hasImages ? `
+          <div style="position: relative; height: 160px; border-radius: var(--radius-sm); overflow: hidden; margin-bottom: 12px; background: #0F172A;">
+            <img src="${p.images[0]}" alt="${p.title}" style="width: 100%; height: 100%; object-fit: cover;">
+            <span style="position: absolute; bottom: 8px; right: 8px; background: rgba(15,23,42,0.85); color: #fff; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; backdrop-filter: blur(4px); display: inline-flex; align-items: center; gap: 4px;">
+              ${getIconSvg('image', { size: 12 })} ${p.images.length} photo${p.images.length === 1 ? '' : 's'}
+            </span>
+          </div>
+        ` : ''}
+
         <div class="item-card-header">
           <span class="item-badge-sector">${p.sector || 'Public Service'}</span>
           ${statusBadge}
         </div>
         <h4 class="item-title">${p.title}</h4>
-        <div class="item-agency" style="display: flex; align-items: center; gap: 6px;">${getIconSvg('landmark', { size: 14 })} <span>${p.leadMda}</span></div>
+        <div class="item-agency" style="display: flex; align-items: center; gap: 6px;">
+          ${getIconSvg('landmark', { size: 14 })} <span>${p.leadMda}</span>
+        </div>
         <p class="item-desc">${p.description}</p>
         
         <div style="background: var(--admin-bg); padding: 8px 12px; border-radius: 6px; font-size: 0.78rem; margin-bottom: 14px; border: 1px solid var(--admin-border);">
@@ -1436,9 +1880,14 @@ function renderProjectsList() {
         <div class="item-meta">
           <span>Added: ${p.dateAdded || '2026-10-01'}</span>
           <div class="item-actions">
-            <button class="btn-icon-sm delete" title="Remove Initiative" onclick="deleteProject('${p.id}')">
-              ${getIconSvg('trash-2', { size: 15 })}
+            <button class="btn-icon-sm edit" title="Edit Project Details & Gallery" onclick="openEditProjectModal('${p.id}')">
+              ${getIconSvg('edit', { size: 15 })}
             </button>
+            ${isSuper ? `
+              <button class="btn-icon-sm delete" title="Remove Initiative (Super Admin Only)" onclick="deleteProject('${p.id}')">
+                ${getIconSvg('trash-2', { size: 15 })}
+              </button>
+            ` : ''}
           </div>
         </div>
       </div>
@@ -1446,9 +1895,73 @@ function renderProjectsList() {
   }).join('');
 }
 
+window.openCreateProjectModal = function() {
+  const form = document.getElementById('newProjectForm');
+  if (form) form.reset();
+  const idInput = document.getElementById('editingProjectId');
+  const titleEl = document.getElementById('projectModalTitle');
+  const submitBtn = document.getElementById('btnSubmitProject');
+  if (idInput) idInput.value = '';
+  if (titleEl) titleEl.textContent = 'Upload / Initiate National Project';
+  if (submitBtn) submitBtn.textContent = 'Publish Project Track';
+  uploadedProjectImages = [];
+  renderProjectImagePreviews();
+  resetProjectDropzone();
+  openModal('newProjectModal');
+};
+
+window.openEditProjectModal = function(projectId) {
+  const projects = getStoredProjects();
+  const p = projects.find(item => item.id === projectId);
+  if (!p) return;
+
+  const idInput = document.getElementById('editingProjectId');
+  const titleEl = document.getElementById('projectModalTitle');
+  const submitBtn = document.getElementById('btnSubmitProject');
+
+  if (idInput) idInput.value = p.id;
+  if (titleEl) titleEl.textContent = 'Edit National Priority Project';
+  if (submitBtn) submitBtn.textContent = 'Save Changes';
+
+  const titleInput = document.getElementById('newProjectTitle');
+  const sectorSelect = document.getElementById('newProjectSector');
+  const statusSelect = document.getElementById('newProjectStatus');
+  const mdaInput = document.getElementById('newProjectMda');
+  const benInput = document.getElementById('newProjectBeneficiaries');
+  const budgetInput = document.getElementById('newProjectBudget');
+  const descInput = document.getElementById('newProjectDesc');
+
+  if (titleInput) titleInput.value = p.title || '';
+  if (sectorSelect) sectorSelect.value = p.sector || 'Technology & Innovation';
+  if (statusSelect) statusSelect.value = p.status || 'active';
+  if (mdaInput) mdaInput.value = p.leadMda || '';
+  if (benInput) benInput.value = p.targetBeneficiaries || '';
+  if (budgetInput) budgetInput.value = p.budget || '';
+  if (descInput) descInput.value = p.description || '';
+
+  uploadedProjectImages = (p.images && Array.isArray(p.images)) ? [...p.images] : [];
+  renderProjectImagePreviews();
+
+  if (p.attachedDocName) {
+    const nameEl = document.getElementById('projectFileName');
+    const promptEl = document.getElementById('projectDropzonePrompt');
+    const previewEl = document.getElementById('projectFilePreview');
+    if (nameEl) nameEl.textContent = p.attachedDocName;
+    if (promptEl) promptEl.style.display = 'none';
+    if (previewEl) previewEl.style.display = 'block';
+  } else {
+    resetProjectDropzone();
+  }
+
+  openModal('newProjectModal');
+};
+
 function handleAddProject(e) {
   e.preventDefault();
   const form = e.target;
+  const editingIdInput = form.querySelector('#editingProjectId');
+  const editingId = editingIdInput ? editingIdInput.value.trim() : '';
+
   const title = form.querySelector('#newProjectTitle').value.trim();
   const sector = form.querySelector('#newProjectSector').value;
   const leadMda = form.querySelector('#newProjectMda').value.trim();
@@ -1463,29 +1976,60 @@ function handleAddProject(e) {
   }
 
   const projects = getStoredProjects();
-  const newProject = {
-    id: `PRJ-${String(projects.length + 1).padStart(3, '0')}`,
-    title,
-    sector,
-    leadMda,
-    targetBeneficiaries: beneficiaries || 'National Public Service Youths',
-    budget: budget || 'N/A',
-    status,
-    statusLabel: status === 'active' ? 'Active Implementation' : (status === 'completed' ? 'Completed' : 'Planning & Review'),
-    description,
-    dateAdded: new Date().toISOString().split('T')[0]
-  };
 
-  if (uploadedProjectFileData) {
-    newProject.attachedDocName = uploadedProjectFileData.name;
-    newProject.attachedDocSize = uploadedProjectFileData.size;
-    newProject.attachedDocData = uploadedProjectFileData.dataUrl;
+  if (editingId) {
+    // Edit existing project
+    const index = projects.findIndex(p => p.id === editingId);
+    if (index === -1) {
+      showAdminToast('Project record not found.', 'error');
+      return;
+    }
+
+    projects[index].title = title;
+    projects[index].sector = sector;
+    projects[index].leadMda = leadMda;
+    projects[index].targetBeneficiaries = beneficiaries || 'National Public Service Youths';
+    projects[index].budget = budget || 'Government Subvention';
+    projects[index].status = status;
+    projects[index].statusLabel = status === 'active' ? 'Active Implementation' : (status === 'completed' ? 'Completed' : 'Planning & Review');
+    projects[index].description = description;
+    projects[index].images = [...uploadedProjectImages];
+
+    if (uploadedProjectFileData) {
+      projects[index].attachedDocName = uploadedProjectFileData.name;
+      projects[index].attachedDocSize = uploadedProjectFileData.size;
+      projects[index].attachedDocData = uploadedProjectFileData.dataUrl;
+    }
+
+    saveProjects(projects);
+    showAdminToast(`Project "${title}" updated successfully!`);
+  } else {
+    // Add new project
+    const newProject = {
+      id: `PRJ-${String(projects.length + 1).padStart(3, '0')}`,
+      title,
+      sector,
+      leadMda,
+      targetBeneficiaries: beneficiaries || 'National Public Service Youths',
+      budget: budget || 'N/A',
+      status,
+      statusLabel: status === 'active' ? 'Active Implementation' : (status === 'completed' ? 'Completed' : 'Planning & Review'),
+      description,
+      images: [...uploadedProjectImages],
+      dateAdded: new Date().toISOString().split('T')[0]
+    };
+
+    if (uploadedProjectFileData) {
+      newProject.attachedDocName = uploadedProjectFileData.name;
+      newProject.attachedDocSize = uploadedProjectFileData.size;
+      newProject.attachedDocData = uploadedProjectFileData.dataUrl;
+    }
+
+    projects.unshift(newProject);
+    saveProjects(projects);
+    showAdminToast('New national priority project published to website & portal!');
   }
 
-  projects.unshift(newProject);
-  saveProjects(projects);
-
-  showAdminToast('New national priority project uploaded and published to system!');
   form.reset();
   resetProjectDropzone();
   closeAllModals();
@@ -1494,6 +2038,10 @@ function handleAddProject(e) {
 }
 
 window.deleteProject = function(projectId) {
+  if (!isSuperAdmin()) {
+    showAdminToast('Access Denied: Only Super Administrators can delete projects.', 'error');
+    return;
+  }
   if (!confirm('Are you sure you want to remove this project?')) return;
   let projects = getStoredProjects();
   projects = projects.filter(p => p.id !== projectId);
@@ -1537,19 +2085,26 @@ function renderResourcesList() {
         <td colspan="6" class="table-empty-cell" style="text-align: center; padding: 36px; color: var(--admin-text-muted);">
           <div style="margin-bottom: 8px; color: var(--admin-text-muted);">${getIconSvg('folder', { size: 36 })}</div>
           <strong>No publications or resources found</strong>
-          <p style="font-size: 0.82rem; margin-top: 4px;">Upload official bye-laws, guides, or circulars using "Upload New Resource".</p>
+          <p style="font-size: 0.82rem; margin-top: 4px;">Upload official bye-laws, guides, or circulars using "+ Upload Resource".</p>
         </td>
       </tr>
     `;
     return;
   }
 
+  const isSuper = isSuperAdmin();
+
   tbody.innerHTML = filtered.map(r => {
+    const hasImages = r.images && Array.isArray(r.images) && r.images.length > 0;
+
     return `
       <tr>
         <td data-label="Title & Summary">
           <div class="resource-title-block">
-            <div style="font-weight: 700; color: var(--admin-primary);">${r.title}</div>
+            <div style="font-weight: 700; color: var(--admin-primary); display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+              <span>${r.title}</span>
+              ${hasImages ? `<span style="font-size: 0.72rem; color: var(--admin-accent-dark); font-weight: 700;">📷 ${r.images.length} photo${r.images.length === 1 ? '' : 's'}</span>` : ''}
+            </div>
             <div style="font-size: 0.78rem; color: var(--admin-text-muted); margin-top: 2px;">${r.description || ''}</div>
           </div>
         </td>
@@ -1569,9 +2124,14 @@ function renderResourcesList() {
             <button class="btn-icon-sm" title="Download Document" onclick="downloadResource('${r.id}')">
               ${getIconSvg('download', { size: 15 })}
             </button>
-            <button class="btn-icon-sm delete" title="Delete Resource" onclick="deleteResource('${r.id}')">
-              ${getIconSvg('trash-2', { size: 15 })}
+            <button class="btn-icon-sm edit" title="Edit Publication & Pictures" onclick="openEditResourceModal('${r.id}')">
+              ${getIconSvg('edit', { size: 15 })}
             </button>
+            ${isSuper ? `
+              <button class="btn-icon-sm delete" title="Delete Resource (Super Admin Only)" onclick="deleteResource('${r.id}')">
+                ${getIconSvg('trash-2', { size: 15 })}
+              </button>
+            ` : ''}
           </div>
         </td>
       </tr>
@@ -1579,9 +2139,79 @@ function renderResourcesList() {
   }).join('');
 }
 
+window.openCreateResourceModal = function() {
+  const form = document.getElementById('newResourceForm');
+  if (form) form.reset();
+  const idInput = document.getElementById('editingResourceId');
+  const titleEl = document.getElementById('resourceModalTitle');
+  const submitBtn = document.getElementById('btnSubmitResource');
+  if (idInput) idInput.value = '';
+  if (titleEl) titleEl.textContent = 'Upload Publication / Resource';
+  if (submitBtn) submitBtn.textContent = 'Upload & Publish';
+  uploadedResourceImages = [];
+  renderResourceImagePreviews();
+  resetResourceDropzone();
+  openModal('newResourceModal');
+};
+
+window.openEditResourceModal = function(resourceId) {
+  const resources = getStoredResources();
+  const r = resources.find(item => item.id === resourceId);
+  if (!r) return;
+
+  const idInput = document.getElementById('editingResourceId');
+  const titleEl = document.getElementById('resourceModalTitle');
+  const submitBtn = document.getElementById('btnSubmitResource');
+
+  if (idInput) idInput.value = r.id;
+  if (titleEl) titleEl.textContent = 'Edit Publication / Resource';
+  if (submitBtn) submitBtn.textContent = 'Save Changes';
+
+  const titleInput = document.getElementById('newResourceTitle');
+  const catSelect = document.getElementById('newResourceCategory');
+  const formatSelect = document.getElementById('newResourceFormat');
+  const mdaInput = document.getElementById('newResourceMda');
+  const descInput = document.getElementById('newResourceDesc');
+
+  if (titleInput) titleInput.value = r.title || '';
+  if (catSelect) catSelect.value = r.category || 'Policy Brief & Circular';
+  if (formatSelect) formatSelect.value = r.fileType || 'PDF';
+  if (mdaInput) mdaInput.value = r.publishingMda || '';
+  if (descInput) descInput.value = r.description || '';
+
+  uploadedResourceImages = (r.images && Array.isArray(r.images)) ? [...r.images] : [];
+  renderResourceImagePreviews();
+
+  if (r.fileName) {
+    uploadedResourceFileData = {
+      name: r.fileName,
+      size: r.fileSize || '2.4 MB',
+      type: r.fileType || 'PDF',
+      dataUrl: r.fileData || null
+    };
+    const nameEl = document.getElementById('filePreviewName');
+    const sizeEl = document.getElementById('filePreviewSize');
+    const badgeEl = document.getElementById('filePreviewBadge');
+    const promptEl = document.getElementById('resourceDropzonePrompt');
+    const previewEl = document.getElementById('resourceFilePreview');
+    if (nameEl) nameEl.textContent = r.fileName;
+    if (sizeEl) sizeEl.textContent = r.fileSize || '2.4 MB';
+    if (badgeEl) badgeEl.textContent = r.fileType || 'PDF';
+    if (promptEl) promptEl.style.display = 'none';
+    if (previewEl) previewEl.style.display = 'block';
+  } else {
+    resetResourceDropzone();
+  }
+
+  openModal('newResourceModal');
+};
+
 function handleAddResource(e) {
   e.preventDefault();
   const form = e.target;
+  const editingIdInput = form.querySelector('#editingResourceId');
+  const editingId = editingIdInput ? editingIdInput.value.trim() : '';
+
   const title = form.querySelector('#newResourceTitle').value.trim();
   const category = form.querySelector('#newResourceCategory').value;
   const mda = form.querySelector('#newResourceMda').value.trim();
@@ -1589,36 +2219,67 @@ function handleAddResource(e) {
   const desc = form.querySelector('#newResourceDesc').value.trim();
   const dropzone = document.getElementById('resourceDropzone');
 
-  if (!uploadedResourceFileData) {
-    if (dropzone) dropzone.classList.add('has-error');
-    showAdminToast('Please attach or choose a document file to upload.', 'error');
-    return;
-  }
-
   if (!title || !mda) {
     showAdminToast('Please fill in the document title and publishing authority.', 'error');
     return;
   }
 
   const resources = getStoredResources();
-  const newResource = {
-    id: `RES-${String(resources.length + 1).padStart(3, '0')}`,
-    title,
-    category,
-    publishingMda: mda,
-    fileType: uploadedResourceFileData.type || fileType,
-    fileName: uploadedResourceFileData.name,
-    fileSize: uploadedResourceFileData.size || '2.4 MB',
-    fileData: uploadedResourceFileData.dataUrl,
-    downloads: 0,
-    description: desc || 'Official publication issued for the Nigeria Civil Service Youths\' Forum.',
-    dateAdded: new Date().toISOString().split('T')[0]
-  };
 
-  resources.unshift(newResource);
-  saveResources(resources);
+  if (editingId) {
+    // Edit existing resource
+    const index = resources.findIndex(r => r.id === editingId);
+    if (index === -1) {
+      showAdminToast('Resource not found.', 'error');
+      return;
+    }
 
-  showAdminToast(`Document "${uploadedResourceFileData.name}" uploaded successfully!`);
+    resources[index].title = title;
+    resources[index].category = category;
+    resources[index].publishingMda = mda;
+    resources[index].fileType = fileType;
+    resources[index].description = desc;
+    resources[index].images = [...uploadedResourceImages];
+
+    if (uploadedResourceFileData) {
+      resources[index].fileType = uploadedResourceFileData.type || fileType;
+      resources[index].fileName = uploadedResourceFileData.name;
+      resources[index].fileSize = uploadedResourceFileData.size || '2.4 MB';
+      if (uploadedResourceFileData.dataUrl) {
+        resources[index].fileData = uploadedResourceFileData.dataUrl;
+      }
+    }
+
+    saveResources(resources);
+    showAdminToast(`Resource "${title}" updated successfully!`);
+  } else {
+    // Add new resource
+    if (!uploadedResourceFileData) {
+      if (dropzone) dropzone.classList.add('has-error');
+      showAdminToast('Please attach or choose a document file to upload.', 'error');
+      return;
+    }
+
+    const newResource = {
+      id: `RES-${String(resources.length + 1).padStart(3, '0')}`,
+      title,
+      category,
+      publishingMda: mda,
+      fileType: uploadedResourceFileData.type || fileType,
+      fileName: uploadedResourceFileData.name,
+      fileSize: uploadedResourceFileData.size || '2.4 MB',
+      fileData: uploadedResourceFileData.dataUrl,
+      images: [...uploadedResourceImages],
+      downloads: 0,
+      description: desc || 'Official publication issued for the Nigeria Civil Service Youths\' Forum.',
+      dateAdded: new Date().toISOString().split('T')[0]
+    };
+
+    resources.unshift(newResource);
+    saveResources(resources);
+    showAdminToast(`Document "${uploadedResourceFileData.name}" uploaded successfully!`);
+  }
+
   form.reset();
   resetResourceDropzone();
   closeAllModals();
@@ -1663,6 +2324,10 @@ window.downloadResource = function(resourceId) {
 };
 
 window.deleteResource = function(resourceId) {
+  if (!isSuperAdmin()) {
+    showAdminToast('Access Denied: Only Super Administrators can delete resources.', 'error');
+    return;
+  }
   if (!confirm('Are you sure you want to remove this publication?')) return;
   let resources = getStoredResources();
   resources = resources.filter(r => r.id !== resourceId);
@@ -1673,11 +2338,239 @@ window.deleteResource = function(resourceId) {
 };
 
 // ==========================================================================
+// ADMIN TEAM & ROLE-BASED ACCESS CONTROL (Super Admin Only)
+// ==========================================================================
+function renderAdminsTable() {
+  const tbody = document.getElementById('adminsTableBody');
+  const countEl = document.getElementById('adminsShowingCount');
+  if (!tbody) return;
+
+  const admins = getStoredAdminUsers();
+  const currentSession = getAuthSession();
+
+  if (countEl) {
+    countEl.textContent = `Showing ${admins.length} authorized administrators`;
+  }
+
+  tbody.innerHTML = admins.map(a => {
+    const isSuper = a.role === 'super_admin';
+    const isPrimary = a.id === 'ADM-001' || a.email === 'admin@anycs.org.ng';
+    const isSelf = currentSession && currentSession.email && currentSession.email.toLowerCase() === a.email.toLowerCase();
+    const isRevoked = a.status === 'revoked';
+
+    const roleBadge = isSuper 
+      ? `<span class="badge-role super">Super Administrator</span>` 
+      : `<span class="badge-role regular">Regular Administrator</span>`;
+
+    const statusBadge = isRevoked 
+      ? `<span class="badge-status disapproved">● REVOKED</span>` 
+      : `<span class="badge-status verified">● ACTIVE</span>`;
+
+    const initials = (a.name || 'AD').split(' ').map(n => n.charAt(0)).slice(0, 2).join('').toUpperCase();
+
+    return `
+      <tr>
+        <td data-label="Administrator">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 34px; height: 34px; border-radius: 50%; background: ${isSuper ? '#0F4530' : '#1E293B'}; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.76rem; font-weight: 700; flex-shrink: 0;">
+              ${initials}
+            </div>
+            <div>
+              <div style="font-weight: 700; color: var(--admin-primary);">${a.name}</div>
+              <div style="font-size: 0.74rem; color: var(--admin-text-muted);">${a.id}</div>
+            </div>
+          </div>
+        </td>
+        <td data-label="Role & Permissions">${roleBadge}</td>
+        <td data-label="Email Address"><code>${a.email}</code></td>
+        <td data-label="Created Date" style="font-size: 0.8rem; color: var(--admin-text-muted);">${a.createdAt || '2026-09-01'}</td>
+        <td data-label="Status">${statusBadge}</td>
+        <td data-label="Actions" class="cell-actions">
+          <div class="table-actions">
+            ${(isPrimary || isSelf) ? `
+              <span style="font-size: 0.74rem; color: var(--admin-text-muted); font-weight: 700;">${isPrimary ? 'Primary Account' : 'Current Session'}</span>
+            ` : `
+              <button class="btn-icon-sm ${isRevoked ? '' : 'disapprove'}" title="${isRevoked ? 'Restore Access' : 'Revoke Access'}" onclick="toggleAdminStatus('${a.id}')">
+                ${getIconSvg(isRevoked ? 'check-circle' : 'ban', { size: 15 })}
+              </button>
+              <button class="btn-icon-sm delete" title="Permanently Delete Admin" onclick="deleteAdmin('${a.id}')">
+                ${getIconSvg('trash-2', { size: 15 })}
+              </button>
+            `}
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function handleAddAdmin(e) {
+  e.preventDefault();
+  if (!isSuperAdmin()) {
+    showAdminToast('Access Denied: Only Super Administrators can provision new admin accounts.', 'error');
+    return;
+  }
+
+  const form = e.target;
+  const name = form.querySelector('#newAdminName').value.trim();
+  const email = form.querySelector('#newAdminEmail').value.trim().toLowerCase();
+  const password = form.querySelector('#newAdminPassword').value.trim();
+  const role = form.querySelector('#newAdminRole').value;
+
+  if (!name || !email || !password) {
+    showAdminToast('Please complete all admin account fields.', 'error');
+    return;
+  }
+
+  const admins = getStoredAdminUsers();
+  if (admins.some(a => a.email.toLowerCase() === email)) {
+    showAdminToast('An administrator with this email already exists.', 'error');
+    return;
+  }
+
+  const newAdmin = {
+    id: `ADM-${String(admins.length + 1).padStart(3, '0')}`,
+    name,
+    email,
+    password,
+    role,
+    roleLabel: role === 'super_admin' ? 'Super Administrator' : 'Regular Administrator',
+    createdAt: new Date().toISOString().split('T')[0],
+    status: 'active'
+  };
+
+  admins.push(newAdmin);
+  saveAdminUsers(admins);
+
+  showAdminToast(`Administrator account created for ${name} (${role === 'super_admin' ? 'Super Admin' : 'Regular Admin'})!`);
+  form.reset();
+  closeAllModals();
+  renderAdminsTable();
+}
+
+window.toggleAdminStatus = function(adminId) {
+  if (!isSuperAdmin()) {
+    showAdminToast('Access Denied: Super Admin privileges required.', 'error');
+    return;
+  }
+
+  const admins = getStoredAdminUsers();
+  const admin = admins.find(a => a.id === adminId);
+  if (!admin) return;
+
+  if (admin.id === 'ADM-001') {
+    showAdminToast('Cannot revoke the primary Super Administrator account.', 'error');
+    return;
+  }
+
+  const newStatus = admin.status === 'revoked' ? 'active' : 'revoked';
+  admin.status = newStatus;
+  saveAdminUsers(admins);
+
+  showAdminToast(`Access for ${admin.name} has been ${newStatus === 'active' ? 'restored' : 'revoked'}.`);
+  renderAdminsTable();
+};
+
+window.deleteAdmin = function(adminId) {
+  if (!isSuperAdmin()) {
+    showAdminToast('Access Denied: Super Admin privileges required.', 'error');
+    return;
+  }
+
+  const admins = getStoredAdminUsers();
+  const admin = admins.find(a => a.id === adminId);
+  if (!admin) return;
+
+  if (admin.id === 'ADM-001') {
+    showAdminToast('Cannot delete the primary Super Administrator account.', 'error');
+    return;
+  }
+
+  if (!confirm(`Are you sure you want to permanently remove admin account: ${admin.name}?`)) return;
+
+  const filtered = admins.filter(a => a.id !== adminId);
+  saveAdminUsers(filtered);
+
+  showAdminToast(`Administrator account for ${admin.name} deleted.`);
+  renderAdminsTable();
+};
+
+// ==========================================================================
+// SYSTEM SETTINGS & DATA TOOLS
+// ==========================================================================
+window.exportDatabaseJson = function() {
+  if (!isSuperAdmin()) {
+    showAdminToast('Access Denied: Super Admin privileges required to backup database.', 'error');
+    return;
+  }
+
+  const backup = {
+    exportDate: new Date().toISOString(),
+    system: 'Nigeria Civil Service Youths\' Forum (NCSYF) Portal',
+    members: getStoredMembers(),
+    projects: getStoredProjects(),
+    resources: getStoredResources(),
+    adminUsers: getStoredAdminUsers()
+  };
+
+  const jsonStr = JSON.stringify(backup, null, 2);
+  const blob = new Blob([jsonStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `NCSYF_Full_Database_Backup_${new Date().toISOString().split('T')[0]}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showAdminToast('Full system database exported to JSON successfully.');
+};
+
+window.resetFactoryData = function() {
+  if (!isSuperAdmin()) {
+    showAdminToast('Access Denied: Super Admin privileges required.', 'error');
+    return;
+  }
+
+  if (!confirm('Are you sure you want to restore factory demo data? This will reset local mock changes.')) return;
+
+  localStorage.removeItem(STORAGE_KEYS.MEMBERS);
+  localStorage.removeItem(STORAGE_KEYS.PROJECTS);
+  localStorage.removeItem(STORAGE_KEYS.RESOURCES);
+  localStorage.removeItem(STORAGE_KEYS.ADMIN_USERS);
+
+  showAdminToast('Demo databases reset to official defaults.');
+  setTimeout(() => {
+    location.reload();
+  }, 500);
+};
+
+// ==========================================================================
 // MODAL CONTROLS & UTILITIES
 // ==========================================================================
 window.openModal = function(modalId) {
   const modal = document.getElementById(modalId);
   if (modal) {
+    // If opening project or resource modal fresh without editing ID set, ensure clean state
+    if (modalId === 'newProjectModal') {
+      const editInput = document.getElementById('editingProjectId');
+      if (!editInput || !editInput.value) {
+        const titleEl = document.getElementById('projectModalTitle');
+        const submitBtn = document.getElementById('btnSubmitProject');
+        if (titleEl) titleEl.textContent = 'Upload / Initiate National Project';
+        if (submitBtn) submitBtn.textContent = 'Publish Project Track';
+      }
+    } else if (modalId === 'newResourceModal') {
+      const editInput = document.getElementById('editingResourceId');
+      if (!editInput || !editInput.value) {
+        const titleEl = document.getElementById('resourceModalTitle');
+        const submitBtn = document.getElementById('btnSubmitResource');
+        if (titleEl) titleEl.textContent = 'Upload Publication / Resource';
+        if (submitBtn) submitBtn.textContent = 'Upload & Publish';
+      }
+    }
+
     modal.classList.add('active');
   }
 };
@@ -1686,6 +2579,10 @@ window.closeAllModals = function() {
   document.querySelectorAll('.admin-modal-overlay').forEach(modal => {
     modal.classList.remove('active');
   });
+  const projectEditId = document.getElementById('editingProjectId');
+  const resourceEditId = document.getElementById('editingResourceId');
+  if (projectEditId) projectEditId.value = '';
+  if (resourceEditId) resourceEditId.value = '';
   resetResourceDropzone();
   resetProjectDropzone();
 };

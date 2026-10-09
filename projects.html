@@ -180,6 +180,30 @@
     </div>
   </section>
 
+  <!-- Live National Priority Initiatives (Connected with Admin Updates) -->
+  <section class="section" id="active-initiatives" style="padding-bottom: 0;">
+    <div class="container">
+      <div class="track-header-card fade-in" style="background: linear-gradient(135deg, rgba(15, 69, 48, 0.05) 0%, rgba(233, 206, 116, 0.12) 100%); border: 1px solid rgba(15, 69, 48, 0.15);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: var(--space-sm);">
+          <span class="hero__badge-pill" style="color: var(--color-accent-dark); margin-bottom: 0;">
+            Live Portfolio Updates • Multi-Picture Galleries
+          </span>
+          <span style="font-size: var(--fs-xs); color: var(--color-gray); font-weight: 600;">
+            Synchronized with Secretariat Admin Portal
+          </span>
+        </div>
+        <h2>Active National Priority Initiatives</h2>
+        <p style="font-size: 1.12rem; max-width: 880px; line-height: 1.8; color: var(--color-dark-gray);">
+          Explore our signature nationwide reform projects across Federal, State, and LGA ministries. Click any initiative below to open its <strong>full dossier and multi-photo gallery</strong>.
+        </p>
+      </div>
+
+      <div class="grid grid--2" id="dynamicProjectsGrid" style="margin-top: var(--space-2xl); gap: var(--space-xl);">
+        <!-- Synchronized dynamically via main.js from localStorage (ncsyf_admin_projects) -->
+      </div>
+    </div>
+  </section>
+
   <!-- Track A: By Sector (Thematic, Multi-State) -->
   <section class="section" id="track-a">
     <div class="container">
@@ -502,6 +526,81 @@
             <button type="button" id="backToSignInBtn" style="background: none; border: none; color: var(--color-primary); font-weight: 700; cursor: pointer;">← Back to Sign In</button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Project Details & Photo Gallery Modal -->
+  <div class="project-modal-overlay" id="projectDetailModal" role="dialog" aria-modal="true" aria-labelledby="projectModalHeading">
+    <div class="project-modal-container">
+      <!-- Modal Header -->
+      <div class="project-modal-header">
+        <div class="project-modal-header__title-block">
+          <div class="project-modal-header__badges">
+            <span class="project-card-interactive__sector" id="modalProjectSector">Technology & Innovation</span>
+            <span class="project-card-interactive__status active" id="modalProjectStatus">● Active Implementation</span>
+          </div>
+          <h3 id="projectModalHeading">Project Title</h3>
+        </div>
+        <button class="project-modal-close" id="btnCloseProjectModal" aria-label="Close project details dialog">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <!-- Scrollable Container -->
+      <div class="project-modal-scrollable">
+        <!-- Gallery Lightbox Viewport -->
+        <div class="project-gallery-viewport" id="projectGalleryViewport">
+          <img src="images/project_digital_office.jpg" alt="Project Picture" class="project-gallery-main-img" id="projectGalleryMainImg">
+          <button type="button" class="project-gallery-nav prev" id="btnGalleryPrev" aria-label="Previous photo">
+            <i data-lucide="chevron-left"></i>
+          </button>
+          <button type="button" class="project-gallery-nav next" id="btnGalleryNext" aria-label="Next photo">
+            <i data-lucide="chevron-right"></i>
+          </button>
+          <span class="project-gallery-counter" id="projectGalleryCounter">Photo 1 of 1</span>
+        </div>
+
+        <!-- Thumbnail Strip -->
+        <div class="project-gallery-thumbs" id="projectGalleryThumbs"></div>
+
+        <!-- Body Details -->
+        <div class="project-modal-body">
+          <div class="project-meta-grid">
+            <div class="project-meta-item">
+              <label>Lead Ministry / MDA</label>
+              <span id="modalProjectMda">Federal Ministry of Communications</span>
+            </div>
+            <div class="project-meta-item">
+              <label>Target Beneficiaries</label>
+              <span id="modalProjectBeneficiaries">15,000+ Young Public Servants</span>
+            </div>
+            <div class="project-meta-item">
+              <label>Estimated Allocation / Budget</label>
+              <span id="modalProjectBudget">₦85,000,000</span>
+            </div>
+            <div class="project-meta-item">
+              <label>Implementation Date</label>
+              <span id="modalProjectDate">September 2026</span>
+            </div>
+          </div>
+
+          <h4 class="project-modal-desc-heading">Overview & Strategic Impact</h4>
+          <p class="project-modal-desc" id="modalProjectDesc">Project description...</p>
+
+          <div class="project-attached-box" id="modalProjectAttachedBox">
+            <div class="project-attached-details">
+              <div style="color: var(--color-primary);"><i data-lucide="file-check-2" style="width: 28px; height: 28px;"></i></div>
+              <div>
+                <strong id="modalProjectDocName">Official National Project Charter & Concept Note</strong>
+                <span id="modalProjectDocSize">Verified Secretariat Document • PDF (3.2 MB)</span>
+              </div>
+            </div>
+            <button type="button" class="btn btn--primary btn--sm" id="btnDownloadProjectCharter">
+              <i data-lucide="download"></i><span>Download Document</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>

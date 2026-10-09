@@ -27,10 +27,11 @@
       </div>
 
       <div class="admin-demo-box">
-        <strong><i data-lucide="zap"></i> Demo Mode (Backend Ready)</strong>
-        <span>Login details are not hardcoded. Enter any administrator credentials or click below to auto-fill demo data:</span>
-        <div class="admin-demo-actions">
-          <button type="button" class="btn-demo-fill" id="btnDemoSuperAdmin">Auto-Fill Demo Admin</button>
+        <strong><i data-lucide="zap"></i> Demo Mode (Role-Based Access)</strong>
+        <span>Login details are not hardcoded. Enter credentials or click below to test role permissions:</span>
+        <div class="admin-demo-actions" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
+          <button type="button" class="btn-demo-fill" id="btnDemoSuperAdmin">Super Admin (Full Access)</button>
+          <button type="button" class="btn-demo-fill" id="btnDemoRegularAdmin" style="background: rgba(37,99,235,0.08); color: #1D4ED8; border-color: rgba(37,99,235,0.25);">Regular Admin (Uploads &amp; Approvals)</button>
         </div>
       </div>
 
@@ -110,9 +111,15 @@
           <span class="badge" id="sidebarBadgeResources">0</span>
         </a>
 
-        <div class="sidebar-heading">System &amp; Settings</div>
+        <div class="sidebar-heading" id="sidebarHeadingAdminManage">Administration &amp; System</div>
 
-        <a class="sidebar-link" data-admin-tab="settings">
+        <a class="sidebar-link" data-admin-tab="admins" id="sidebarLinkAdmins">
+          <span class="icon"><i data-lucide="shield-check"></i></span>
+          <span>Admin Team</span>
+          <span class="badge" id="sidebarBadgeAdmins">2</span>
+        </a>
+
+        <a class="sidebar-link" data-admin-tab="settings" id="sidebarLinkSettings">
           <span class="icon"><i data-lucide="settings"></i></span>
           <span>Backend &amp; Settings</span>
         </a>
@@ -125,10 +132,10 @@
 
       <div class="sidebar-footer">
         <div class="admin-user-card">
-          <div class="admin-user-avatar">AD</div>
+          <div class="admin-user-avatar" id="adminUserAvatar">AD</div>
           <div class="admin-user-info">
-            <div class="admin-user-name">Secretariat Admin</div>
-            <div class="admin-user-role">Super Administrator</div>
+            <div class="admin-user-name" id="adminUserName">Secretariat Admin</div>
+            <div class="admin-user-role" id="adminUserRoleBadge"><span class="badge-role super">Super Administrator</span></div>
           </div>
           <button class="btn-sidebar-logout" data-admin-logout title="Sign Out">
             <i data-lucide="log-out"></i>
@@ -153,6 +160,7 @@
         </div>
 
         <div class="admin-header-right">
+          <span class="header-role-pill" id="headerRoleBadge"><i data-lucide="shield"></i> <span id="headerRoleText">Super Admin</span></span>
           <button type="button" class="btn-header-action" onclick="openModal('newProjectModal')">
             <span>+ New Project</span>
           </button>
@@ -247,7 +255,8 @@
                   <tr>
                     <th>Full Name</th>
                     <th>Category</th>
-                    <th>Staff / Membership ID</th>
+                    <th>Member ID</th>
+                    <th>Staff ID</th>
                     <th>Ministry / Agency (MDA)</th>
                     <th>Verification Status</th>
                     <th>Action</th>
@@ -276,7 +285,7 @@
               <div class="admin-toolbar">
                 <div class="search-box">
                   <span class="icon"><i data-lucide="search"></i></span>
-                  <input type="text" id="memberSearchInput" placeholder="Search by name, MDA, Staff ID...">
+                  <input type="text" id="memberSearchInput" placeholder="Search by name, MDA, Member ID, Staff ID...">
                 </div>
 
                 <select id="memberCategoryFilter" class="filter-select">
@@ -304,7 +313,8 @@
                   <tr>
                     <th>Applicant / Member</th>
                     <th>Category</th>
-                    <th>Staff / Member ID</th>
+                    <th>Member ID</th>
+                    <th>Staff ID / File No.</th>
                     <th>MDA &amp; Tier</th>
                     <th>Chapter</th>
                     <th>Status</th>
@@ -415,7 +425,42 @@
         </div>
 
         <!-- ==================================================================
-             TAB 5: SYSTEM & BACKEND SETTINGS
+             TAB 5: ADMIN TEAM MANAGEMENT (SUPER ADMIN)
+             ================================================================== -->
+        <div id="tab-admins" class="admin-tab-pane" style="display: none;">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <div class="admin-card-title">
+                <h3>Admin Team &amp; Access Control</h3>
+                <p id="adminsShowingCount">Manage system administrators, security roles, and permissions</p>
+              </div>
+              <button type="button" class="btn-admin btn-primary-green btn-admin-sm" onclick="openModal('newAdminModal')">
+                <i data-lucide="user-plus"></i><span>+ Add Administrator</span>
+              </button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Administrator</th>
+                    <th>Role &amp; Permissions</th>
+                    <th>Email Address</th>
+                    <th>Created Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="adminsTableBody">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             TAB 6: SYSTEM & BACKEND SETTINGS
              ================================================================== -->
         <div id="tab-settings" class="admin-tab-pane" style="display: none;">
           <div class="admin-card" style="max-width: 800px;">
@@ -482,10 +527,11 @@
   <div id="newProjectModal" class="admin-modal-overlay">
     <div class="admin-modal-card">
       <div class="admin-modal-header">
-        <h3>Upload / Add National Project</h3>
+        <h3 id="projectModalTitle">Upload / Add National Project</h3>
         <button class="btn-modal-close" data-close-modal aria-label="Close modal"><i data-lucide="x"></i></button>
       </div>
       <form id="newProjectForm">
+        <input type="hidden" id="editingProjectId" value="">
         <div class="admin-modal-body">
           <div class="admin-form-group">
             <label class="admin-label" for="newProjectTitle">Project Title *</label>
@@ -536,6 +582,24 @@
             <textarea id="newProjectDesc" class="admin-textarea" rows="3" placeholder="Provide background, core activities, and expected transformation..." required></textarea>
           </div>
 
+          <!-- Multi-Picture Upload for Project Gallery -->
+          <div class="admin-form-group">
+            <label class="admin-label">
+              Project Gallery Pictures
+              <span style="font-weight: 400; font-size: 0.76rem; color: var(--admin-text-muted);">(Upload multiple photos for website project gallery — JPG, PNG, WebP)</span>
+            </label>
+            <div class="image-upload-box" id="projectImageDropzone">
+              <input type="file" id="newProjectImagesInput" accept="image/*" multiple style="display: none;">
+              <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" id="btnBrowseProjectImages">
+                  <i data-lucide="image"></i><span>Choose Pictures (Multiple)</span>
+                </button>
+                <span style="font-size: 0.78rem; color: var(--admin-text-muted);" id="projectImagesCountBadge">0 pictures selected</span>
+              </div>
+              <div class="image-preview-grid" id="projectImagesPreviewGrid"></div>
+            </div>
+          </div>
+
           <div class="admin-form-group">
             <label class="admin-label">
               Attach Project Charter / Concept Note
@@ -565,7 +629,7 @@
 
         <div class="admin-modal-footer">
           <button type="button" class="btn-admin btn-admin-outline" data-close-modal>Cancel</button>
-          <button type="submit" class="btn-admin btn-primary-green">Publish Project Track</button>
+          <button type="submit" class="btn-admin btn-primary-green" id="btnSubmitProject">Publish Project Track</button>
         </div>
       </form>
     </div>
@@ -575,10 +639,11 @@
   <div id="newResourceModal" class="admin-modal-overlay">
     <div class="admin-modal-card">
       <div class="admin-modal-header">
-        <h3>Upload Publication / Resource</h3>
+        <h3 id="resourceModalTitle">Upload Publication / Resource</h3>
         <button class="btn-modal-close" data-close-modal aria-label="Close modal"><i data-lucide="x"></i></button>
       </div>
       <form id="newResourceForm">
+        <input type="hidden" id="editingResourceId" value="">
         <div class="admin-modal-body">
           
           <!-- Document File Upload Allocation -->
@@ -629,6 +694,24 @@
             </div>
           </div>
 
+          <!-- Multi-Image / Cover Photos for Resource -->
+          <div class="admin-form-group">
+            <label class="admin-label">
+              Resource Pictures &amp; Cover Images
+              <span style="font-weight: 400; font-size: 0.76rem; color: var(--admin-text-muted);">(Optional — JPG, PNG, WebP)</span>
+            </label>
+            <div class="image-upload-box" id="resourceImageDropzone">
+              <input type="file" id="newResourceImagesInput" accept="image/*" multiple style="display: none;">
+              <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" id="btnBrowseResourceImages">
+                  <i data-lucide="image"></i><span>Choose Pictures (Multiple)</span>
+                </button>
+                <span style="font-size: 0.78rem; color: var(--admin-text-muted);" id="resourceImagesCountBadge">0 pictures selected</span>
+              </div>
+              <div class="image-preview-grid" id="resourceImagesPreviewGrid"></div>
+            </div>
+          </div>
+
           <div class="admin-form-group">
             <label class="admin-label" for="newResourceTitle">Document Title *</label>
             <input type="text" id="newResourceTitle" class="admin-input" placeholder="e.g. 2026 Civil Service Reform Circular" required>
@@ -670,7 +753,7 @@
 
         <div class="admin-modal-footer">
           <button type="button" class="btn-admin btn-admin-outline" data-close-modal>Cancel</button>
-          <button type="submit" class="btn-admin btn-primary-green">Upload &amp; Publish</button>
+          <button type="submit" class="btn-admin btn-primary-green" id="btnSubmitResource">Upload &amp; Publish</button>
         </div>
       </form>
     </div>
@@ -717,6 +800,56 @@
         <div class="admin-modal-footer">
           <button type="button" class="btn-admin btn-admin-outline" data-close-modal>Cancel</button>
           <button type="submit" class="btn-admin btn-admin-danger" style="background: #DC2626;">Disapprove &amp; Allow Reapply</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. New Administrator Modal (Super Admin Only) -->
+  <div id="newAdminModal" class="admin-modal-overlay">
+    <div class="admin-modal-card" style="max-width: 500px;">
+      <div class="admin-modal-header">
+        <h3 style="display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="user-plus" style="color: var(--admin-primary);"></i> Add Portal Administrator
+        </h3>
+        <button class="btn-modal-close" data-close-modal aria-label="Close modal"><i data-lucide="x"></i></button>
+      </div>
+      <form id="newAdminForm">
+        <div class="admin-modal-body">
+          <p style="font-size: 0.85rem; color: var(--admin-text-muted); margin-bottom: 14px;">
+            Provision an administrative login account for Secretariat or Desk Operations personnel.
+          </p>
+
+          <div class="admin-form-group">
+            <label class="admin-label" for="newAdminName">Administrator Full Name *</label>
+            <input type="text" id="newAdminName" class="admin-input" placeholder="e.g. Ibrahim Aliyu" required>
+          </div>
+
+          <div class="admin-form-group">
+            <label class="admin-label" for="newAdminEmail">Official Email / Username *</label>
+            <input type="email" id="newAdminEmail" class="admin-input" placeholder="e.g. ibrahim.aliyu@anycs.org.ng" required>
+          </div>
+
+          <div class="admin-form-group">
+            <label class="admin-label" for="newAdminPassword">Temporary Password *</label>
+            <input type="password" id="newAdminPassword" class="admin-input" placeholder="Minimum 8 characters" required>
+          </div>
+
+          <div class="admin-form-group">
+            <label class="admin-label" for="newAdminRole">Administrator Role &amp; Permissions *</label>
+            <select id="newAdminRole" class="admin-select" required>
+              <option value="regular_admin">Regular Admin (Uploads, Edits &amp; Member Approvals Only)</option>
+              <option value="super_admin">Super Admin (Full Access, User Management &amp; Settings)</option>
+            </select>
+            <span style="font-size: 0.74rem; color: var(--admin-text-muted); margin-top: 4px; display: block;">
+              Regular Admins can only upload/edit projects and resources and approve/disapprove members.
+            </span>
+          </div>
+        </div>
+
+        <div class="admin-modal-footer">
+          <button type="button" class="btn-admin btn-admin-outline" data-close-modal>Cancel</button>
+          <button type="submit" class="btn-admin btn-primary-green">Create Administrator Account</button>
         </div>
       </form>
     </div>
