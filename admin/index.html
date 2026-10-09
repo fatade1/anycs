@@ -81,6 +81,7 @@
           <h2>NCSYF Admin</h2>
           <span>National Console</span>
         </div>
+        <button type="button" id="btnSidebarClose" class="btn-sidebar-close" aria-label="Close navigation drawer">✕</button>
       </div>
 
       <nav class="sidebar-nav">
@@ -444,7 +445,7 @@
                 <input type="text" class="admin-input" value="OAuth 2.0 / JWT Bearer Tokens (Configurable)" readonly>
               </div>
 
-              <div style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
+              <div class="settings-actions" style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
                 <button type="button" class="btn-admin btn-admin-primary" onclick="exportDatabaseJson()">
                   <span>💾 Backup Database to JSON</span>
                 </button>
@@ -491,7 +492,7 @@
             <input type="text" id="newProjectTitle" class="admin-input" placeholder="e.g. Civil Service E-Governance Initiative" required>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div class="admin-form-grid-2">
             <div class="admin-form-group">
               <label class="admin-label" for="newProjectSector">Priority Sector *</label>
               <select id="newProjectSector" class="admin-select" required>
@@ -518,7 +519,7 @@
             <input type="text" id="newProjectMda" class="admin-input" placeholder="e.g. Federal Ministry of Communications" required>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div class="admin-form-grid-2">
             <div class="admin-form-group">
               <label class="admin-label" for="newProjectBeneficiaries">Target Beneficiaries</label>
               <input type="text" id="newProjectBeneficiaries" class="admin-input" placeholder="e.g. 10,000 Serving Youths">
@@ -633,7 +634,7 @@
             <input type="text" id="newResourceTitle" class="admin-input" placeholder="e.g. 2026 Civil Service Reform Circular" required>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div class="admin-form-grid-2">
             <div class="admin-form-group">
               <label class="admin-label" for="newResourceCategory">Category *</label>
               <select id="newResourceCategory" class="admin-select" required>

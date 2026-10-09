@@ -711,28 +711,48 @@ function setupEventListeners() {
       // Close mobile sidebar if open
       const sidebar = document.getElementById('adminSidebar');
       const backdrop = document.getElementById('sidebarBackdrop');
-      if (sidebar) sidebar.classList.remove('open');
-      if (backdrop) backdrop.classList.remove('active');
+      if (window.innerWidth < 992) {
+        if (sidebar) sidebar.classList.remove('open');
+        if (backdrop) backdrop.classList.remove('active');
+        document.body.classList.remove('sidebar-open');
+      }
     });
   });
 
-  // Mobile sidebar toggle
+  // Mobile sidebar toggle & close
   const toggleBtn = document.getElementById('btnSidebarToggle');
+  const closeBtn = document.getElementById('btnSidebarClose');
   const sidebar = document.getElementById('adminSidebar');
   const backdrop = document.getElementById('sidebarBackdrop');
 
-  if (toggleBtn && sidebar) {
+  function closeMobileSidebar() {
+    if (sidebar) sidebar.classList.remove('open');
+    if (backdrop) backdrop.classList.remove('active');
+    document.body.classList.remove('sidebar-open');
+  }
+
+  function openMobileSidebar() {
+    if (sidebar) sidebar.classList.add('open');
+    if (backdrop) backdrop.classList.add('active');
+    document.body.classList.add('sidebar-open');
+  }
+
+  if (toggleBtn) {
     toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('open');
-      if (backdrop) backdrop.classList.toggle('active');
+      if (sidebar && sidebar.classList.contains('open')) {
+        closeMobileSidebar();
+      } else {
+        openMobileSidebar();
+      }
     });
   }
 
-  if (backdrop && sidebar) {
-    backdrop.addEventListener('click', () => {
-      sidebar.classList.remove('open');
-      backdrop.classList.remove('active');
-    });
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeMobileSidebar);
+  }
+
+  if (backdrop) {
+    backdrop.addEventListener('click', closeMobileSidebar);
   }
 
   // Members filters & search
@@ -942,7 +962,7 @@ function renderRecentMembersOverview(recentMembers) {
   if (!tbody) return;
 
   if (!recentMembers.length) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 24px; color: var(--admin-text-muted);">No member registrations recorded yet.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" class="table-empty-cell" style="text-align: center; padding: 24px; color: var(--admin-text-muted);">No member registrations recorded yet.</td></tr>`;
     return;
   }
 
@@ -965,13 +985,13 @@ function renderRecentMembersOverview(recentMembers) {
 
     return `
       <tr>
-        <td><strong>${m.firstName || ''} ${m.lastName || ''}</strong></td>
-        <td>${catBadge}</td>
-        <td><code>${m.staffId || m.id}</code></td>
-        <td style="max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${m.mda || 'Not specified'}">${m.mda || 'N/A'}</td>
-        <td>${statusBadge}</td>
-        <td>
-          <button class="btn-admin btn-admin-outline btn-admin-sm" onclick="viewMemberDossier('${m.id}')">
+        <td data-label="Full Name"><strong>${m.firstName || ''} ${m.lastName || ''}</strong></td>
+        <td data-label="Category">${catBadge}</td>
+        <td data-label="Staff ID"><code>${m.staffId || m.id}</code></td>
+        <td data-label="Ministry / MDA" style="max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${m.mda || 'Not specified'}">${m.mda || 'N/A'}</td>
+        <td data-label="Status">${statusBadge}</td>
+        <td data-label="Action" class="cell-actions">
+          <button class="btn-admin btn-admin-outline btn-admin-sm btn-action-block" onclick="viewMemberDossier('${m.id}')">
             View Details
           </button>
         </td>
@@ -1024,7 +1044,7 @@ function renderMembersTable() {
   if (!filtered.length) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="8" style="text-align: center; padding: 36px; color: var(--admin-text-muted);">
+        <td colspan="8" class="table-empty-cell" style="text-align: center; padding: 36px; color: var(--admin-text-muted);">
           <div style="font-size: 1.5rem; margin-bottom: 6px;">🔍</div>
           <strong>No matching member applications found</strong>
           <p style="font-size: 0.82rem; margin-top: 4px;">Try adjusting your search criteria or category filters.</p>
@@ -1054,20 +1074,24 @@ function renderMembersTable() {
 
     return `
       <tr>
-        <td>
-          <div style="font-weight: 700; color: var(--admin-primary);">${m.firstName || ''} ${m.lastName || ''}</div>
-          <div style="font-size: 0.76rem; color: var(--admin-text-muted);">${m.email || 'No email provided'}</div>
+        <td data-label="Member">
+          <div class="member-name-block">
+            <div style="font-weight: 700; color: var(--admin-primary);">${m.firstName || ''} ${m.lastName || ''}</div>
+            <div style="font-size: 0.76rem; color: var(--admin-text-muted); margin-top: 2px;">${m.email || 'No email provided'}</div>
+          </div>
         </td>
-        <td>${catBadge}</td>
-        <td><code>${m.staffId || m.id}</code></td>
-        <td>
-          <div style="font-weight: 600; font-size: 0.85rem;">${m.mda || 'N/A'}</div>
-          <div style="font-size: 0.74rem; color: var(--admin-text-muted);">${m.tierLabel || m.tier || 'Public Service'}</div>
+        <td data-label="Category">${catBadge}</td>
+        <td data-label="Staff ID"><code>${m.staffId || m.id}</code></td>
+        <td data-label="MDA & Tier">
+          <div class="member-mda-block">
+            <div style="font-weight: 600; font-size: 0.85rem;">${m.mda || 'N/A'}</div>
+            <div style="font-size: 0.74rem; color: var(--admin-text-muted); margin-top: 2px;">${m.tierLabel || m.tier || 'Public Service'}</div>
+          </div>
         </td>
-        <td>${m.stateChapter || 'FCT Abuja'}</td>
-        <td>${statusBadge}</td>
-        <td style="font-size: 0.78rem; color: var(--admin-text-muted); white-space: nowrap;">${m.registeredAt ? m.registeredAt.split(' ')[0] : 'Recent'}</td>
-        <td>
+        <td data-label="Chapter">${m.stateChapter || 'FCT Abuja'}</td>
+        <td data-label="Status">${statusBadge}</td>
+        <td data-label="Date" style="font-size: 0.78rem; color: var(--admin-text-muted); white-space: nowrap;">${m.registeredAt ? m.registeredAt.split(' ')[0] : 'Recent'}</td>
+        <td data-label="Actions" class="cell-actions">
           <div class="table-actions">
             <button class="btn-icon-sm" title="View Full Application Dossier" onclick="viewMemberDossier('${m.id}')">
               👁️
@@ -1116,12 +1140,12 @@ window.viewMemberDossier = function(memberId) {
   const statusBadge = `<span class="badge-status ${statusClass}">● ${statusLabel}</span>`;
 
   content.innerHTML = `
-    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--admin-border); flex-wrap: wrap; gap: 10px;">
+    <div class="dossier-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--admin-border); flex-wrap: wrap; gap: 10px;">
       <div>
         <h4 style="font-size: 1.25rem; font-weight: 800; color: var(--admin-primary);">${m.firstName || ''} ${m.lastName || ''}</h4>
         <div style="font-size: 0.8rem; color: var(--admin-text-muted); margin-top: 2px;">Application Reference ID: <code>${m.id}</code></div>
       </div>
-      <div style="display: flex; gap: 8px;">
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
         ${catBadge}
         ${statusBadge}
       </div>
@@ -1196,7 +1220,7 @@ window.viewMemberDossier = function(memberId) {
       </div>
     </div>
 
-    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
+    <div class="dossier-actions" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
       ${isDisapproved ? `
         <button type="button" class="btn-admin btn-admin-primary btn-admin-sm" onclick="updateMemberStatus('${m.id}', 'verified'); closeAllModals();">
           ✓ Override &amp; Approve Verification
@@ -1508,7 +1532,7 @@ function renderResourcesList() {
   if (!filtered.length) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="6" style="text-align: center; padding: 36px; color: var(--admin-text-muted);">
+        <td colspan="6" class="table-empty-cell" style="text-align: center; padding: 36px; color: var(--admin-text-muted);">
           <div style="font-size: 1.5rem; margin-bottom: 6px;">📂</div>
           <strong>No publications or resources found</strong>
           <p style="font-size: 0.82rem; margin-top: 4px;">Upload official bye-laws, guides, or circulars using "Upload New Resource".</p>
@@ -1521,22 +1545,24 @@ function renderResourcesList() {
   tbody.innerHTML = filtered.map(r => {
     return `
       <tr>
-        <td>
-          <div style="font-weight: 700; color: var(--admin-primary);">${r.title}</div>
-          <div style="font-size: 0.78rem; color: var(--admin-text-muted);">${r.description || ''}</div>
+        <td data-label="Title & Summary">
+          <div class="resource-title-block">
+            <div style="font-weight: 700; color: var(--admin-primary);">${r.title}</div>
+            <div style="font-size: 0.78rem; color: var(--admin-text-muted); margin-top: 2px;">${r.description || ''}</div>
+          </div>
         </td>
-        <td>
+        <td data-label="Category">
           <span class="badge-category full" style="font-size: 0.72rem;">${r.category}</span>
         </td>
-        <td style="font-size: 0.84rem;">${r.publishingMda}</td>
-        <td>
+        <td data-label="Authority" style="font-size: 0.84rem;">${r.publishingMda}</td>
+        <td data-label="Format">
           <span style="display: inline-flex; align-items: center; gap: 4px; background: #EEF2F6; color: #1E293B; font-weight: 800; font-size: 0.72rem; padding: 2px 7px; border-radius: 4px;">
             📄 ${r.fileType || 'PDF'} • ${r.fileSize || '2 MB'}
           </span>
           ${r.fileName ? `<div style="font-size: 0.72rem; color: var(--admin-text-muted); margin-top: 3px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${r.fileName}">📎 ${r.fileName}</div>` : ''}
         </td>
-        <td style="font-size: 0.82rem; color: var(--admin-text-muted);">${r.downloads || 0}</td>
-        <td>
+        <td data-label="Downloads" style="font-size: 0.82rem; color: var(--admin-text-muted);">${r.downloads || 0}</td>
+        <td data-label="Actions" class="cell-actions">
           <div class="table-actions">
             <button class="btn-icon-sm" title="Download Document" onclick="downloadResource('${r.id}')">
               ⬇️

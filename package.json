@@ -4,6 +4,10 @@
   "description": "Nigeria Civil Service Youths Forum (NCSYF) Official Web Portal",
   "scripts": {
     "dev": "npx live-server --port=5501",
-    "start": "npx live-server --port=5501"
+    "start": "npx live-server --port=5501",
+    "test:responsive": "node test_mobile_audit.js"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^25.13.0"
   }
 }
