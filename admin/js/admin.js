@@ -1210,10 +1210,12 @@ window.viewMemberDossier = function(memberId) {
         <label>Gender</label>
         <span>${m.gender ? (m.gender.charAt(0).toUpperCase() + m.gender.slice(1)) : 'N/A'}</span>
       </div>
+      ${m.docTypeLabel || m.docType ? `
       <div class="dossier-item full-width">
         <label>Verification Document Type</label>
-        <span>${m.docTypeLabel || m.docType || 'Official Civil Service Record'}</span>
+        <span>${m.docTypeLabel || m.docType}</span>
       </div>
+      ` : ''}
       <div class="dossier-item full-width">
         <label>Registration Date &amp; Legal Consent</label>
         <span>Submitted on ${m.registeredAt || 'Recent'} • NDPA 2023 Consent Confirmed ✓ ${m.reappliedAt ? `• Reapplied: ${m.reappliedAt}` : ''}</span>

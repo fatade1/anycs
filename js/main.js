@@ -708,12 +708,6 @@ function handleMembershipSubmit(e) {
       const mdaVal = form.querySelector('#mdaName')?.value.trim() || 'Federal MDA';
       const stateVal = form.querySelector('#stateChapter')?.value || 'FCT Abuja';
       const staffIdVal = form.querySelector('#staffId')?.value.trim() || `CIV-${randomSuffix}`;
-      const docTypeVal = form.querySelector('#docType')?.value || 'staff_id_card';
-      const docTypeLabels = {
-        appointment_letter: 'Valid Letter of Employment / Appointment',
-        staff_id_card: 'Official Staff Identification Card',
-        gazette: 'Official Civil Service Gazette Notice'
-      };
 
       newMemberRecord = {
         id: newMemberId,
@@ -731,8 +725,6 @@ function handleMembershipSubmit(e) {
         mda: mdaVal,
         stateChapter: stateVal,
         staffId: staffIdVal,
-        docType: docTypeVal,
-        docTypeLabel: docTypeLabels[docTypeVal] || 'Official Civil Service Record',
         status: 'pending',
         registeredAt: dateStr
       };
