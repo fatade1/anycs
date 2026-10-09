@@ -653,6 +653,14 @@ let uploadedProjectImages = [];
 let uploadedResourceImages = [];
 let uploadedGalleryImages = [];
 
+function resolveAdminMediaUrl(url) {
+  if (!url) return '../images/african-youth-civil-servants.jpg';
+  if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://') || url.startsWith('../') || url.startsWith('/')) {
+    return url;
+  }
+  return `../${url}`;
+}
+
 function compressImageFile(file, maxDimension = 1280, quality = 0.82) {
   return new Promise((resolve) => {
     const reader = new FileReader();
@@ -702,7 +710,7 @@ function renderProjectImagePreviews() {
   grid.innerHTML = uploadedProjectImages.map((imgSrc, index) => {
     return `
       <div class="image-thumb-card">
-        <img src="${imgSrc}" alt="Project picture ${index + 1}">
+        <img src="${resolveAdminMediaUrl(imgSrc)}" alt="Project picture ${index + 1}">
         <button type="button" class="image-thumb-remove" onclick="removeProjectImage(${index})" title="Remove picture">
           ${getIconSvg('x', { size: 12 })}
         </button>
@@ -786,7 +794,7 @@ function renderResourceImagePreviews() {
   grid.innerHTML = uploadedResourceImages.map((imgSrc, index) => {
     return `
       <div class="image-thumb-card">
-        <img src="${imgSrc}" alt="Resource picture ${index + 1}">
+        <img src="${resolveAdminMediaUrl(imgSrc)}" alt="Resource picture ${index + 1}">
         <button type="button" class="image-thumb-remove" onclick="removeResourceImage(${index})" title="Remove picture">
           ${getIconSvg('x', { size: 12 })}
         </button>
@@ -871,7 +879,7 @@ function renderGalleryImagePreviews() {
   grid.innerHTML = uploadedGalleryImages.map((imgSrc, index) => {
     return `
       <div class="image-thumb-card">
-        <img src="${imgSrc}" alt="Gallery picture ${index + 1}">
+        <img src="${resolveAdminMediaUrl(imgSrc)}" alt="Gallery picture ${index + 1}">
         <button type="button" class="image-thumb-remove" onclick="removeGalleryImage(${index})" title="Remove picture">
           ${getIconSvg('x', { size: 12 })}
         </button>
@@ -2038,7 +2046,7 @@ function renderProjectsList() {
       <div class="item-card">
         ${hasImages ? `
           <div style="position: relative; height: 160px; border-radius: var(--radius-sm); overflow: hidden; margin-bottom: 12px; background: #0F172A;">
-            <img src="${p.images[0]}" alt="${p.title}" style="width: 100%; height: 100%; object-fit: cover;">
+            <img src="${resolveAdminMediaUrl(p.images[0])}" alt="${p.title}" style="width: 100%; height: 100%; object-fit: cover;">
             <span style="position: absolute; bottom: 8px; right: 8px; background: rgba(15,23,42,0.85); color: #fff; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; backdrop-filter: blur(4px); display: inline-flex; align-items: center; gap: 4px;">
               ${getIconSvg('image', { size: 12 })} ${p.images.length} photo${p.images.length === 1 ? '' : 's'}
             </span>
@@ -2821,7 +2829,7 @@ function renderGalleryList() {
     return `
       <div class="item-card">
         <div style="position: relative; height: 180px; border-radius: var(--radius-sm); overflow: hidden; margin-bottom: 12px; background: #0F172A;">
-          <img src="${cover}" alt="${a.title}" style="width: 100%; height: 100%; object-fit: cover;">
+          <img src="${resolveAdminMediaUrl(cover)}" alt="${a.title}" style="width: 100%; height: 100%; object-fit: cover;">
           <span style="position: absolute; bottom: 8px; right: 8px; background: rgba(15,23,42,0.85); color: #fff; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; backdrop-filter: blur(4px); display: inline-flex; align-items: center; gap: 4px;">
             ${getIconSvg('camera', { size: 12 })} ${imgCount} photo${imgCount === 1 ? '' : 's'}
           </span>

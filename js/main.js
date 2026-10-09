@@ -1530,7 +1530,7 @@ function initDynamicMediaGallery() {
       const count = images.length;
 
       return `
-        <div class="media-album-card fade-in" data-album-id="${album.id}">
+        <div class="media-album-card" data-album-id="${album.id}">
           <div class="media-album-card__cover">
             <img src="${cover}" alt="${album.title}" loading="lazy">
             <span class="media-album-card__badge-cat">${album.category || 'Event'}</span>
