@@ -61,7 +61,7 @@
             <label class="form-label" for="pagePassword">Password *</label>
             <div class="password-wrapper">
               <input type="password" id="pagePassword" class="form-input" placeholder="Enter your portal password" required>
-              <button type="button" class="password-toggle-btn" onclick="const p = document.getElementById('pagePassword'); const isP = p.type==='password'; p.type = isP ? 'text' : 'password'; this.textContent = isP ? '🙈' : '👁️';">👁️</button>
+              <button type="button" class="password-toggle-btn" aria-label="Toggle password view" onclick="const p = document.getElementById('pagePassword'); const isP = p.type==='password'; p.type = isP ? 'text' : 'password'; this.innerHTML = isP ? (typeof getIconSvg==='function' ? getIconSvg('eye-off', { size: 18 }) : '<i data-lucide=\'eye-off\'></i>') : (typeof getIconSvg==='function' ? getIconSvg('eye', { size: 18 }) : '<i data-lucide=\'eye\'></i>');"><i data-lucide="eye"></i></button>
             </div>
           </div>
 
@@ -80,7 +80,7 @@
             Not a registered member yet? <br>
             <a href="membership.html#register" style="color: var(--color-primary); font-weight: 700;">Complete Membership Registration Form →</a>
             <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--color-light-gray); font-size: var(--fs-xs);">
-              Secretariat Official? <a href="admin/index.html" style="color: var(--color-accent); font-weight: 700;">Access Admin Management Console 🔐</a>
+              Secretariat Official? <a href="admin/index.html" style="color: var(--color-accent); font-weight: 700;">Access Admin Management Console <i data-lucide="shield-check" style="width: 14px; height: 14px; margin-left: 4px; vertical-align: -2px;"></i></a>
             </div>
           </div>
         </form>
@@ -89,7 +89,7 @@
       <!-- Forgot Password View -->
       <div id="pageForgotSection" style="display: none;">
         <div style="text-align: center; margin-bottom: var(--space-xl);">
-          <span style="font-size: 2rem;">🔑</span>
+          <span style="display: inline-flex; justify-content: center; color: var(--color-primary); margin-bottom: var(--space-sm);"><i data-lucide="key-round" style="width: 36px; height: 36px;"></i></span>
           <h3 style="color: var(--color-primary); margin-top: 4px;">Reset Password</h3>
           <p style="font-size: var(--fs-sm); color: var(--color-gray);">Enter your registered details to receive account recovery instructions</p>
         </div>
@@ -129,6 +129,8 @@
     </div>
   </footer>
 
+  <script src="js/lucide.min.js"></script>
+  <script src="js/icons.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

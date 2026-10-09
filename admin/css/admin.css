@@ -2034,3 +2034,86 @@ body.sidebar-open {
   }
 }
 
+/* ---- Vector Lucide Icons Integration ---- */
+.lucide, [data-lucide] {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+  stroke-width: 2px;
+}
+
+.sidebar-link .icon svg,
+.sidebar-link .icon .lucide {
+  width: 18px;
+  height: 18px;
+}
+
+.stat-icon svg,
+.stat-icon .lucide {
+  width: 20px;
+  height: 20px;
+}
+
+.btn-sidebar-close svg,
+.btn-sidebar-close .lucide {
+  width: 20px;
+  height: 20px;
+}
+
+.btn-mobile-menu svg,
+.btn-mobile-menu .lucide {
+  width: 22px;
+  height: 22px;
+}
+
+.btn-modal-close svg,
+.btn-modal-close .lucide {
+  width: 18px;
+  height: 18px;
+}
+
+.btn-icon-sm svg,
+.btn-icon-sm .lucide {
+  width: 15px;
+  height: 15px;
+}
+
+.search-box .icon svg,
+.search-box .icon .lucide,
+.search-icon-slot svg,
+.search-icon-slot .lucide {
+  width: 15px;
+  height: 15px;
+  color: var(--admin-text-muted);
+}
+
+.btn-admin svg,
+.btn-admin .lucide {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  vertical-align: -2px;
+}
+
+.btn-admin--icon-only svg,
+.btn-admin--icon-only .lucide,
+.btn-icon-sm svg,
+.btn-icon-sm .lucide {
+  margin-right: 0;
+  vertical-align: middle;
+}
+
+.btn-header-action svg,
+.btn-header-action .lucide {
+  width: 14px;
+  height: 14px;
+  margin-right: 5px;
+  vertical-align: -2px;
+}
+
+.admin-toast-icon svg,
+.admin-toast-icon .lucide {
+  width: 18px;
+  height: 18px;
+}
+

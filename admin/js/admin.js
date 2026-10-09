@@ -1045,7 +1045,7 @@ function renderMembersTable() {
     tbody.innerHTML = `
       <tr>
         <td colspan="8" class="table-empty-cell" style="text-align: center; padding: 36px; color: var(--admin-text-muted);">
-          <div style="font-size: 1.5rem; margin-bottom: 6px;">🔍</div>
+          <div style="margin-bottom: 8px; color: var(--admin-text-muted);">${getIconSvg('search', { size: 32 })}</div>
           <strong>No matching member applications found</strong>
           <p style="font-size: 0.82rem; margin-top: 4px;">Try adjusting your search criteria or category filters.</p>
         </td>
@@ -1094,20 +1094,20 @@ function renderMembersTable() {
         <td data-label="Actions" class="cell-actions">
           <div class="table-actions">
             <button class="btn-icon-sm" title="View Full Application Dossier" onclick="viewMemberDossier('${m.id}')">
-              👁️
+              ${getIconSvg('eye', { size: 15 })}
             </button>
             ${m.status !== 'verified' ? `
               <button class="btn-icon-sm" style="color: #15803D;" title="Approve & Verify Application" onclick="updateMemberStatus('${m.id}', 'verified')">
-                ✓
+                ${getIconSvg('check', { size: 15 })}
               </button>
             ` : ''}
             ${m.status !== 'disapproved' ? `
               <button class="btn-icon-sm disapprove" title="Disapprove Verification (Allow Reapply)" onclick="openDisapproveModal('${m.id}')">
-                ✕
+                ${getIconSvg('ban', { size: 15 })}
               </button>
             ` : `
               <button class="btn-icon-sm" style="color: #D97706;" title="Reset to Pending Review" onclick="updateMemberStatus('${m.id}', 'pending')">
-                ↺
+                ${getIconSvg('rotate-ccw', { size: 15 })}
               </button>
             `}
           </div>
@@ -1155,7 +1155,7 @@ window.viewMemberDossier = function(memberId) {
       <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 20px;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
           <span style="font-weight: 800; color: #991B1B; font-size: 0.92rem; display: flex; align-items: center; gap: 6px;">
-            <span>⚠️</span> Verification Disapproved — Reapplication Permitted
+            ${getIconSvg('alert-triangle', { size: 16 })} Verification Disapproved — Reapplication Permitted
           </span>
           <span style="background: #FEE2E2; color: #991B1B; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 12px; border: 1px solid rgba(220, 38, 38, 0.25);">CAN REAPPLY</span>
         </div>
@@ -1218,22 +1218,22 @@ window.viewMemberDossier = function(memberId) {
       ` : ''}
       <div class="dossier-item full-width">
         <label>Registration Date &amp; Legal Consent</label>
-        <span>Submitted on ${m.registeredAt || 'Recent'} • NDPA 2023 Consent Confirmed ✓ ${m.reappliedAt ? `• Reapplied: ${m.reappliedAt}` : ''}</span>
+        <span>Submitted on ${m.registeredAt || 'Recent'} • NDPA 2023 Consent Confirmed (Verified) ${m.reappliedAt ? `• Reapplied: ${m.reappliedAt}` : ''}</span>
       </div>
     </div>
 
     <div class="dossier-actions" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
       ${isDisapproved ? `
         <button type="button" class="btn-admin btn-admin-primary btn-admin-sm" onclick="updateMemberStatus('${m.id}', 'verified'); closeAllModals();">
-          ✓ Override &amp; Approve Verification
+          ${getIconSvg('check', { size: 14 })} Override &amp; Approve Verification
         </button>
         <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" onclick="updateMemberStatus('${m.id}', 'pending'); closeAllModals();">
-          ↺ Reset to Pending Review
+          ${getIconSvg('rotate-ccw', { size: 14 })} Reset to Pending Review
         </button>
       ` : `
         ${m.status !== 'verified' ? `
           <button type="button" class="btn-admin btn-admin-primary btn-admin-sm" onclick="updateMemberStatus('${m.id}', 'verified'); closeAllModals();">
-            ✓ Approve &amp; Verify Application
+            ${getIconSvg('check', { size: 14 })} Approve &amp; Verify Application
           </button>
         ` : `
           <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" onclick="updateMemberStatus('${m.id}', 'pending'); closeAllModals();">
@@ -1241,7 +1241,7 @@ window.viewMemberDossier = function(memberId) {
           </button>
         `}
         <button type="button" class="btn-admin btn-admin-danger btn-admin-sm" style="background: #DC2626;" onclick="closeAllModals(); openDisapproveModal('${m.id}');">
-          ✕ Disapprove Verification (Allow Reapply)
+          ${getIconSvg('ban', { size: 14 })} Disapprove Verification (Allow Reapply)
         </button>
       `}
     </div>
@@ -1290,7 +1290,7 @@ function handleDisapproveMember(e) {
   members[index].canReapply = true;
 
   saveMembers(members);
-  showAdminToast(`⚠️ Application for ${members[index].firstName} ${members[index].lastName} disapproved. Member may reapply with corrected credentials.`);
+  showAdminToast(`Application for ${members[index].firstName} ${members[index].lastName} disapproved. Member may reapply with corrected credentials.`, 'error');
   closeAllModals();
   renderDashboard();
   renderMembersTable();
@@ -1403,7 +1403,7 @@ function renderProjectsList() {
   if (!filtered.length) {
     grid.innerHTML = `
       <div style="grid-column: 1 / -1; text-align: center; padding: 48px; color: var(--admin-text-muted);">
-        <div style="font-size: 2rem; margin-bottom: 8px;">💡</div>
+        <div style="margin-bottom: 8px; color: var(--admin-text-muted);">${getIconSvg('lightbulb', { size: 36 })}</div>
         <strong>No initiatives found matching your filter</strong>
         <p style="font-size: 0.85rem; margin-top: 4px;">Click "Add / Upload Project" to initiate a new priority track.</p>
       </div>
@@ -1425,7 +1425,7 @@ function renderProjectsList() {
           ${statusBadge}
         </div>
         <h4 class="item-title">${p.title}</h4>
-        <div class="item-agency">🏛️ ${p.leadMda}</div>
+        <div class="item-agency" style="display: flex; align-items: center; gap: 6px;">${getIconSvg('landmark', { size: 14 })} <span>${p.leadMda}</span></div>
         <p class="item-desc">${p.description}</p>
         
         <div style="background: var(--admin-bg); padding: 8px 12px; border-radius: 6px; font-size: 0.78rem; margin-bottom: 14px; border: 1px solid var(--admin-border);">
@@ -1437,7 +1437,7 @@ function renderProjectsList() {
           <span>Added: ${p.dateAdded || '2026-10-01'}</span>
           <div class="item-actions">
             <button class="btn-icon-sm delete" title="Remove Initiative" onclick="deleteProject('${p.id}')">
-              🗑️
+              ${getIconSvg('trash-2', { size: 15 })}
             </button>
           </div>
         </div>
@@ -1485,7 +1485,7 @@ function handleAddProject(e) {
   projects.unshift(newProject);
   saveProjects(projects);
 
-  showAdminToast('🎉 New national priority project uploaded and published to system!');
+  showAdminToast('New national priority project uploaded and published to system!');
   form.reset();
   resetProjectDropzone();
   closeAllModals();
@@ -1535,7 +1535,7 @@ function renderResourcesList() {
     tbody.innerHTML = `
       <tr>
         <td colspan="6" class="table-empty-cell" style="text-align: center; padding: 36px; color: var(--admin-text-muted);">
-          <div style="font-size: 1.5rem; margin-bottom: 6px;">📂</div>
+          <div style="margin-bottom: 8px; color: var(--admin-text-muted);">${getIconSvg('folder', { size: 36 })}</div>
           <strong>No publications or resources found</strong>
           <p style="font-size: 0.82rem; margin-top: 4px;">Upload official bye-laws, guides, or circulars using "Upload New Resource".</p>
         </td>
@@ -1559,18 +1559,18 @@ function renderResourcesList() {
         <td data-label="Authority" style="font-size: 0.84rem;">${r.publishingMda}</td>
         <td data-label="Format">
           <span style="display: inline-flex; align-items: center; gap: 4px; background: #EEF2F6; color: #1E293B; font-weight: 800; font-size: 0.72rem; padding: 2px 7px; border-radius: 4px;">
-            📄 ${r.fileType || 'PDF'} • ${r.fileSize || '2 MB'}
+            ${getIconSvg('file-text', { size: 13 })} <span>${r.fileType || 'PDF'} • ${r.fileSize || '2 MB'}</span>
           </span>
-          ${r.fileName ? `<div style="font-size: 0.72rem; color: var(--admin-text-muted); margin-top: 3px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${r.fileName}">📎 ${r.fileName}</div>` : ''}
+          ${r.fileName ? `<div style="font-size: 0.72rem; color: var(--admin-text-muted); margin-top: 3px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; align-items: center; gap: 4px;" title="${r.fileName}">${getIconSvg('paperclip', { size: 12 })} <span>${r.fileName}</span></div>` : ''}
         </td>
         <td data-label="Downloads" style="font-size: 0.82rem; color: var(--admin-text-muted);">${r.downloads || 0}</td>
         <td data-label="Actions" class="cell-actions">
           <div class="table-actions">
             <button class="btn-icon-sm" title="Download Document" onclick="downloadResource('${r.id}')">
-              ⬇️
+              ${getIconSvg('download', { size: 15 })}
             </button>
             <button class="btn-icon-sm delete" title="Delete Resource" onclick="deleteResource('${r.id}')">
-              🗑️
+              ${getIconSvg('trash-2', { size: 15 })}
             </button>
           </div>
         </td>
@@ -1591,7 +1591,7 @@ function handleAddResource(e) {
 
   if (!uploadedResourceFileData) {
     if (dropzone) dropzone.classList.add('has-error');
-    showAdminToast('⚠️ Please attach or choose a document file to upload.', 'error');
+    showAdminToast('Please attach or choose a document file to upload.', 'error');
     return;
   }
 
@@ -1618,7 +1618,7 @@ function handleAddResource(e) {
   resources.unshift(newResource);
   saveResources(resources);
 
-  showAdminToast(`📄 Document "${uploadedResourceFileData.name}" uploaded successfully!`);
+  showAdminToast(`Document "${uploadedResourceFileData.name}" uploaded successfully!`);
   form.reset();
   resetResourceDropzone();
   closeAllModals();
@@ -1701,7 +1701,7 @@ function showAdminToast(message, type = 'success') {
 
   const toast = document.createElement('div');
   toast.className = `admin-toast ${type === 'error' ? 'error' : ''}`;
-  toast.innerHTML = `<span>${type === 'error' ? '⚠️' : '✓'}</span> <span>${message}</span>`;
+  toast.innerHTML = `<span class="admin-toast-icon">${type === 'error' ? getIconSvg('alert-triangle', { size: 18 }) : getIconSvg('check', { size: 18 })}</span> <span>${message}</span>`;
   container.appendChild(toast);
 
   setTimeout(() => {

@@ -220,7 +220,7 @@ function initInteractiveNigeriaMap() {
       const key = node.getAttribute('data-state');
       const data = stateData[key];
       if (data) {
-        showToast(`📍 ${data.name}: ${data.members} engaged in ${data.track}`);
+        showToast(`${data.name}: ${data.members} engaged in ${data.track}`);
       }
     });
   });
@@ -269,7 +269,9 @@ function initAuthModal() {
     toggleBtn.addEventListener('click', () => {
       const isPassword = passInput.getAttribute('type') === 'password';
       passInput.setAttribute('type', isPassword ? 'text' : 'password');
-      toggleBtn.textContent = isPassword ? '🙈' : '👁️';
+      toggleBtn.innerHTML = isPassword
+        ? (typeof getIconSvg === 'function' ? getIconSvg('eye-off', { size: 18 }) : '<i data-lucide="eye-off"></i>')
+        : (typeof getIconSvg === 'function' ? getIconSvg('eye', { size: 18 }) : '<i data-lucide="eye"></i>');
     });
   }
 
@@ -289,7 +291,7 @@ function initAuthModal() {
       showToast(`Welcome back! Verifying credentials for ${idInput.value.trim()}...`, 'success');
       setTimeout(() => {
         closeModal();
-        showToast('✅ Verification successful. Member session initialized.', 'success');
+        showToast('Verification successful. Member session initialized.', 'success');
       }, 1000);
     });
   }
@@ -613,7 +615,7 @@ function handleMembershipSubmit(e) {
         age--;
       }
       if (age < 18 || age > 35) {
-        showToast('⚠️ Full Membership requires serving civil servants aged 18 to 35 years. Please select the Associate Member category if over 35.', 'error');
+        showToast('Full Membership requires serving civil servants aged 18 to 35 years. Please select the Associate Member category if over 35.', 'error');
         dobInput.classList.add('error');
         isValid = false;
       }
@@ -762,18 +764,18 @@ function handleMembershipSubmit(e) {
     localStorage.setItem(STORAGE_KEY_MEMBERS, JSON.stringify(membersList));
 
     if (isReapplication) {
-      showToast('🎉 Corrected reapplication submitted! Your updated credentials have been submitted to the Secretariat for re-evaluation.', 'success');
+      showToast('Corrected reapplication submitted! Your updated credentials have been submitted to the Secretariat for re-evaluation.', 'success');
     } else if (memberType === 'associate') {
-      showToast('🎉 Associate Application submitted! Your Membership ID and portal credentials are being activated for sign in.', 'success');
+      showToast('Associate Application submitted! Your Membership ID and portal credentials are being activated for sign in.', 'success');
     } else {
-      showToast('🎉 Full Membership application submitted successfully! Your credentials and MDA verification are being reviewed by the Secretariat.', 'success');
+      showToast('Full Membership application submitted successfully! Your credentials and MDA verification are being reviewed by the Secretariat.', 'success');
     }
   } catch (storageErr) {
     console.warn('Could not sync registration to local store:', storageErr);
     if (memberType === 'associate') {
-      showToast('🎉 Associate Application submitted! Your Membership ID and portal credentials are being activated for sign in.', 'success');
+      showToast('Associate Application submitted! Your Membership ID and portal credentials are being activated for sign in.', 'success');
     } else {
-      showToast('🎉 Full Membership application submitted successfully! Your credentials and MDA verification are being reviewed by the Secretariat.', 'success');
+      showToast('Full Membership application submitted successfully! Your credentials and MDA verification are being reviewed by the Secretariat.', 'success');
     }
   }
 
@@ -808,7 +810,7 @@ function handleContactSubmit(e) {
     return;
   }
 
-  showToast('✉️ Message sent successfully to the Secretariat. We will respond promptly.', 'success');
+  showToast('Message sent successfully to the Secretariat. We will respond promptly.', 'success');
   form.reset();
 }
 
@@ -822,7 +824,12 @@ function showToast(message, type = 'success') {
   toast.style.background = type === 'error' ? '#DC2626' : '#0F4530';
   toast.style.border = '1px solid ' + (type === 'error' ? '#EF4444' : '#E9CE74');
   toast.style.color = '#FFFFFF';
-  toast.textContent = message;
+  
+  const iconHtml = typeof getIconSvg === 'function'
+    ? getIconSvg(type === 'error' ? 'alert-triangle' : 'check', { size: 18 })
+    : '';
+
+  toast.innerHTML = `<span class="toast__icon">${iconHtml}</span><span>${message}</span>`;
   document.body.appendChild(toast);
 
   requestAnimationFrame(() => {

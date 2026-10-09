@@ -1607,10 +1607,15 @@ p {
 }
 
 .membership-type-card li::before {
-  content: '✓';
-  color: var(--color-primary);
-  font-weight: 800;
+  content: '';
+  display: inline-block;
+  width: 15px;
+  height: 15px;
   flex-shrink: 0;
+  background-color: var(--color-primary);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") no-repeat center / contain;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") no-repeat center / contain;
+  margin-top: 3px;
 }
 
 /* ---- Contact Card ---- */
@@ -3304,6 +3309,103 @@ p {
     width: 100%;
     justify-content: center;
   }
+}
+
+/* ---- Vector Lucide Icons Integration ---- */
+.lucide, [data-lucide] {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+  stroke-width: 2px;
+}
+
+.dropdown-link__icon svg,
+.dropdown-link__icon .lucide {
+  width: 18px;
+  height: 18px;
+  color: var(--color-primary);
+}
+
+.dropdown-link:hover .dropdown-link__icon svg,
+.dropdown-link:hover .dropdown-link__icon .lucide {
+  color: var(--color-accent-dark);
+}
+
+.card__icon svg,
+.card__icon .lucide {
+  width: 28px;
+  height: 28px;
+}
+
+.sector-card__icon svg,
+.sector-card__icon .lucide {
+  width: 32px;
+  height: 32px;
+  color: var(--color-primary);
+}
+
+.logo-icon svg,
+.logo-icon .lucide {
+  width: 24px;
+  height: 24px;
+  color: #FFFFFF;
+}
+
+.password-toggle-btn svg,
+.password-toggle-btn .lucide {
+  width: 18px;
+  height: 18px;
+  color: var(--color-muted);
+}
+
+.modal-close-btn svg,
+.modal-close-btn .lucide {
+  width: 20px;
+  height: 20px;
+  color: var(--color-dark);
+}
+
+.btn svg,
+.btn .lucide {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  vertical-align: -2px;
+}
+
+.btn--icon-only svg,
+.btn--icon-only .lucide {
+  margin-right: 0;
+  vertical-align: middle;
+}
+
+.footer-icon-inline svg,
+.footer-icon-inline .lucide {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  vertical-align: -2px;
+  color: var(--color-accent);
+}
+
+.toast__icon svg,
+.toast__icon .lucide {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.finance-card__icon svg,
+.finance-card__icon .lucide {
+  width: 32px;
+  height: 32px;
+}
+
+.contact-info-card__icon svg,
+.contact-info-card__icon .lucide {
+  width: 24px;
+  height: 24px;
+  color: var(--color-primary);
 }
 
 

@@ -27,7 +27,7 @@
       </div>
 
       <div class="admin-demo-box">
-        <strong>⚡ Demo Mode (Backend Ready)</strong>
+        <strong><i data-lucide="zap"></i> Demo Mode (Backend Ready)</strong>
         <span>Login details are not hardcoded. Enter any administrator credentials or click below to auto-fill demo data:</span>
         <div class="admin-demo-actions">
           <button type="button" class="btn-demo-fill" id="btnDemoSuperAdmin">Auto-Fill Demo Admin</button>
@@ -81,31 +81,31 @@
           <h2>NCSYF Admin</h2>
           <span>National Console</span>
         </div>
-        <button type="button" id="btnSidebarClose" class="btn-sidebar-close" aria-label="Close navigation drawer">✕</button>
+        <button type="button" id="btnSidebarClose" class="btn-sidebar-close" aria-label="Close navigation drawer"><i data-lucide="x"></i></button>
       </div>
 
       <nav class="sidebar-nav">
         <div class="sidebar-heading">Navigation</div>
         
         <a class="sidebar-link active" data-admin-tab="overview">
-          <span class="icon">📊</span>
+          <span class="icon"><i data-lucide="layout-dashboard"></i></span>
           <span>Overview</span>
         </a>
 
         <a class="sidebar-link" data-admin-tab="members">
-          <span class="icon">👥</span>
+          <span class="icon"><i data-lucide="users"></i></span>
           <span>Members</span>
           <span class="badge" id="sidebarBadgeMembers">0</span>
         </a>
 
         <a class="sidebar-link" data-admin-tab="projects">
-          <span class="icon">💡</span>
+          <span class="icon"><i data-lucide="lightbulb"></i></span>
           <span>Projects</span>
           <span class="badge" id="sidebarBadgeProjects">0</span>
         </a>
 
         <a class="sidebar-link" data-admin-tab="resources">
-          <span class="icon">📂</span>
+          <span class="icon"><i data-lucide="folder"></i></span>
           <span>Resources</span>
           <span class="badge" id="sidebarBadgeResources">0</span>
         </a>
@@ -113,12 +113,12 @@
         <div class="sidebar-heading">System &amp; Settings</div>
 
         <a class="sidebar-link" data-admin-tab="settings">
-          <span class="icon">⚙️</span>
+          <span class="icon"><i data-lucide="settings"></i></span>
           <span>Backend &amp; Settings</span>
         </a>
 
         <a href="../index.html" target="_blank" class="sidebar-link" title="Open public site in new tab">
-          <span class="icon">🌐</span>
+          <span class="icon"><i data-lucide="external-link"></i></span>
           <span>Public Website ↗</span>
         </a>
       </nav>
@@ -131,7 +131,7 @@
             <div class="admin-user-role">Super Administrator</div>
           </div>
           <button class="btn-sidebar-logout" data-admin-logout title="Sign Out">
-            🚪
+            <i data-lucide="log-out"></i>
           </button>
         </div>
       </div>
@@ -144,7 +144,7 @@
       <header class="admin-header">
         <div class="admin-header-left">
           <button id="btnSidebarToggle" class="btn-sidebar-toggle" aria-label="Toggle navigation drawer">
-            ☰
+            <i data-lucide="menu"></i>
           </button>
           <div class="admin-page-title">
             <h1 id="adminPageTitle">Dashboard Overview</h1>
@@ -177,7 +177,7 @@
             <div class="stat-card">
               <div class="stat-header">
                 <span class="stat-label">Total Members</span>
-                <span class="stat-icon">👥</span>
+                <span class="stat-icon"><i data-lucide="users"></i></span>
               </div>
               <div class="stat-value" id="statTotalMembers">0</div>
               <div class="stat-subtext">All verified &amp; pending enrollments</div>
@@ -186,7 +186,7 @@
             <div class="stat-card">
               <div class="stat-header">
                 <span class="stat-label">Full Members (18–35)</span>
-                <span class="stat-icon">🎖️</span>
+                <span class="stat-icon"><i data-lucide="award"></i></span>
               </div>
               <div class="stat-value" id="statFullMembers">0</div>
               <div class="stat-subtext">Serving civil servants with full voting rights</div>
@@ -195,7 +195,7 @@
             <div class="stat-card accent">
               <div class="stat-header">
                 <span class="stat-label">Associate Members (35+)</span>
-                <span class="stat-icon">🎓</span>
+                <span class="stat-icon"><i data-lucide="graduation-cap"></i></span>
               </div>
               <div class="stat-value" id="statAssociateMembers">0</div>
               <div class="stat-subtext">Alumni &amp; senior advisory cohort</div>
@@ -204,7 +204,7 @@
             <div class="stat-card">
               <div class="stat-header">
                 <span class="stat-label">MDAs Represented</span>
-                <span class="stat-icon">🏛️</span>
+                <span class="stat-icon"><i data-lucide="landmark"></i></span>
               </div>
               <div class="stat-value" id="statDistinctMdas">0</div>
               <div class="stat-subtext">Federal, State &amp; LGA public institutions</div>
@@ -213,7 +213,7 @@
             <div class="stat-card">
               <div class="stat-header">
                 <span class="stat-label">Active Projects</span>
-                <span class="stat-icon">💡</span>
+                <span class="stat-icon"><i data-lucide="lightbulb"></i></span>
               </div>
               <div class="stat-value" id="statActiveProjects">0</div>
               <div class="stat-subtext">National priority public sector tracks</div>
@@ -222,7 +222,7 @@
             <div class="stat-card">
               <div class="stat-header">
                 <span class="stat-label">Resources Published</span>
-                <span class="stat-icon">📄</span>
+                <span class="stat-icon"><i data-lucide="file-text"></i></span>
               </div>
               <div class="stat-value" id="statPublishedResources">0</div>
               <div class="stat-subtext">Official guidelines, briefs &amp; circulars</div>
@@ -275,7 +275,7 @@
               <!-- Search & Filters Toolbar -->
               <div class="admin-toolbar">
                 <div class="search-box">
-                  <span class="icon">🔍</span>
+                  <span class="icon"><i data-lucide="search"></i></span>
                   <input type="text" id="memberSearchInput" placeholder="Search by name, MDA, Staff ID...">
                 </div>
 
@@ -293,7 +293,7 @@
                 </select>
 
                 <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" id="btnExportMembersCsv">
-                  <span>📥 Export CSV</span>
+                  <i data-lucide="download"></i><span>Export CSV</span>
                 </button>
               </div>
             </div>
@@ -338,7 +338,7 @@
 
               <div class="admin-toolbar">
                 <div class="search-box">
-                  <span class="icon">🔍</span>
+                  <span class="icon"><i data-lucide="search"></i></span>
                   <input type="text" id="projectSearchInput" placeholder="Search projects...">
                 </div>
 
@@ -351,7 +351,7 @@
                 </select>
 
                 <button type="button" class="btn-admin btn-primary-green btn-admin-sm" onclick="openModal('newProjectModal')">
-                  <span>+ Add / Upload Project</span>
+                  <i data-lucide="plus"></i><span>Add / Upload Project</span>
                 </button>
               </div>
             </div>
@@ -376,7 +376,7 @@
 
               <div class="admin-toolbar">
                 <div class="search-box">
-                  <span class="icon">🔍</span>
+                  <span class="icon"><i data-lucide="search"></i></span>
                   <input type="text" id="resourceSearchInput" placeholder="Search publications...">
                 </div>
 
@@ -389,7 +389,7 @@
                 </select>
 
                 <button type="button" class="btn-admin btn-primary-green btn-admin-sm" onclick="openModal('newResourceModal')">
-                  <span>+ Upload New Resource</span>
+                  <i data-lucide="upload"></i><span>Upload New Resource</span>
                 </button>
               </div>
             </div>
@@ -428,7 +428,7 @@
 
             <div style="padding: 24px;">
               <div style="background: var(--admin-primary-subtle); border: 1px solid rgba(15, 69, 48, 0.2); border-radius: var(--radius-md); padding: 18px; margin-bottom: 24px;">
-                <h4 style="color: var(--admin-primary); margin-bottom: 6px; font-weight: 800;">🔌 Ready for Backend Integration</h4>
+                <h4 style="color: var(--admin-primary); margin-bottom: 6px; font-weight: 800; display: flex; align-items: center; gap: 8px;"><i data-lucide="plug" style="color: var(--admin-accent-dark);"></i> Ready for Backend Integration</h4>
                 <p style="font-size: 0.88rem; line-height: 1.7; color: var(--admin-text-main);">
                   This admin dashboard currently utilizes persistent, structured browser state (localStorage) as a fully operational mock layer. All member signups, projects, and resources follow REST API schema conventions. When your backend is ready (Node/Express, Django, Laravel, Supabase, or Firebase), simply update the API Base URL below to route all queries.
                 </p>
@@ -447,10 +447,10 @@
 
               <div class="settings-actions" style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
                 <button type="button" class="btn-admin btn-admin-primary" onclick="exportDatabaseJson()">
-                  <span>💾 Backup Database to JSON</span>
+                  <i data-lucide="database"></i><span>Backup Database to JSON</span>
                 </button>
                 <button type="button" class="btn-admin btn-admin-outline" onclick="resetFactoryData()">
-                  <span>↺ Reset Demo Stores</span>
+                  <i data-lucide="rotate-ccw"></i><span>Reset Demo Stores</span>
                 </button>
               </div>
             </div>
@@ -470,7 +470,7 @@
     <div class="admin-modal-card">
       <div class="admin-modal-header">
         <h3>Member Application Dossier</h3>
-        <button class="btn-modal-close" data-close-modal aria-label="Close modal">✕</button>
+        <button class="btn-modal-close" data-close-modal aria-label="Close modal"><i data-lucide="x"></i></button>
       </div>
       <div class="admin-modal-body" id="memberDossierContent">
         <!-- Injected by JS -->
@@ -483,7 +483,7 @@
     <div class="admin-modal-card">
       <div class="admin-modal-header">
         <h3>Upload / Add National Project</h3>
-        <button class="btn-modal-close" data-close-modal aria-label="Close modal">✕</button>
+        <button class="btn-modal-close" data-close-modal aria-label="Close modal"><i data-lucide="x"></i></button>
       </div>
       <form id="newProjectForm">
         <div class="admin-modal-body">
@@ -544,7 +544,7 @@
             <div id="projectDropzone" class="admin-dropzone compact" tabindex="0" role="button">
               <input type="file" id="newProjectFileInput" accept=".pdf,.doc,.docx" style="display: none;">
               <div id="projectDropzonePrompt" class="dropzone-prompt compact">
-                <span style="font-size: 1.25rem;">📎</span>
+                <span style="display: inline-flex;"><i data-lucide="paperclip"></i></span>
                 <span style="font-size: 0.82rem; color: var(--admin-text-muted);">
                   Attach official Project Charter / Concept Document (<span style="color: var(--admin-primary); font-weight: 700; text-decoration: underline;">Browse</span>)
                 </span>
@@ -556,7 +556,7 @@
                     <div class="file-preview-name" id="projectFileName">charter.pdf</div>
                     <div class="file-preview-meta" id="projectFileSize">0 KB</div>
                   </div>
-                  <button type="button" class="btn-remove-file" id="btnRemoveProjectFile" title="Remove attached file">✕</button>
+                  <button type="button" class="btn-remove-file" id="btnRemoveProjectFile" title="Remove attached file"><i data-lucide="x"></i></button>
                 </div>
               </div>
             </div>
@@ -576,7 +576,7 @@
     <div class="admin-modal-card">
       <div class="admin-modal-header">
         <h3>Upload Publication / Resource</h3>
-        <button class="btn-modal-close" data-close-modal aria-label="Close modal">✕</button>
+        <button class="btn-modal-close" data-close-modal aria-label="Close modal"><i data-lucide="x"></i></button>
       </div>
       <form id="newResourceForm">
         <div class="admin-modal-body">
@@ -618,11 +618,11 @@
                   <div class="file-preview-details">
                     <div class="file-preview-name" id="filePreviewName">document.pdf</div>
                     <div class="file-preview-meta">
-                      <span id="filePreviewSize">0 KB</span> • <span class="file-preview-status">✓ Ready to upload</span>
+                      <span id="filePreviewSize">0 KB</span> • <span class="file-preview-status" style="display: inline-flex; align-items: center; gap: 4px;"><i data-lucide="check" style="width: 14px; height: 14px;"></i> Ready to upload</span>
                     </div>
                   </div>
                   <button type="button" class="btn-remove-file" id="btnRemoveResourceFile" title="Remove selected file">
-                    ✕
+                    <i data-lucide="x"></i>
                   </button>
                 </div>
               </div>
@@ -681,9 +681,9 @@
     <div class="admin-modal-card" style="max-width: 520px;">
       <div class="admin-modal-header" style="background: #FEF2F2; border-bottom: 1px solid #FECACA;">
         <h3 style="color: #991B1B; display: flex; align-items: center; gap: 8px;">
-          <span>⚠️</span> Disapprove Member Verification
+          <i data-lucide="alert-triangle" style="color: #DC2626;"></i> Disapprove Member Verification
         </h3>
-        <button class="btn-modal-close" data-close-modal aria-label="Close modal">✕</button>
+        <button class="btn-modal-close" data-close-modal aria-label="Close modal"><i data-lucide="x"></i></button>
       </div>
       <form id="disapproveMemberForm">
         <input type="hidden" id="disapproveMemberId" value="">
@@ -726,6 +726,8 @@
   <div id="adminToastContainer" class="admin-toast-container"></div>
 
   <!-- Admin Scripts -->
+  <script src="js/lucide.min.js"></script>
+  <script src="js/icons.js"></script>
   <script src="js/admin.js"></script>
 
   <script>

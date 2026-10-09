@@ -9,5 +9,8 @@
   },
   "devDependencies": {
     "puppeteer-core": "^25.13.0"
+  },
+  "dependencies": {
+    "lucide": "^1.54.0"
   }
 }
