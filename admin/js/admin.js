@@ -487,12 +487,23 @@ function getStoredProjects() {
   try {
     const parsed = JSON.parse(data);
     if (Array.isArray(parsed) && parsed.length) {
-      // Ensure seed projects have images populated if previously empty
+      const defaultSectorFallback = {
+        'Technology & Innovation': ['images/project_digital_office.jpg'],
+        'Agriculture & Food Security': ['images/project_agritech.jpg'],
+        'Healthcare & Social Welfare': ['images/project_healthcare.jpg'],
+        'Governance & Economy': ['images/project_governance.jpg'],
+        'Education & Leadership': ['images/african-youth-civil-servants.jpg'],
+        'Education & Youth Development': ['images/african-youth-civil-servants.jpg']
+      };
+      // Ensure all projects have valid images populated if previously empty
       let updated = false;
       parsed.forEach(p => {
         const seed = SEED_PROJECTS.find(s => s.id === p.id);
         if (seed && (!p.images || !p.images.length) && seed.images) {
           p.images = seed.images;
+          updated = true;
+        } else if (!p.images || !Array.isArray(p.images) || !p.images.length) {
+          p.images = defaultSectorFallback[p.sector] || ['images/project_digital_office.jpg'];
           updated = true;
         }
       });
@@ -2167,6 +2178,14 @@ function handleAddProject(e) {
   }
 
   const projects = getStoredProjects();
+  const sectorFallback = {
+    'Technology & Innovation': ['images/project_digital_office.jpg'],
+    'Agriculture & Food Security': ['images/project_agritech.jpg'],
+    'Healthcare & Social Welfare': ['images/project_healthcare.jpg'],
+    'Governance & Economy': ['images/project_governance.jpg'],
+    'Education & Leadership': ['images/african-youth-civil-servants.jpg'],
+    'Education & Youth Development': ['images/african-youth-civil-servants.jpg']
+  };
 
   if (editingId) {
     // Edit existing project
@@ -2184,7 +2203,12 @@ function handleAddProject(e) {
     projects[index].status = status;
     projects[index].statusLabel = status === 'active' ? 'Active Implementation' : (status === 'completed' ? 'Completed' : 'Planning & Review');
     projects[index].description = description;
-    projects[index].images = [...uploadedProjectImages];
+
+    if (uploadedProjectImages && uploadedProjectImages.length > 0) {
+      projects[index].images = [...uploadedProjectImages];
+    } else if (!projects[index].images || !projects[index].images.length) {
+      projects[index].images = sectorFallback[sector] || ['images/project_digital_office.jpg'];
+    }
 
     if (uploadedProjectFileData) {
       projects[index].attachedDocName = uploadedProjectFileData.name;
@@ -2196,6 +2220,10 @@ function handleAddProject(e) {
     showAdminToast(`Project "${title}" updated successfully!`);
   } else {
     // Add new project
+    const projectImages = (uploadedProjectImages && uploadedProjectImages.length > 0)
+      ? [...uploadedProjectImages]
+      : (sectorFallback[sector] || ['images/project_digital_office.jpg']);
+
     const newProject = {
       id: `PRJ-${String(projects.length + 1).padStart(3, '0')}`,
       title,
@@ -2206,7 +2234,7 @@ function handleAddProject(e) {
       status,
       statusLabel: status === 'active' ? 'Active Implementation' : (status === 'completed' ? 'Completed' : 'Planning & Review'),
       description,
-      images: [...uploadedProjectImages],
+      images: projectImages,
       dateAdded: new Date().toISOString().split('T')[0]
     };
 

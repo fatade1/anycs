@@ -152,7 +152,7 @@ function initMobileMenu() {
 
 // ---- Scroll Animations ----
 function initScrollAnimations() {
-  const elements = document.querySelectorAll('.fade-in');
+  const elements = document.querySelectorAll('.fade-in:not(.visible)');
   if (!elements.length) return;
 
   const observer = new IntersectionObserver((entries) => {
@@ -166,6 +166,7 @@ function initScrollAnimations() {
 
   elements.forEach(el => observer.observe(el));
 }
+window.refreshScrollAnimations = initScrollAnimations;
 
 // ---- Visual Switcher (Nigeria Network Map vs African Youths Photo) ----
 function initVisualSwitcher() {
@@ -968,12 +969,39 @@ const DEFAULT_SITE_PROJECTS = [
 let activeGalleryImages = [];
 let activeGalleryIndex = 0;
 
+function resolvePublicMediaUrl(url) {
+  if (!url || typeof url !== 'string') return 'images/project_digital_office.jpg';
+  url = url.trim();
+  if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  return url.replace(/^(\.\.\/|\.\/)+/, '');
+}
+
 function getSiteProjects() {
   const data = localStorage.getItem('ncsyf_admin_projects');
   if (data) {
     try {
       const parsed = JSON.parse(data);
-      if (Array.isArray(parsed) && parsed.length) return parsed;
+      if (Array.isArray(parsed) && parsed.length) {
+        // Auto-heal: Ensure all stored projects have valid image arrays
+        let updated = false;
+        parsed.forEach(p => {
+          const defaultProj = DEFAULT_SITE_PROJECTS.find(s => s.id === p.id);
+          if (defaultProj && (!p.images || !Array.isArray(p.images) || !p.images.length)) {
+            p.images = defaultProj.images;
+            updated = true;
+          }
+          if (!p.images || !Array.isArray(p.images) || !p.images.length) {
+            p.images = ['images/project_digital_office.jpg'];
+            updated = true;
+          }
+        });
+        if (updated) {
+          try { localStorage.setItem('ncsyf_admin_projects', JSON.stringify(parsed)); } catch (e) {}
+        }
+        return parsed;
+      }
     } catch (e) {}
   }
   return DEFAULT_SITE_PROJECTS;
@@ -984,66 +1012,115 @@ function initDynamicProjects() {
   if (!grid) return;
 
   const projects = getSiteProjects();
+  let currentFilter = 'all';
 
-  grid.innerHTML = projects.map(p => {
-    const hasImages = p.images && Array.isArray(p.images) && p.images.length > 0;
-    const coverImg = hasImages ? p.images[0] : 'images/project_digital_office.jpg';
-    const imgCount = hasImages ? p.images.length : 1;
-    const isActive = p.status === 'active';
-    const statusClass = isActive ? 'active' : (p.status === 'completed' ? 'completed' : 'planning');
-    const statusText = isActive ? '● Active' : (p.status === 'completed' ? '● Completed' : '● Planning');
+  const sectorFallbackImages = {
+    'Technology & Innovation': 'images/project_digital_office.jpg',
+    'Agriculture & Food Security': 'images/project_agritech.jpg',
+    'Healthcare & Social Welfare': 'images/project_healthcare.jpg',
+    'Governance & Economy': 'images/project_governance.jpg',
+    'Education & Leadership': 'images/african-youth-civil-servants.jpg',
+    'Education & Capacity Building': 'images/african-youth-civil-servants.jpg',
+    'Energy & Climate Action': 'images/gallery_digital_training.jpg'
+  };
 
-    return `
-      <div class="project-card-interactive fade-in" data-project-id="${p.id}" tabindex="0" role="button" aria-label="View project ${p.title}">
-        <div class="project-card-interactive__media">
-          <img src="${coverImg}" alt="${p.title}">
-          <div class="project-card-interactive__badge-count">
-            ${typeof getIconSvg === 'function' ? getIconSvg('image', { size: 13 }) : '📷'}
-            <span>${imgCount} photo${imgCount === 1 ? '' : 's'}</span>
+  function renderProjectsCards() {
+    const filtered = currentFilter === 'all'
+      ? projects
+      : projects.filter(p => {
+          const sec = (p.sector || '').toLowerCase();
+          const tit = (p.title || '').toLowerCase();
+          const target = currentFilter.toLowerCase();
+          return sec.includes(target) || tit.includes(target);
+        });
+
+    if (!filtered.length) {
+      grid.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; background: var(--color-white); border-radius: var(--radius-xl); border: 1px dashed var(--color-light-gray);">
+          <div style="font-size: 2.4rem; margin-bottom: 12px; color: var(--color-gray);">${typeof getIconSvg === 'function' ? getIconSvg('layers', { size: 40 }) : '📁'}</div>
+          <h4 style="font-size: var(--fs-lg); color: var(--color-dark); margin-bottom: 6px;">No Initiatives Found in this Category</h4>
+          <p style="font-size: var(--fs-sm); color: var(--color-gray); margin-bottom: 0;">Upload or initiate new priority projects via the Secretariat Admin Portal.</p>
+        </div>
+      `;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(p => {
+      const validImages = (p.images && Array.isArray(p.images))
+        ? p.images.filter(img => typeof img === 'string' && img.trim().length > 0).map(img => resolvePublicMediaUrl(img))
+        : [];
+      const fallbackImg = sectorFallbackImages[p.sector] || 'images/project_digital_office.jpg';
+      const coverImg = validImages.length > 0 ? validImages[0] : fallbackImg;
+      const imgCount = validImages.length > 0 ? validImages.length : 1;
+      const isActive = p.status === 'active';
+      const statusClass = isActive ? 'active' : (p.status === 'completed' ? 'completed' : 'planning');
+      const statusText = isActive ? '● Active' : (p.status === 'completed' ? '● Completed' : '● Planning');
+
+      return `
+        <div class="project-card-interactive" data-project-id="${p.id}" tabindex="0" role="button" aria-label="View project ${p.title}">
+          <div class="project-card-interactive__media">
+            <img src="${coverImg}" alt="${p.title}" loading="lazy" onerror="this.onerror=null;this.src='images/project_digital_office.jpg';">
+            <div class="project-card-interactive__badge-count">
+              ${typeof getIconSvg === 'function' ? getIconSvg('image', { size: 13 }) : '📷'}
+              <span>${imgCount} photo${imgCount === 1 ? '' : 's'}</span>
+            </div>
+          </div>
+          <div class="project-card-interactive__body">
+            <div class="project-card-interactive__header">
+              <span class="project-card-interactive__sector">${p.sector || 'Public Service'}</span>
+              <span class="project-card-interactive__status ${statusClass}">${statusText}</span>
+            </div>
+            <h3 class="project-card-interactive__title">${p.title}</h3>
+            <div class="project-card-interactive__agency">
+              ${typeof getIconSvg === 'function' ? getIconSvg('landmark', { size: 14 }) : '🏛️'}
+              <span>${p.leadMda || 'National Secretariat'}</span>
+            </div>
+            <p class="project-card-interactive__desc">${p.description}</p>
+            <div class="project-card-interactive__footer">
+              <span style="font-size: var(--fs-xs); color: var(--color-gray); font-weight: 600;">
+                ${p.targetBeneficiaries || 'Young Public Servants'}
+              </span>
+              <button type="button" class="btn btn--outline btn--sm" style="pointer-events: none;">
+                <span>View Gallery &amp; Details →</span>
+              </button>
+            </div>
           </div>
         </div>
-        <div class="project-card-interactive__body">
-          <div class="project-card-interactive__header">
-            <span class="project-card-interactive__sector">${p.sector || 'Public Service'}</span>
-            <span class="project-card-interactive__status ${statusClass}">${statusText}</span>
-          </div>
-          <h3 class="project-card-interactive__title">${p.title}</h3>
-          <div class="project-card-interactive__agency">
-            ${typeof getIconSvg === 'function' ? getIconSvg('landmark', { size: 14 }) : '🏛️'}
-            <span>${p.leadMda || 'National Secretariat'}</span>
-          </div>
-          <p class="project-card-interactive__desc">${p.description}</p>
-          <div class="project-card-interactive__footer">
-            <span style="font-size: var(--fs-xs); color: var(--color-gray); font-weight: 600;">
-              ${p.targetBeneficiaries || 'Young Public Servants'}
-            </span>
-            <button type="button" class="btn btn--outline btn--sm" style="pointer-events: none;">
-              <span>View Gallery &amp; Details →</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
-  }).join('');
+      `;
+    }).join('');
 
-  // Wire click to open gallery modal
-  grid.querySelectorAll('.project-card-interactive').forEach(card => {
-    card.addEventListener('click', () => {
-      const pid = card.getAttribute('data-project-id');
-      openProjectDetailModal(pid);
-    });
-    card.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
+    // Wire click to open gallery modal
+    grid.querySelectorAll('.project-card-interactive').forEach(card => {
+      card.addEventListener('click', () => {
         const pid = card.getAttribute('data-project-id');
         openProjectDetailModal(pid);
-      }
+      });
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          const pid = card.getAttribute('data-project-id');
+          openProjectDetailModal(pid);
+        }
+      });
+    });
+
+    if (typeof refreshIcons === 'function') {
+      refreshIcons(grid);
+    }
+  }
+
+  // Filter pills on projects.html
+  const filterPills = document.querySelectorAll('#projectSectorFilterBar .media-filter-pill');
+  filterPills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      filterPills.forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      currentFilter = pill.getAttribute('data-project-filter') || 'all';
+      renderProjectsCards();
     });
   });
 
-  if (typeof refreshIcons === 'function') {
-    refreshIcons(grid);
-  }
+  renderProjectsCards();
 }
 
 function openProjectDetailModal(projectId) {
@@ -1053,26 +1130,94 @@ function openProjectDetailModal(projectId) {
   const projects = getSiteProjects();
   let p = projects.find(item => item.id === projectId);
 
-  // If not found in dynamic projects (e.g. from static sector cards), create a fallback representation
+  // If not found in dynamic projects (e.g. from static sector cards or state cards), create a fallback representation
   if (!p) {
-    p = {
-      id: projectId,
-      title: 'National Civil Service Track Initiative',
-      sector: 'Public Sector Modernization',
-      leadMda: 'National Secretariat & Participating State Chapters',
-      status: 'active',
-      statusLabel: 'Active Implementation',
-      targetBeneficiaries: 'Young Civil Servants Nationwide',
-      budget: 'Federal / State Counterpart Funding',
-      dateAdded: '2026',
-      description: 'Nationwide collaborative initiative mobilizing young public servants across federal, state and LGA agencies to implement key structural reforms.',
-      images: [
-        'images/project_digital_office.jpg',
-        'images/project_agritech.jpg',
-        'images/project_healthcare.jpg',
-        'images/project_governance.jpg'
-      ]
-    };
+    if (projectId && projectId.startsWith('SECTOR-')) {
+      const sectorNames = [
+        'Education and Youth Capacity Development',
+        'Health and Public Wellbeing',
+        'Agriculture and Food Security',
+        'ICT, Innovation and Digital Skills',
+        'Governance and Civic Engagement',
+        'Energy, Environment and Climate Resilience',
+        'Industry, Entrepreneurship and Economic Empowerment'
+      ];
+      const sectorImages = [
+        ['images/african-youth-civil-servants.jpg', 'images/gallery_national_summit.jpg'],
+        ['images/project_healthcare.jpg'],
+        ['images/project_agritech.jpg'],
+        ['images/project_digital_office.jpg', 'images/gallery_digital_training.jpg'],
+        ['images/project_governance.jpg'],
+        ['images/gallery_digital_training.jpg'],
+        ['images/gallery_state_inauguration.jpg']
+      ];
+      const idx = parseInt(projectId.replace('SECTOR-', ''), 10) || 0;
+      const sTitle = sectorNames[idx] || 'National Priority Sector';
+      p = {
+        id: projectId,
+        title: sTitle,
+        sector: 'Track A • National Sector',
+        leadMda: 'National Secretariat & Inter-Agency Task Force',
+        status: 'active',
+        statusLabel: 'Active Implementation',
+        targetBeneficiaries: '36 States & FCT Youth Officers',
+        budget: 'National Reform Framework',
+        dateAdded: '2026',
+        description: `National Thematic Track A Initiative advancing ${sTitle} across federal MDAs, state secretariats and local councils.`,
+        images: sectorImages[idx] || ['images/project_digital_office.jpg']
+      };
+    } else if (projectId && projectId.startsWith('STATE-')) {
+      const stateNames = [
+        'FCT Abuja Chapter - Federal Archives Digital Indexing',
+        'Lagos State Chapter - Citizens\' Service Experience Feedback Lab',
+        'Kano State Chapter - LGA Records Modernization',
+        'Rivers State Chapter - Coastal Environmental Sanitation Corps',
+        'Enugu State Chapter - Rural Health Outreach Liaison',
+        'Oyo State Chapter - Agro-Allied Civil Servants Cooperative'
+      ];
+      const stateImages = [
+        ['images/project_digital_office.jpg', 'images/african-youth-civil-servants.jpg'],
+        ['images/gallery_state_inauguration.jpg'],
+        ['images/gallery_digital_training.jpg'],
+        ['images/project_healthcare.jpg'],
+        ['images/project_healthcare.jpg'],
+        ['images/project_agritech.jpg']
+      ];
+      const idx = parseInt(projectId.replace('STATE-', ''), 10) - 1;
+      const sTitle = stateNames[idx] || 'State Chapter Initiative';
+      p = {
+        id: projectId,
+        title: sTitle,
+        sector: 'Track B • State Chapter',
+        leadMda: 'State Chapter Executive Committee',
+        status: 'active',
+        statusLabel: 'Active Implementation',
+        targetBeneficiaries: 'State Civil Servants & Residents',
+        budget: 'State Chapter Fund',
+        dateAdded: '2026',
+        description: `Locally scoped public sector initiative spearheaded by young civil servants in the state chapter to transform citizen service touchpoints.`,
+        images: stateImages[idx] || ['images/project_digital_office.jpg']
+      };
+    } else {
+      p = {
+        id: projectId,
+        title: 'National Civil Service Track Initiative',
+        sector: 'Public Sector Modernization',
+        leadMda: 'National Secretariat & Participating State Chapters',
+        status: 'active',
+        statusLabel: 'Active Implementation',
+        targetBeneficiaries: 'Young Civil Servants Nationwide',
+        budget: 'Federal / State Counterpart Funding',
+        dateAdded: '2026',
+        description: 'Nationwide collaborative initiative mobilizing young public servants across federal, state and LGA agencies to implement key structural reforms.',
+        images: [
+          'images/project_digital_office.jpg',
+          'images/project_agritech.jpg',
+          'images/project_healthcare.jpg',
+          'images/project_governance.jpg'
+        ]
+      };
+    }
   }
 
   // Set text fields
@@ -1139,7 +1284,7 @@ function openProjectDetailModal(projectId) {
 
   // Setup Gallery
   activeGalleryImages = (p.images && Array.isArray(p.images) && p.images.length > 0)
-    ? p.images
+    ? p.images.map(img => resolvePublicMediaUrl(img))
     : ['images/project_digital_office.jpg'];
   activeGalleryIndex = 0;
 
@@ -1163,7 +1308,11 @@ function renderGalleryView() {
 
   if (mainImg) {
     mainImg.style.opacity = '0.5';
-    mainImg.src = activeGalleryImages[activeGalleryIndex];
+    mainImg.onerror = function() {
+      this.onerror = null;
+      this.src = 'images/project_digital_office.jpg';
+    };
+    mainImg.src = resolvePublicMediaUrl(activeGalleryImages[activeGalleryIndex]);
     setTimeout(() => { mainImg.style.opacity = '1'; }, 100);
   }
 
@@ -1185,7 +1334,7 @@ function renderGalleryView() {
       thumbsContainer.style.display = 'flex';
       thumbsContainer.innerHTML = activeGalleryImages.map((src, idx) => `
         <div class="project-thumb-item ${idx === activeGalleryIndex ? 'active' : ''}" data-thumb-index="${idx}">
-          <img src="${src}" alt="Thumbnail ${idx + 1}">
+          <img src="${resolvePublicMediaUrl(src)}" alt="Thumbnail ${idx + 1}" onerror="this.onerror=null;this.src='images/project_digital_office.jpg';">
         </div>
       `).join('');
 
@@ -1251,7 +1400,16 @@ function initProjectGalleryModal() {
     }
   });
 
-  // Also bind to static state project cards on projects.html
+  // Also bind to static sector cards on Track A
+  document.querySelectorAll('#track-a .sector-card').forEach((card, idx) => {
+    card.style.cursor = 'pointer';
+    card.title = 'Click to view sector project dossier & photo gallery';
+    card.addEventListener('click', () => {
+      openProjectDetailModal('SECTOR-' + idx);
+    });
+  });
+
+  // Also bind to static state project cards on Track B
   document.querySelectorAll('#track-b .card').forEach((card, idx) => {
     card.style.cursor = 'pointer';
     card.title = 'Click to view full project details & photo gallery';
@@ -1341,7 +1499,7 @@ function initDynamicResources() {
       else if (['PPT', 'PPTX'].includes(fileType)) iconColor = '#D97706';
 
       return `
-        <div class="card card--bordered resource-card-modern fade-in" style="background: var(--color-white);">
+        <div class="card card--bordered resource-card-modern" style="background: var(--color-white);">
           <div style="display: flex; gap: var(--space-lg); align-items: flex-start;">
             <div style="color: ${iconColor}; flex-shrink: 0;">
               ${typeof getIconSvg === 'function' ? getIconSvg('file-text', { size: 32 }) : '📄'}

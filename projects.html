@@ -181,24 +181,33 @@
   </section>
 
   <!-- Live National Priority Initiatives (Connected with Admin Updates) -->
-  <section class="section" id="active-initiatives" style="padding-bottom: 0;">
+  <section class="section" id="active-initiatives" style="padding-bottom: var(--space-xl);">
     <div class="container">
-      <div class="track-header-card fade-in" style="background: linear-gradient(135deg, rgba(15, 69, 48, 0.05) 0%, rgba(233, 206, 116, 0.12) 100%); border: 1px solid rgba(15, 69, 48, 0.15);">
+      <div class="track-header-card fade-in" style="background: linear-gradient(135deg, #0F4530 0%, #092B1E 100%); border: 1px solid rgba(233, 206, 116, 0.35); box-shadow: 0 16px 40px rgba(15, 69, 48, 0.2);">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: var(--space-sm);">
-          <span class="hero__badge-pill" style="color: var(--color-accent-dark); margin-bottom: 0;">
+          <span class="hero__badge-pill" style="color: var(--color-accent); border-color: rgba(233, 206, 116, 0.35); background: rgba(233, 206, 116, 0.12); margin-bottom: 0;">
             Live Portfolio Updates • Multi-Picture Galleries
           </span>
-          <span style="font-size: var(--fs-xs); color: var(--color-gray); font-weight: 600;">
-            Synchronized with Secretariat Admin Portal
+          <span style="font-size: var(--fs-xs); color: rgba(255, 255, 255, 0.88); font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+            <i data-lucide="radio" style="width: 14px; height: 14px; color: #22C55E;"></i> Synchronized with Secretariat Admin Portal
           </span>
         </div>
-        <h2>Active National Priority Initiatives</h2>
-        <p style="font-size: 1.12rem; max-width: 880px; line-height: 1.8; color: var(--color-dark-gray);">
-          Explore our signature nationwide reform projects across Federal, State, and LGA ministries. Click any initiative below to open its <strong>full dossier and multi-photo gallery</strong>.
+        <h2 style="color: #FFFFFF; font-size: var(--fs-3xl); margin-top: var(--space-xs); margin-bottom: var(--space-xs);">Active National Priority Initiatives</h2>
+        <p style="font-size: 1.12rem; max-width: 880px; line-height: 1.8; color: rgba(255, 255, 255, 0.92); margin-bottom: 0;">
+          Explore our signature nationwide reform projects across Federal, State, and LGA ministries. Click any initiative below to open its <strong>full dossier, implementation milestones, and multi-photo gallery</strong>.
         </p>
       </div>
 
-      <div class="grid grid--2" id="dynamicProjectsGrid" style="margin-top: var(--space-2xl); gap: var(--space-xl);">
+      <!-- Sector Filter Pills for Live Initiatives -->
+      <div class="media-gallery-filter-bar" id="projectSectorFilterBar" style="margin-top: var(--space-xl); margin-bottom: var(--space-xl);">
+        <button type="button" class="media-filter-pill active" data-project-filter="all">All Initiatives</button>
+        <button type="button" class="media-filter-pill" data-project-filter="Technology & Innovation">Technology &amp; Innovation</button>
+        <button type="button" class="media-filter-pill" data-project-filter="Agriculture & Food Security">Agriculture &amp; Food</button>
+        <button type="button" class="media-filter-pill" data-project-filter="Healthcare & Social Welfare">Healthcare &amp; Social</button>
+        <button type="button" class="media-filter-pill" data-project-filter="Governance & Economy">Governance &amp; Economy</button>
+      </div>
+
+      <div class="grid grid--2" id="dynamicProjectsGrid" style="gap: var(--space-xl);">
         <!-- Synchronized dynamically via main.js from localStorage (ncsyf_admin_projects) -->
       </div>
     </div>
