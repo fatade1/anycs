@@ -317,6 +317,13 @@
   // Initialize on load
   initSupabase();
 
+  // Listen for dynamic Supabase credential changes
+  if (typeof window !== 'undefined') {
+    window.addEventListener('ncsyf:supabase-changed', () => {
+      initSupabase();
+    });
+  }
+
   // ==========================================================================
   // CORE AUTHENTICATION API
   // ==========================================================================
@@ -324,6 +331,10 @@
   const AuthService = {
     isSupabaseConnected() {
       return !!supabaseClient;
+    },
+
+    _reinitSupabase() {
+      return initSupabase();
     },
 
     /**

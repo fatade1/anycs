@@ -1254,6 +1254,9 @@ function setupEventListeners() {
   // Password Visibility Toggles
   setupAdminPasswordToggles();
 
+  // Supabase Settings & Cloud Storage Panel
+  setupSupabaseSettingsPanel();
+
   // 1-Click Demo Fill: Super Admin (if present in DOM)
   const btnDemoSuperAdmin = document.getElementById('btnDemoSuperAdmin');
   if (btnDemoSuperAdmin) {
@@ -1988,6 +1991,12 @@ window.updateMemberStatus = function(memberId, newStatus) {
     members[index].verifiedAt = new Date().toISOString().replace('T', ' ').substring(0, 19);
   }
   saveMembers(members);
+
+  // Sync to Supabase if connected
+  if (window.NCSYF_DB && window.NCSYF_DB.members) {
+    window.NCSYF_DB.members.updateStatus(members[index].memberId || members[index].id, newStatus).catch(() => {});
+  }
+
   showAdminToast(`Member application status updated to: ${newStatus.toUpperCase()}`);
   renderDashboard();
   renderMembersTable();
@@ -2000,8 +2009,13 @@ window.deleteMember = function(memberId) {
   }
   if (!confirm('Are you sure you want to permanently delete this member record?')) return;
   let members = getStoredMembers();
-  members = members.filter(m => m.id !== memberId);
+  members = members.filter(m => m.id !== memberId && m.memberId !== memberId);
   saveMembers(members);
+
+  if (window.NCSYF_DB && window.NCSYF_DB.members) {
+    window.NCSYF_DB.members.delete(memberId).catch(() => {});
+  }
+
   showAdminToast('Member record removed from system.');
   renderDashboard();
   renderMembersTable();
@@ -2301,6 +2315,11 @@ function handleAddProject(e) {
 
     projects.unshift(newProject);
     saveProjects(projects);
+
+    if (window.NCSYF_DB && window.NCSYF_DB.projects) {
+      window.NCSYF_DB.projects.save(editingId ? projects[index] : newProject).catch(() => {});
+    }
+
     showAdminToast('New national priority project published to website & portal!');
   }
 
@@ -2320,6 +2339,11 @@ window.deleteProject = function(projectId) {
   let projects = getStoredProjects();
   projects = projects.filter(p => p.id !== projectId);
   saveProjects(projects);
+
+  if (window.NCSYF_DB && window.NCSYF_DB.projects) {
+    window.NCSYF_DB.projects.delete(projectId).catch(() => {});
+  }
+
   showAdminToast('Project removed successfully.');
   renderDashboard();
   renderProjectsList();
@@ -2551,6 +2575,11 @@ function handleAddResource(e) {
 
     resources.unshift(newResource);
     saveResources(resources);
+
+    if (window.NCSYF_DB && window.NCSYF_DB.resources) {
+      window.NCSYF_DB.resources.save(editingId ? resources[index] : newResource).catch(() => {});
+    }
+
     showAdminToast(`Document "${uploadedResourceFileData.name}" uploaded successfully!`);
   }
 
@@ -2568,6 +2597,11 @@ window.downloadResource = function(resourceId) {
 
   r.downloads = (r.downloads || 0) + 1;
   saveResources(resources);
+
+  if (window.NCSYF_DB && window.NCSYF_DB.resources) {
+    window.NCSYF_DB.resources.incrementDownloads(resourceId).catch(() => {});
+  }
+
   renderResourcesList();
 
   // If this resource has an actual uploaded file (dataUrl), download that exact file!
@@ -2606,6 +2640,11 @@ window.deleteResource = function(resourceId) {
   let resources = getStoredResources();
   resources = resources.filter(r => r.id !== resourceId);
   saveResources(resources);
+
+  if (window.NCSYF_DB && window.NCSYF_DB.resources) {
+    window.NCSYF_DB.resources.delete(resourceId).catch(() => {});
+  }
+
   showAdminToast('Resource deleted.');
   renderDashboard();
   renderResourcesList();
@@ -2716,6 +2755,10 @@ function handleAddAdmin(e) {
   admins.push(newAdmin);
   saveAdminUsers(admins);
 
+  if (window.NCSYF_DB && window.NCSYF_DB.admins) {
+    window.NCSYF_DB.admins.save(newAdmin).catch(() => {});
+  }
+
   showAdminToast(`Administrator account created for ${name} (${role === 'super_admin' ? 'Super Admin' : 'Regular Admin'})!`);
   form.reset();
   closeAllModals();
@@ -2764,6 +2807,10 @@ window.deleteAdmin = function(adminId) {
 
   const filtered = admins.filter(a => a.id !== adminId);
   saveAdminUsers(filtered);
+
+  if (window.NCSYF_DB && window.NCSYF_DB.admins) {
+    window.NCSYF_DB.admins.delete(adminId).catch(() => {});
+  }
 
   showAdminToast(`Administrator account for ${admin.name} deleted.`);
   renderAdminsTable();
@@ -2818,6 +2865,236 @@ window.resetFactoryData = function() {
   setTimeout(() => {
     location.reload();
   }, 500);
+};
+
+// ==========================================================================
+// SUPABASE INTEGRATION & CLOUD STORAGE CONTROLLER
+// ==========================================================================
+function setupSupabaseSettingsPanel() {
+  const urlInput = document.getElementById('supabaseProjectUrl');
+  const keyInput = document.getElementById('supabaseAnonKey');
+  const toggleKeyBtn = document.getElementById('btnToggleSupabaseKey');
+  const badge = document.getElementById('supabaseStatusBadge');
+  const alertBox = document.getElementById('supabaseFeedbackAlert');
+  const testBtn = document.getElementById('btnTestSupabase');
+  const saveBtn = document.getElementById('btnSaveSupabase');
+  const syncBtn = document.getElementById('btnSyncToSupabase');
+  const pullBtn = document.getElementById('btnPullFromSupabase');
+  const disconnectBtn = document.getElementById('btnDisconnectSupabase');
+
+  if (!urlInput || !keyInput) return;
+
+  function updateStatusUI() {
+    const isConn = window.NCSYF_CONFIG_MANAGER ? window.NCSYF_CONFIG_MANAGER.isConnected() : false;
+    const creds = window.NCSYF_CONFIG_MANAGER ? window.NCSYF_CONFIG_MANAGER.getCredentials() : { url: '', key: '' };
+
+    if (urlInput && !urlInput.value && creds.url) urlInput.value = creds.url;
+    if (keyInput && !keyInput.value && creds.key) keyInput.value = creds.key;
+
+    if (badge) {
+      if (isConn) {
+        badge.className = 'badge-status verified';
+        badge.innerHTML = `<i data-lucide="check-circle-2" style="width: 14px; height: 14px;"></i> Supabase Cloud Active`;
+      } else {
+        badge.className = 'badge-status pending';
+        badge.innerHTML = `<i data-lucide="cloud-off" style="width: 14px; height: 14px;"></i> Local / Offline Mode`;
+      }
+      if (window.lucide && typeof lucide.createIcons === 'function') {
+        lucide.createIcons({ root: badge });
+      }
+    }
+
+    if (syncBtn) syncBtn.style.display = isConn ? 'inline-flex' : 'none';
+    if (pullBtn) pullBtn.style.display = isConn ? 'inline-flex' : 'none';
+    if (disconnectBtn) disconnectBtn.style.display = isConn ? 'inline-flex' : 'none';
+  }
+
+  updateStatusUI();
+
+  // Toggle API Key visibility
+  if (toggleKeyBtn) {
+    toggleKeyBtn.addEventListener('click', () => {
+      const isPass = keyInput.type === 'password';
+      keyInput.type = isPass ? 'text' : 'password';
+      toggleKeyBtn.setAttribute('aria-label', isPass ? 'Hide API key' : 'Show API key');
+      toggleKeyBtn.innerHTML = isPass 
+        ? `<i data-lucide="eye-off" style="width: 18px; height: 18px;"></i>` 
+        : `<i data-lucide="eye" style="width: 18px; height: 18px;"></i>`;
+      if (window.lucide && typeof lucide.createIcons === 'function') {
+        lucide.createIcons({ root: toggleKeyBtn });
+      }
+    });
+  }
+
+  // Test Connection Button
+  if (testBtn) {
+    testBtn.addEventListener('click', async () => {
+      const url = urlInput.value.trim();
+      const key = keyInput.value.trim();
+      if (!url || !key) {
+        showAdminToast('Please provide both Project URL and Anon API Key.', 'error');
+        if (alertBox) {
+          alertBox.style.display = 'block';
+          alertBox.style.background = 'rgba(220, 38, 38, 0.1)';
+          alertBox.style.border = '1px solid rgba(220, 38, 38, 0.3)';
+          alertBox.style.color = '#B91C1C';
+          alertBox.innerHTML = '<strong>Missing Credentials:</strong> Please enter both your Supabase Project URL and Public Anon Key.';
+        }
+        return;
+      }
+
+      const origText = testBtn.innerHTML;
+      testBtn.innerHTML = `Testing...`;
+      testBtn.disabled = true;
+
+      try {
+        const result = await window.NCSYF_CONFIG_MANAGER.testConnection(url, key);
+        if (result.ok) {
+          if (result.schemaPending) {
+            showAdminToast('Supabase connected! Tables pending creation.', 'warning');
+            if (alertBox) {
+              alertBox.style.display = 'block';
+              alertBox.style.background = 'rgba(217, 119, 6, 0.1)';
+              alertBox.style.border = '1px solid rgba(217, 119, 6, 0.3)';
+              alertBox.style.color = '#B45309';
+              alertBox.innerHTML = `<strong>Connected to Supabase!</strong><br>${result.message}`;
+            }
+          } else {
+            showAdminToast('Supabase connection verified successfully!');
+            if (alertBox) {
+              alertBox.style.display = 'block';
+              alertBox.style.background = 'rgba(15, 69, 48, 0.1)';
+              alertBox.style.border = '1px solid rgba(15, 69, 48, 0.3)';
+              alertBox.style.color = 'var(--admin-primary)';
+              alertBox.innerHTML = `<strong>Connection Successful!</strong><br>${result.message}`;
+            }
+          }
+        } else {
+          showAdminToast(`Connection failed: ${result.message}`, 'error');
+          if (alertBox) {
+            alertBox.style.display = 'block';
+            alertBox.style.background = 'rgba(220, 38, 38, 0.1)';
+            alertBox.style.border = '1px solid rgba(220, 38, 38, 0.3)';
+            alertBox.style.color = '#B91C1C';
+            alertBox.innerHTML = `<strong>Connection Failed:</strong><br>${result.message}`;
+          }
+        }
+      } catch (err) {
+        showAdminToast('Test connection failed: ' + err.message, 'error');
+      } finally {
+        testBtn.innerHTML = origText;
+        testBtn.disabled = false;
+        if (window.lucide && typeof lucide.createIcons === 'function') {
+          lucide.createIcons({ root: testBtn });
+        }
+      }
+    });
+  }
+
+  // Save Credentials Button
+  if (saveBtn) {
+    saveBtn.addEventListener('click', () => {
+      const url = urlInput.value.trim();
+      const key = keyInput.value.trim();
+      if (!url || !key) {
+        showAdminToast('Please fill in both Supabase URL and Anon Key.', 'error');
+        return;
+      }
+
+      window.NCSYF_CONFIG_MANAGER.setCredentials(url, key);
+      updateStatusUI();
+      showAdminToast('Supabase credentials saved! Live connection active.');
+      if (alertBox) {
+        alertBox.style.display = 'block';
+        alertBox.style.background = 'rgba(15, 69, 48, 0.1)';
+        alertBox.style.border = '1px solid rgba(15, 69, 48, 0.3)';
+        alertBox.style.color = 'var(--admin-primary)';
+        alertBox.innerHTML = '<strong>Connected to Supabase:</strong> Portal is now configured to persist data directly to your Supabase PostgreSQL database.';
+      }
+    });
+  }
+
+  // Push Local Data to Supabase
+  if (syncBtn) {
+    syncBtn.addEventListener('click', async () => {
+      if (!confirm('Push all local members, projects, resources, gallery albums, and admin accounts into your Supabase database?')) return;
+      const origText = syncBtn.innerHTML;
+      syncBtn.innerHTML = `Pushing data...`;
+      syncBtn.disabled = true;
+
+      try {
+        const res = await window.NCSYF_DB.syncAllToSupabase();
+        if (res.ok) {
+          const s = res.stats;
+          showAdminToast(`Synced to Supabase: ${s.members} members, ${s.projects} projects, ${s.resources} resources, ${s.gallery} albums, ${s.admins} admins!`);
+        } else {
+          showAdminToast('Sync completed with warnings: ' + (res.stats.errors ? res.stats.errors.join('; ') : 'Check console'), 'warning');
+        }
+      } catch (e) {
+        showAdminToast('Sync failed: ' + e.message, 'error');
+      } finally {
+        syncBtn.innerHTML = origText;
+        syncBtn.disabled = false;
+        if (window.lucide && typeof lucide.createIcons === 'function') {
+          lucide.createIcons({ root: syncBtn });
+        }
+      }
+    });
+  }
+
+  // Pull Remote Data from Supabase
+  if (pullBtn) {
+    pullBtn.addEventListener('click', async () => {
+      const origText = pullBtn.innerHTML;
+      pullBtn.innerHTML = `Pulling...`;
+      pullBtn.disabled = true;
+
+      try {
+        const res = await window.NCSYF_DB.pullFromSupabase();
+        showAdminToast(`Pulled ${res.stats.members} members, ${res.stats.projects} projects, ${res.stats.resources} resources from Supabase!`);
+        renderDashboard();
+        renderMembersTable();
+        renderProjectsList();
+        renderResourcesList();
+        renderGalleryList();
+      } catch (e) {
+        showAdminToast('Pull failed: ' + e.message, 'error');
+      } finally {
+        pullBtn.innerHTML = origText;
+        pullBtn.disabled = false;
+        if (window.lucide && typeof lucide.createIcons === 'function') {
+          lucide.createIcons({ root: pullBtn });
+        }
+      }
+    });
+  }
+
+  // Disconnect Button
+  if (disconnectBtn) {
+    disconnectBtn.addEventListener('click', () => {
+      if (!confirm('Disconnect from Supabase? Portal will return to local offline storage mode.')) return;
+      window.NCSYF_CONFIG_MANAGER.clearCredentials();
+      if (urlInput) urlInput.value = '';
+      if (keyInput) keyInput.value = '';
+      if (alertBox) alertBox.style.display = 'none';
+      updateStatusUI();
+      showAdminToast('Disconnected from Supabase. Reverted to local storage mode.');
+    });
+  }
+
+  window.addEventListener('ncsyf:supabase-changed', updateStatusUI);
+}
+
+window.copySupabaseSetupSql = async function() {
+  try {
+    const res = await fetch('../supabase/complete_setup.sql');
+    if (!res.ok) throw new Error('File not found');
+    const sql = await res.text();
+    await navigator.clipboard.writeText(sql);
+    showAdminToast('complete_setup.sql copied to clipboard! Paste into Supabase SQL Editor.');
+  } catch (err) {
+    prompt('Copy path to SQL script:', 'supabase/complete_setup.sql');
+  }
 };
 
 // ==========================================================================
@@ -3053,6 +3330,11 @@ function handleSaveGallery(e) {
     };
     albums.unshift(newAlbum);
     saveGallery(albums);
+
+    if (window.NCSYF_DB && window.NCSYF_DB.gallery) {
+      window.NCSYF_DB.gallery.save(editingId ? albums[index] : newAlbum).catch(() => {});
+    }
+
     showAdminToast('New Media Gallery album published to public website!');
   }
 
@@ -3074,6 +3356,11 @@ window.deleteGallery = function(galleryId) {
   const albums = getStoredGallery();
   const filtered = albums.filter(a => a.id !== galleryId);
   saveGallery(filtered);
+
+  if (window.NCSYF_DB && window.NCSYF_DB.gallery) {
+    window.NCSYF_DB.gallery.delete(galleryId).catch(() => {});
+  }
+
   showAdminToast('Media album removed successfully.');
   renderDashboard();
   renderGalleryList();

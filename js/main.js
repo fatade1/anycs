@@ -863,6 +863,11 @@ function handleMembershipSubmit(e) {
 
     localStorage.setItem(STORAGE_KEY_MEMBERS, JSON.stringify(membersList));
 
+    // Persist to Supabase if connected
+    if (window.NCSYF_DB && window.NCSYF_DB.members) {
+      window.NCSYF_DB.members.save(newMemberRecord).catch(err => console.warn('Supabase member save notice:', err));
+    }
+
     const finalMemberId = newMemberRecord.memberId;
     if (isReapplication) {
       showToast(`Corrected reapplication submitted for Member ID: ${finalMemberId}.`, 'success');

@@ -1,57 +1,45 @@
-# NCSYF Supabase Authentication & PostgreSQL Database Setup
+# NCSYF Supabase Cloud Database & Storage Architecture
+### Nigeria Civil Service Youths' Forum (NCSYF)
 
-This directory contains the production-grade database schema, migrations, and access control policies for the **Nigeria Civil Service Youths' Forum (NCSYF)** member authentication system.
+This directory contains the production-grade PostgreSQL database schema, migrations, access control policies, storage buckets, and seed data for the **Nigeria Civil Service Youths' Forum (NCSYF)** portal.
 
 ---
 
-## Architecture Overview
+## 1. Architecture & Entity Overview
 
-The system strictly decouples **Authentication Identities** (`auth.users`) from **Membership Records** (`public.member_profiles`):
+The system strictly structures all application entities with PostgreSQL types, Row Level Security (RLS), and automatic update triggers:
 
 ```
-┌───────────────────────────────────────┐
-│        auth.users (Supabase)          │
-├───────────────────────────────────────┤
-│ id (UUID - Primary Key)               │
-│ email (Unique Verified Email)         │
-│ encrypted_password (Bcrypt/Argon2)    │
-│ confirmed_at, last_sign_in_at         │
-└──────────────────┬────────────────────┘
-                   │ 1-to-1 Link (user_id)
-                   ▼
-┌───────────────────────────────────────┐
-│     public.member_profiles            │
-├───────────────────────────────────────┤
-│ id (UUID - Primary Key)               │
-│ user_id (UUID -> auth.users.id)       │
-│ member_id (NCSYF-YYYY-XXXX, Unique)   │
-│ email (Unique)                        │
-│ first_name, last_name                 │
-│ category (full / associate)           │
-│ status (pending / verified / ...)     │
-│ mda, state_chapter, staff_id          │
-└───────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────┐
+│                        SUPABASE CLOUD POSTGRESQL                       │
+├────────────────────────────────────────────────────────────────────────┤
+│  auth.users             ◄── Member Authentication & Passwords          │
+│  public.member_profiles ◄── Member KYC, MDAs, Status, Registration IDs │
+│  public.projects        ◄── Track A/B National Thematic Initiatives    │
+│  public.resources       ◄── Official Circulars, PSR Handbook & Laws    │
+│  public.gallery_albums  ◄── Summits, Workshops & Induction Photos     │
+│  public.admin_users     ◄── Secretariat Super Admin & Officers         │
+├────────────────────────────────────────────────────────────────────────┤
+│  STORAGE BUCKETS:                                                      │
+│  • member-documents    (Private KYC upload bucket)                     │
+│  • resource-circulars  (Public PDF/DOCX publications bucket)           │
+│  • gallery-media       (Public event media & albums bucket)            │
+└────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 1. Prerequisites
-- A [Supabase account](https://supabase.com).
-- A newly created Supabase Project (e.g. `ncsyf-portal`).
+## 2. Fast 1-Click Database Setup
 
----
+### Option A: Via Supabase Dashboard SQL Editor (Fastest)
+1. Open your [Supabase Dashboard](https://app.supabase.com) and select your project.
+2. In the left sidebar, click **SQL Editor** -> **New query**.
+3. Copy the entire content of [`supabase/complete_setup.sql`](file:///Users/ffh/Documents/Designs/anycs/supabase/complete_setup.sql) and paste it into the editor.
+4. Click **Run**.
+5. All extensions, enum types, tables, indexes, RLS security policies, storage buckets, and initial seeds are created instantly and idempotently.
 
-## 2. Applying Database Migrations
-
-You can apply the SQL migrations via the **Supabase Dashboard SQL Editor** or via the **Supabase CLI**:
-
-### Option A: Via Supabase Dashboard (Recommended for quick setup)
-1. Open your Supabase Dashboard: `https://app.supabase.com/project/<your-project-id>`.
-2. Navigate to the **SQL Editor** in the left sidebar.
-3. Open [`migrations/20261017000000_member_auth_schema.sql`](file:///Users/ffh/Documents/Designs/anycs/supabase/migrations/20261017000000_member_auth_schema.sql) and click **Run**.
-4. Open [`migrations/20261017000001_seed_members.sql`](file:///Users/ffh/Documents/Designs/anycs/supabase/migrations/20261017000001_seed_members.sql) and click **Run** to load initial member profiles.
-
-### Option B: Via Supabase CLI
+### Option B: Via Modular Migrations (CLI)
+If using the Supabase CLI:
 ```bash
 npx supabase login
 npx supabase link --project-ref <your-project-id>
@@ -60,20 +48,21 @@ npx supabase db push
 
 ---
 
-## 3. Row Level Security (RLS) Rules
+## 3. Connecting the Website to Supabase
 
-All member tables have Row Level Security enabled:
-1. **`Members can view own profile`**: Authenticated members can only read their own profile (`auth.uid() = user_id`).
-2. **`Members can update permitted own profile fields`**: Members can update contact info, but **cannot** alter `status`, `member_id`, or `category`.
-3. **`Protect sensitive fields trigger`**: Database trigger `protect_member_sensitive_fields()` blocks any attempt by members to self-verify or elevate their permissions.
-4. **`Service role has full management access`**: Secretariat Admin operations run with administrative oversight.
+You can connect Supabase using either the **Admin Portal UI** or by configuring `window.NCSYF_CONFIG`:
 
----
+### Method 1: Via Admin Settings Panel (Recommended)
+1. Open the Admin Console: `http://localhost:5501/admin/index.html`.
+2. Sign in as Super Admin (`admin@ncsyf.com.ng` / `Secretariat@2026`).
+3. Click **System Settings** in the left sidebar.
+4. Enter your **Supabase Project URL** (e.g. `https://xyz.supabase.co`) and **Anon Public API Key**.
+5. Click **Test Connection** to verify reachability.
+6. Click **Save & Connect**.
+7. Click **Push All Local Data to Supabase** to populate your cloud database with all local members, projects, resources, gallery albums, and administrator accounts!
 
-## 4. Connecting the Frontend Application
-
-Open or configure your frontend configuration in `js/auth-service.js` or define `window.NCSYF_CONFIG`:
-
+### Method 2: Via Frontend Configuration
+In your HTML or environment configuration, define `window.NCSYF_CONFIG`:
 ```javascript
 window.NCSYF_CONFIG = {
   SUPABASE_URL: 'https://<your-project-id>.supabase.co',
@@ -81,5 +70,8 @@ window.NCSYF_CONFIG = {
 };
 ```
 
-When `SUPABASE_URL` and `SUPABASE_ANON_KEY` are provided, the application automatically uses live Supabase Auth and database queries.
-When in local development or offline mode without live credentials, the built-in compliant local auth provider seamlessly simulates session management, password hashing, and profile isolation.
+---
+
+## 4. Zero-Downtime Resilience
+- **Online Mode**: When credentials are provided and the database is reachable, all registration submissions, approvals, project updates, downloads, and logins interact directly with Supabase.
+- **Offline / Local Fallback**: If working offline, developing without network, or before credentials are entered, the portal automatically falls back to its built-in local store without breaking any workflows or tests.
