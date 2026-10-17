@@ -641,7 +641,7 @@ function initCategorySwitch() {
   }
 }
 
-function handleMembershipSubmit(e) {
+async function handleMembershipSubmit(e) {
   e.preventDefault();
   const form = e.target;
 
@@ -863,9 +863,14 @@ function handleMembershipSubmit(e) {
 
     localStorage.setItem(STORAGE_KEY_MEMBERS, JSON.stringify(membersList));
 
-    // Persist to Supabase if connected
+    // Persist to Supabase Cloud if connected
     if (window.NCSYF_DB && window.NCSYF_DB.members) {
-      window.NCSYF_DB.members.save(newMemberRecord).catch(err => console.warn('Supabase member save notice:', err));
+      try {
+        await window.NCSYF_DB.members.save(newMemberRecord);
+        console.log('✅ Member successfully synced to Supabase Cloud:', newMemberRecord.memberId);
+      } catch (err) {
+        console.warn('Supabase member save notice:', err);
+      }
     }
 
     const finalMemberId = newMemberRecord.memberId;
@@ -879,11 +884,16 @@ function handleMembershipSubmit(e) {
     const passwordInput = form.querySelector('#password');
     const userPass = passwordInput && passwordInput.value ? passwordInput.value.trim() : 'Member@2026';
     if (window.NCSYF_AUTH && newMemberRecord.email) {
-      window.NCSYF_AUTH.signUp({
-        email: newMemberRecord.email,
-        password: userPass,
-        memberProfile: newMemberRecord
-      }).catch(authErr => console.warn('Could not register auth identity:', authErr));
+      try {
+        await window.NCSYF_AUTH.signUp({
+          email: newMemberRecord.email,
+          password: userPass,
+          memberProfile: newMemberRecord
+        });
+        console.log('✅ Auth identity chartered in Supabase Cloud for:', newMemberRecord.email);
+      } catch (authErr) {
+        console.warn('Could not register auth identity:', authErr);
+      }
     }
   } catch (storageErr) {
     console.warn('Could not sync registration to local store:', storageErr);

@@ -170,18 +170,50 @@
      */
     async getCurrentProfile() {
       const session = this.getSession();
-      if (!session || !session.userId) return null;
+      if (!session || (!session.userId && !session.email && !session.memberId)) return null;
 
       // If connected to live Supabase backend
       if (supabaseClient) {
         try {
-          const { data, error } = await supabaseClient
-            .from('member_profiles')
-            .select('*')
-            .eq('user_id', session.userId)
-            .single();
+          let cloudProfile = null;
 
-          if (!error && data) return data;
+          // 1. Try by user_id
+          if (session.userId) {
+            const { data } = await supabaseClient
+              .from('member_profiles')
+              .select('*')
+              .eq('user_id', session.userId)
+              .maybeSingle();
+            if (data) cloudProfile = data;
+          }
+
+          // 2. Try by email if not found by user_id
+          if (!cloudProfile && session.email) {
+            const { data } = await supabaseClient
+              .from('member_profiles')
+              .select('*')
+              .ilike('email', session.email.trim())
+              .maybeSingle();
+            if (data) {
+              cloudProfile = data;
+              // Link user_id in Cloud if missing
+              if (session.userId && !data.user_id) {
+                supabaseClient.from('member_profiles').update({ user_id: session.userId }).eq('id', data.id).catch(() => {});
+              }
+            }
+          }
+
+          // 3. Try by member_id
+          if (!cloudProfile && session.memberId) {
+            const { data } = await supabaseClient
+              .from('member_profiles')
+              .select('*')
+              .ilike('member_id', session.memberId.trim())
+              .maybeSingle();
+            if (data) cloudProfile = data;
+          }
+
+          if (cloudProfile) return cloudProfile;
         } catch (err) {
           console.warn('Supabase profile fetch error, checking fallback:', err);
         }
@@ -242,12 +274,32 @@
             throw new Error(error.message || 'Invalid email or password.');
           }
 
-          // Fetch linked profile
-          const { data: memberProfile } = await supabaseClient
+          // Fetch linked profile from Supabase Cloud
+          let memberProfile = null;
+          const { data: profByUid } = await supabaseClient
             .from('member_profiles')
             .select('*')
             .eq('user_id', data.user.id)
-            .single();
+            .maybeSingle();
+
+          if (profByUid) {
+            memberProfile = profByUid;
+          } else if (data.user.email) {
+            // Find by email and link user_id
+            const { data: profByEmail } = await supabaseClient
+              .from('member_profiles')
+              .select('*')
+              .ilike('email', data.user.email)
+              .maybeSingle();
+
+            if (profByEmail) {
+              memberProfile = profByEmail;
+              await supabaseClient
+                .from('member_profiles')
+                .update({ user_id: data.user.id })
+                .eq('id', profByEmail.id);
+            }
+          }
 
           const session = {
             userId: data.user.id,

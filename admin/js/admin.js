@@ -427,6 +427,27 @@ function initApp() {
 
   checkAuthAndRender();
   setupEventListeners();
+
+  // Automatically synchronize all stores with Supabase Cloud
+  autoSyncFromSupabaseCloud();
+}
+
+async function autoSyncFromSupabaseCloud() {
+  if (window.NCSYF_DB && typeof window.NCSYF_DB.pullFromSupabase === 'function') {
+    try {
+      console.log('🔄 Synchronizing admin console with Supabase Cloud...');
+      const res = await window.NCSYF_DB.pullFromSupabase();
+      console.log('✅ Supabase cloud data synchronized into admin console:', res?.stats);
+      renderDashboard();
+      renderMembersTable();
+      renderProjectsList();
+      renderResourcesList();
+      renderGalleryList();
+      renderAdminsTable();
+    } catch (err) {
+      console.warn('Auto cloud sync notice:', err);
+    }
+  }
 }
 
 function checkAuthAndRender() {
@@ -1362,8 +1383,18 @@ function switchTab(tabId) {
   }
 
   // Refresh relevant view
-  if (tabId === 'overview') renderDashboard();
-  if (tabId === 'members') renderMembersTable();
+  if (tabId === 'overview') {
+    renderDashboard();
+    if (window.NCSYF_DB && window.NCSYF_DB.members) {
+      window.NCSYF_DB.members.getAll().then(() => renderDashboard()).catch(() => {});
+    }
+  }
+  if (tabId === 'members') {
+    renderMembersTable();
+    if (window.NCSYF_DB && window.NCSYF_DB.members) {
+      window.NCSYF_DB.members.getAll().then(() => renderMembersTable()).catch(() => {});
+    }
+  }
   if (tabId === 'projects') renderProjectsList();
   if (tabId === 'resources') renderResourcesList();
   if (tabId === 'gallery') renderGalleryList();
