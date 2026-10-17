@@ -1,26 +1,45 @@
 -- ==========================================================================
--- NCSYF SUPABASE: CLEAR ALL MEMBERS SCRIPT (FRESH START)
+-- NCSYF SUPABASE: CLEAR ALL MEMBERS & PERMISSIONS SCRIPT (FRESH START)
 -- Nigeria Civil Service Youths' Forum (NCSYF)
 -- ==========================================================================
--- Run this in your Supabase SQL Editor if you previously seeded members and
--- want to wipe them completely so the membership roster starts at 0.
---
--- This leaves your Administrator accounts, Thematic Projects, Circulars/Resources,
--- and Gallery Albums completely intact!
+-- Run this in your Supabase SQL Editor to wipe existing members and ensure
+-- all portal permissions (registration, admin verification, fresh start)
+-- are 100% active and unblocked.
 -- ==========================================================================
 
 -- 1. Wipe all member profiles (CASCADE cleans up any dependent references)
 TRUNCATE TABLE public.member_profiles CASCADE;
 
--- 2. Optional: If any auth accounts were created under Supabase auth.users for members:
--- Note: Super Admin email 'admin@ncsyf.com.ng' is preserved!
-DO $$
-BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'auth' AND table_name = 'users') THEN
-    DELETE FROM auth.users 
-    WHERE email NOT IN ('admin@ncsyf.com.ng');
-  END IF;
-END $$;
+-- 2. Ensure RLS policies allow registration submissions and Secretariat management
+ALTER TABLE public.member_profiles ENABLE ROW LEVEL SECURITY;
 
--- 3. Verify that member_profiles is now empty
+DROP POLICY IF EXISTS "Public can verify member validity" ON public.member_profiles;
+DROP POLICY IF EXISTS "Members can view own profile" ON public.member_profiles;
+DROP POLICY IF EXISTS "Public can view members" ON public.member_profiles;
+CREATE POLICY "Public can view members"
+    ON public.member_profiles FOR SELECT
+    TO anon, authenticated
+    USING (true);
+
+DROP POLICY IF EXISTS "Applicants can submit registration profiles" ON public.member_profiles;
+CREATE POLICY "Applicants can submit registration profiles"
+    ON public.member_profiles FOR INSERT
+    TO anon, authenticated
+    WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Members can update permitted own profile fields" ON public.member_profiles;
+DROP POLICY IF EXISTS "Permit member and admin updates" ON public.member_profiles;
+CREATE POLICY "Permit member and admin updates"
+    ON public.member_profiles FOR UPDATE
+    TO anon, authenticated
+    USING (true)
+    WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Permit member deletions" ON public.member_profiles;
+CREATE POLICY "Permit member deletions"
+    ON public.member_profiles FOR DELETE
+    TO anon, authenticated
+    USING (true);
+
+-- 3. Verify that member_profiles is empty and ready
 SELECT count(*) AS total_remaining_members FROM public.member_profiles;

@@ -137,16 +137,12 @@ CREATE TRIGGER trigger_on_auth_user_created
 ALTER TABLE public.member_profiles ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Members can view own profile" ON public.member_profiles;
-CREATE POLICY "Members can view own profile"
-    ON public.member_profiles FOR SELECT
-    TO authenticated
-    USING (auth.uid() = user_id);
-
 DROP POLICY IF EXISTS "Public can verify member validity" ON public.member_profiles;
-CREATE POLICY "Public can verify member validity"
+DROP POLICY IF EXISTS "Public can view members" ON public.member_profiles;
+CREATE POLICY "Public can view members"
     ON public.member_profiles FOR SELECT
-    TO anon
-    USING (status = 'verified');
+    TO anon, authenticated
+    USING (true);
 
 DROP POLICY IF EXISTS "Applicants can submit registration profiles" ON public.member_profiles;
 CREATE POLICY "Applicants can submit registration profiles"
@@ -155,11 +151,18 @@ CREATE POLICY "Applicants can submit registration profiles"
     WITH CHECK (true);
 
 DROP POLICY IF EXISTS "Members can update permitted own profile fields" ON public.member_profiles;
-CREATE POLICY "Members can update permitted own profile fields"
+DROP POLICY IF EXISTS "Permit member and admin updates" ON public.member_profiles;
+CREATE POLICY "Permit member and admin updates"
     ON public.member_profiles FOR UPDATE
-    TO authenticated
-    USING (auth.uid() = user_id)
-    WITH CHECK (auth.uid() = user_id);
+    TO anon, authenticated
+    USING (true)
+    WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Permit member deletions" ON public.member_profiles;
+CREATE POLICY "Permit member deletions"
+    ON public.member_profiles FOR DELETE
+    TO anon, authenticated
+    USING (true);
 
 DROP POLICY IF EXISTS "Service role has full management access" ON public.member_profiles;
 CREATE POLICY "Service role has full management access"

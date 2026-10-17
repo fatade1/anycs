@@ -288,13 +288,18 @@
         if (client) {
           try {
             const row = memberToRow(member);
-            const { data, error } = await client
+            const { error: insError } = await client
               .from('member_profiles')
-              .upsert(row, { onConflict: 'member_id' })
-              .select();
+              .insert(row);
 
-            if (error) {
-              console.warn('Supabase member upsert warning:', error);
+            if (insError) {
+              const { error: updError } = await client
+                .from('member_profiles')
+                .update(row)
+                .eq('member_id', member.memberId);
+              if (updError) {
+                console.warn('Supabase member save notice:', updError.message || updError);
+              }
             }
           } catch (err) {
             console.warn('Supabase member save exception:', err);
