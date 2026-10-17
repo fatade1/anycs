@@ -249,6 +249,22 @@ function initAuthModal() {
     document.body.style.overflow = '';
   };
 
+  // Expose global programmatic opener with pre-filled Member ID
+  window.openSignInWithMemberId = function(memberId) {
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    const idInput = modal.querySelector('#modalMemberId');
+    const passInput = modal.querySelector('#modalPassword');
+    if (idInput && memberId) {
+      idInput.value = memberId;
+      if (passInput) {
+        setTimeout(() => passInput.focus(), 150);
+      }
+    } else if (idInput) {
+      setTimeout(() => idInput.focus(), 150);
+    }
+  };
+
   // Triggers
   document.querySelectorAll('[data-open-signin]').forEach(btn => {
     btn.addEventListener('click', openModal);
@@ -690,6 +706,9 @@ function handleMembershipSubmit(e) {
   }
 
   // Synchronize new registration to localStorage so it instantly appears in the Admin Portal (/admin)
+  let newMemberRecord = null;
+  let isReapplication = false;
+
   try {
     const now = new Date();
     const dateStr = now.toISOString().replace('T', ' ').substring(0, 19);
@@ -706,8 +725,6 @@ function handleMembershipSubmit(e) {
         membersList = [];
       }
     }
-
-    let newMemberRecord;
 
     if (memberType === 'associate') {
       const assocStaffId = form.querySelector('#associateMemberId')?.value.trim() || `ANYCS-ASC-${randomSuffix}`;
@@ -787,7 +804,6 @@ function handleMembershipSubmit(e) {
       (m.staffId && newMemberRecord.staffId && m.staffId.toLowerCase() === newMemberRecord.staffId.toLowerCase())
     );
 
-    let isReapplication = false;
     if (prevIndex !== -1 && membersList[prevIndex].status === 'disapproved') {
       isReapplication = true;
       newMemberRecord.id = membersList[prevIndex].id; // Retain original ID
@@ -803,14 +819,18 @@ function handleMembershipSubmit(e) {
 
     const finalMemberId = newMemberRecord.memberId;
     if (isReapplication) {
-      showToast(`Corrected reapplication submitted for Member ID: ${finalMemberId}. Your updated credentials are being reviewed by the Secretariat.`, 'success');
-    } else if (memberType === 'associate') {
-      showToast(`Associate Application submitted! Your Member ID is: ${finalMemberId} (distinct from Staff ID: ${newMemberRecord.staffId}).`, 'success');
+      showToast(`Corrected reapplication submitted for Member ID: ${finalMemberId}.`, 'success');
     } else {
-      showToast(`Full Membership application submitted! Your unique Member ID is: ${finalMemberId} (MDA Staff ID: ${newMemberRecord.staffId}). Keep this safe!`, 'success');
+      showToast(`Registration chartered! Membership ID: ${finalMemberId}.`, 'success');
     }
   } catch (storageErr) {
     console.warn('Could not sync registration to local store:', storageErr);
+  }
+
+  // Display the dedicated success modal and inline credentials card
+  if (newMemberRecord) {
+    showRegistrationSuccessUI(newMemberRecord, isReapplication);
+  } else {
     showToast('Application submitted successfully! Your credentials are being reviewed by the Secretariat.', 'success');
   }
 
@@ -821,6 +841,201 @@ function handleMembershipSubmit(e) {
   if (defaultRadio) {
     defaultRadio.checked = true;
     defaultRadio.dispatchEvent(new Event('change'));
+  }
+}
+
+// ---- Copy to Clipboard Helper with Visual & Haptic Feedback ----
+window.copyTextToClipboard = async function(text, btnElement) {
+  let copied = false;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      copied = true;
+    } catch (err) {
+      copied = false;
+    }
+  }
+
+  if (!copied) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      copied = document.execCommand('copy');
+      document.body.removeChild(ta);
+    } catch (e) {
+      copied = false;
+    }
+  }
+
+  if (copied) {
+    if (btnElement) {
+      const originalHtml = btnElement.innerHTML;
+      btnElement.classList.add('copied');
+      btnElement.innerHTML = `${typeof getIconSvg === 'function' ? getIconSvg('check', { size: 15 }) : '✓'} <span>Copied!</span>`;
+      setTimeout(() => {
+        btnElement.classList.remove('copied');
+        btnElement.innerHTML = originalHtml;
+      }, 3000);
+    }
+    showToast(`Copied ${text} to clipboard!`, 'success');
+  } else {
+    showToast('Could not copy automatically. Please copy the ID manually.', 'error');
+  }
+};
+
+// ---- Registration Success Modal & Inline Credentials Renderer ----
+function showRegistrationSuccessUI(record, isReapplication = false) {
+  if (!record) return;
+
+  const memberId = record.memberId || record.id || 'NCSYF-2026-0001';
+  const fullName = `${record.firstName || ''} ${record.lastName || ''}`.trim() || 'Serving Officer';
+  const email = record.email || 'your registered email';
+  const categoryLabel = record.memberTypeLabel || (record.category === 'associate' ? 'Associate Member (After 35 yrs / Alumni)' : 'Full Member (18–35 yrs)');
+  const mda = record.mda || 'Civil Service of Nigeria';
+  const staffId = record.staffId || 'Not Applicable';
+
+  // 1. Populate and open the Registration Success Modal
+  const modal = document.getElementById('registrationSuccessModal');
+  if (modal) {
+    const elId = modal.querySelector('#successMemberIdDisplay');
+    const elEmail = modal.querySelector('#successApplicantEmail');
+    const elName = modal.querySelector('#successApplicantName');
+    const elCat = modal.querySelector('#successApplicantCategory');
+    const elMda = modal.querySelector('#successApplicantMda');
+    const elStaff = modal.querySelector('#successApplicantStaffId');
+    const elHeading = modal.querySelector('#regSuccessHeading');
+
+    if (elId) elId.textContent = memberId;
+    if (elEmail) elEmail.textContent = email;
+    if (elName) elName.textContent = fullName;
+    if (elCat) elCat.textContent = categoryLabel;
+    if (elMda) elMda.textContent = mda;
+    if (elStaff) elStaff.textContent = staffId;
+    if (elHeading && isReapplication) {
+      elHeading.textContent = 'Reapplication Submitted Successfully!';
+    }
+
+    // Copy Button inside Modal
+    const btnCopy = modal.querySelector('#btnCopySuccessId');
+    if (btnCopy) {
+      btnCopy.onclick = (e) => {
+        e.preventDefault();
+        window.copyTextToClipboard(memberId, btnCopy);
+      };
+    }
+
+    // Sign In Button inside Modal: closes success modal & auto-fills sign-in modal
+    const btnSignIn = modal.querySelector('#btnSuccessSignIn');
+    if (btnSignIn) {
+      btnSignIn.onclick = (e) => {
+        e.preventDefault();
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+        if (typeof window.openSignInWithMemberId === 'function') {
+          window.openSignInWithMemberId(memberId);
+          showToast(`Membership ID (${memberId}) auto-filled. Enter your password to sign in.`, 'success');
+        }
+      };
+    }
+
+    // Modal Close Triggers
+    const closeBtns = modal.querySelectorAll('[data-close-reg-success], .modal-close-btn');
+    closeBtns.forEach(btn => {
+      btn.onclick = (e) => {
+        e.preventDefault();
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+      };
+    });
+
+    modal.onclick = (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    };
+
+    document.addEventListener('keydown', function onEscapeSuccessModal(e) {
+      if (e.key === 'Escape' && modal.classList.contains('open')) {
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+        document.removeEventListener('keydown', onEscapeSuccessModal);
+      }
+    });
+
+    if (typeof refreshIcons === 'function') {
+      refreshIcons(modal);
+    }
+
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  // 2. Populate and reveal the In-Page Confirmation Banner
+  const inlineBanner = document.getElementById('regSuccessInlineBanner');
+  if (inlineBanner) {
+    const elInlineId = inlineBanner.querySelector('#inlineSuccessMemberIdDisplay');
+    const elInlineEmail = inlineBanner.querySelector('#inlineSuccessApplicantEmail');
+    if (elInlineId) elInlineId.textContent = memberId;
+    if (elInlineEmail) elInlineEmail.textContent = email;
+
+    const btnInlineCopy = inlineBanner.querySelector('#btnCopyInlineSuccessId');
+    if (btnInlineCopy) {
+      btnInlineCopy.onclick = (e) => {
+        e.preventDefault();
+        window.copyTextToClipboard(memberId, btnInlineCopy);
+      };
+    }
+
+    const btnInlineSignIn = inlineBanner.querySelector('#btnInlineSuccessSignIn');
+    if (btnInlineSignIn) {
+      btnInlineSignIn.onclick = (e) => {
+        e.preventDefault();
+        if (typeof window.openSignInWithMemberId === 'function') {
+          window.openSignInWithMemberId(memberId);
+          showToast(`Membership ID (${memberId}) auto-filled. Enter your password to sign in.`, 'success');
+        }
+      };
+    }
+
+    const btnRegisterAnother = inlineBanner.querySelector('#btnRegisterAnother');
+    if (btnRegisterAnother) {
+      btnRegisterAnother.onclick = (e) => {
+        e.preventDefault();
+        inlineBanner.style.display = 'none';
+        const form = document.getElementById('membershipForm');
+        if (form) {
+          form.style.display = 'block';
+          form.reset();
+          const defaultRadio = form.querySelector('input[name="memberType"][value="full"]');
+          if (defaultRadio) {
+            defaultRadio.checked = true;
+            defaultRadio.dispatchEvent(new Event('change'));
+          }
+          form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      };
+    }
+
+    if (typeof refreshIcons === 'function') {
+      refreshIcons(inlineBanner);
+    }
+
+    inlineBanner.style.display = 'block';
+
+    // Hide the form to prevent double-submissions and keep the interface focused
+    const form = document.getElementById('membershipForm');
+    if (form) {
+      form.style.display = 'none';
+    }
+
+    // Smoothly scroll to the inline banner if modal is dismissed
+    inlineBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 }
 

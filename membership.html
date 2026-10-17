@@ -296,6 +296,65 @@
       </div>
 
       <div class="form-card-container fade-in">
+        <!-- Persistent In-page Confirmation Card (Populated upon submission) -->
+        <div id="regSuccessInlineBanner" class="success-banner-inline" style="display: none;">
+          <div style="display: flex; align-items: flex-start; gap: 16px; flex-wrap: wrap;">
+            <div style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #0F4530 0%, #15803D 100%); color: #E9CE74; border: 2px solid #E9CE74; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 6px 18px rgba(15, 69, 48, 0.25);">
+              <i data-lucide="badge-check" style="width: 28px; height: 28px;"></i>
+            </div>
+            <div style="flex: 1; min-width: 260px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 4px;">
+                <span class="hero__badge-pill" style="margin-bottom: 0; color: var(--color-primary-dark); border-color: rgba(15, 69, 48, 0.3); background: rgba(15, 69, 48, 0.08);">
+                  Membership Chartered
+                </span>
+                <span style="font-size: var(--fs-xs); color: #15803D; font-weight: 700;">● Active in Secretariat Roster</span>
+              </div>
+              <h3 style="font-size: var(--fs-xl); color: var(--color-primary); margin: 6px 0 4px; font-weight: 800;">
+                Registration Submitted Successfully!
+              </h3>
+              <p style="font-size: var(--fs-sm); color: var(--color-dark-gray); line-height: 1.6; margin-bottom: var(--space-md);">
+                Your official membership application has been recorded in the National Secretariat database. Use your assigned Membership ID below to log in:
+              </p>
+
+              <!-- In-line Credentials Box -->
+              <div class="member-id-credential-card" style="margin: 0 0 var(--space-md);">
+                <div class="member-id-card-header">
+                  <span class="label">Official Forum Membership ID</span>
+                  <span class="status-tag">● Login ID</span>
+                </div>
+                <div class="member-id-value-row">
+                  <span id="inlineSuccessMemberIdDisplay" class="member-id-text">NCSYF-1997-0001</span>
+                  <button type="button" id="btnCopyInlineSuccessId" class="btn-copy-id" aria-label="Copy Membership ID">
+                    <i data-lucide="copy" style="width: 15px; height: 15px;"></i>
+                    <span>Copy ID</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Email dispatch note -->
+              <div class="email-dispatch-notice" style="margin-bottom: var(--space-md);">
+                <div class="icon-wrap">
+                  <i data-lucide="mail-check" style="width: 20px; height: 20px;"></i>
+                </div>
+                <div>
+                  <strong style="color: var(--color-primary-dark); display: block; margin-bottom: 2px;">Confirmation Sent to Your Email</strong>
+                  <span>A copy has been dispatched to <strong id="inlineSuccessApplicantEmail" class="email-highlight">your email</strong> for your personal records.</span>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: var(--space-sm); flex-wrap: wrap;">
+                <button type="button" id="btnInlineSuccessSignIn" class="btn btn--green-gradient btn--sm" style="gap: 6px;">
+                  <i data-lucide="log-in" style="width: 15px; height: 15px;"></i>
+                  <span>Sign In with Membership ID →</span>
+                </button>
+                <button type="button" id="btnRegisterAnother" class="btn btn--outline btn--sm">
+                  Register Another Member
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <form id="membershipForm" novalidate>
           <div style="margin-bottom: var(--space-2xl); border-bottom: 1px solid var(--color-light-gray); padding-bottom: var(--space-md);">
             <h3 style="font-size: var(--fs-lg); color: var(--color-primary); margin-bottom: 4px;">1. Select Membership Category</h3>
@@ -558,7 +617,7 @@
         <form id="modalAuthForm">
           <div class="form-group">
             <label class="form-label" for="modalMemberId">Membership ID *</label>
-            <input type="text" id="modalMemberId" class="form-input" placeholder="e.g. ANYCS-2026-0842 or Staff ID" required>
+            <input type="text" id="modalMemberId" class="form-input" placeholder="e.g. NCSYF-1997-0001 or Staff ID" required>
           </div>
           <div class="form-group">
             <label class="form-label" for="modalPassword">Password *</label>
@@ -595,6 +654,89 @@
             <button type="button" id="backToSignInBtn" style="background: none; border: none; color: var(--color-primary); font-weight: 700; cursor: pointer;">← Back to Sign In</button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Registration Success Modal with Prominent Membership ID & Copy Functionality -->
+  <div class="modal-overlay" id="registrationSuccessModal" role="dialog" aria-modal="true" aria-labelledby="regSuccessHeading">
+    <div class="modal-dialog modal-dialog--wide registration-success-dialog">
+      <button class="modal-close-btn" data-close-reg-success aria-label="Close dialog"><i data-lucide="x"></i></button>
+      
+      <div class="success-badge-icon">
+        <i data-lucide="badge-check" style="width: 36px; height: 36px;"></i>
+      </div>
+
+      <span class="hero__badge-pill" style="margin-bottom: var(--space-xs); color: var(--color-accent); border-color: rgba(233, 206, 116, 0.4); background: rgba(15, 69, 48, 0.08);">
+        Enrollment Confirmed • Official Secretariat Record
+      </span>
+
+      <h3 id="regSuccessHeading" style="font-size: var(--fs-2xl); color: var(--color-primary); margin-top: 8px; margin-bottom: 6px; font-weight: 800;">
+        Registration Submitted Successfully!
+      </h3>
+      <p style="font-size: var(--fs-sm); color: var(--color-dark-gray); max-width: 480px; margin: 0 auto var(--space-md); line-height: 1.6;">
+        Welcome to the <strong>Nigeria Civil Service Youths' Forum (NCSYF)</strong>. Your official membership record has been chartered. Use your unique Membership ID below to access the member portal.
+      </p>
+
+      <!-- Prominent Membership ID Card -->
+      <div class="member-id-credential-card">
+        <div class="member-id-card-header">
+          <span class="label">Official Forum Membership ID</span>
+          <span class="status-tag">● Active Enrollment</span>
+        </div>
+        <div class="member-id-value-row">
+          <span id="successMemberIdDisplay" class="member-id-text">NCSYF-1997-0001</span>
+          <button type="button" id="btnCopySuccessId" class="btn-copy-id" aria-label="Copy Membership ID">
+            <i data-lucide="copy" style="width: 15px; height: 15px;"></i>
+            <span>Copy ID</span>
+          </button>
+        </div>
+        <div style="font-size: 0.74rem; color: rgba(255, 255, 255, 0.75); margin-top: 8px; display: flex; align-items: center; gap: 6px;">
+          <i data-lucide="info" style="width: 13px; height: 13px; color: var(--color-accent); flex-shrink: 0;"></i>
+          <span>This unique ID is different from your MDA Staff ID and is required for Portal Sign In.</span>
+        </div>
+      </div>
+
+      <!-- Email Dispatch Notice -->
+      <div class="email-dispatch-notice">
+        <div class="icon-wrap">
+          <i data-lucide="mail-check" style="width: 22px; height: 22px;"></i>
+        </div>
+        <div>
+          <strong style="color: var(--color-primary-dark); display: block; margin-bottom: 2px;">Confirmation Sent to Your Email</strong>
+          <span>A copy of your Membership ID and registration details has been sent to <strong id="successApplicantEmail" class="email-highlight">your email</strong>. Please check your inbox or spam folder for your onboarding package.</span>
+        </div>
+      </div>
+
+      <!-- Applicant Quick Summary Grid -->
+      <div class="applicant-summary-grid">
+        <div class="summary-cell">
+          <span class="label">Applicant Name</span>
+          <span class="val" id="successApplicantName">—</span>
+        </div>
+        <div class="summary-cell">
+          <span class="label">Membership Category</span>
+          <span class="val" id="successApplicantCategory">Full Member (18–35 yrs)</span>
+        </div>
+        <div class="summary-cell">
+          <span class="label">MDA / Institution</span>
+          <span class="val" id="successApplicantMda">—</span>
+        </div>
+        <div class="summary-cell">
+          <span class="label">MDA Staff / File ID</span>
+          <span class="val" id="successApplicantStaffId">—</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; gap: var(--space-md); flex-wrap: wrap;">
+        <button type="button" id="btnSuccessSignIn" class="btn btn--green-gradient btn--lg" style="flex: 1; justify-content: center; gap: 8px;">
+          <i data-lucide="log-in" style="width: 18px; height: 18px;"></i>
+          <span>Sign In with Membership ID →</span>
+        </button>
+        <button type="button" class="btn btn--outline btn--lg" data-close-reg-success style="justify-content: center;">
+          Done
+        </button>
       </div>
     </div>
   </div>
