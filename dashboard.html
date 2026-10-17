@@ -107,7 +107,7 @@
       <div class="dashboard-top-grid">
         
         <!-- Left Column: Executive Digital Credential Card -->
-        <div>
+        <div class="card-wrapper-col">
           <div class="executive-id-card" id="printableSlipCard">
             <div class="card-header-bar">
               <div class="card-header-brand">
@@ -149,7 +149,7 @@
 
           <!-- Card Actions (Print Slip) -->
           <div class="id-card-actions no-print">
-            <button type="button" class="btn btn--outline" onclick="window.print()" style="gap: 8px; width: 100%; justify-content: center;">
+            <button type="button" class="btn btn--outline btn-print-slip" onclick="window.print()">
               <i data-lucide="printer" style="width: 15px; height: 15px;"></i>
               <span>Print Official Credential Slip</span>
             </button>
@@ -266,7 +266,7 @@
             <p>Authenticated as <strong id="dashAccountEmail" style="color: var(--color-dark);">member@mda.gov.ng</strong> • Active Secured Workspace</p>
           </div>
         </div>
-        <button type="button" id="btnDashSignOut" class="btn btn--outline btn--sm" style="color: #DC2626; border-color: rgba(220,38,38,0.35); gap: 6px;">
+        <button type="button" id="btnDashSignOut" class="btn btn--outline btn--sm btn-dash-signout">
           <i data-lucide="log-out" style="width: 14px; height: 14px;"></i>
           <span>Sign Out from Workspace</span>
         </button>
@@ -276,11 +276,11 @@
   </div>
 
   <!-- Footer -->
-  <footer class="footer no-print">
+  <footer class="footer dashboard-footer no-print">
     <div class="container">
-      <div class="footer__bottom" style="border-top: none; padding: var(--space-lg) 0;">
-        <span>© 2026 Nigeria Civil Service Youths' Forum (NCSYF). All rights reserved. • <a href="admin/index.html" style="color: inherit; text-decoration: underline; opacity: 0.75;">Admin Portal</a></span>
-        <div style="display: flex; gap: var(--space-md);">
+      <div class="dashboard-footer-inner">
+        <span class="dash-footer-copy">© 2026 Nigeria Civil Service Youths' Forum (NCSYF). All rights reserved. • <a href="admin/index.html" class="dash-footer-admin-link">Admin Portal</a></span>
+        <div class="dash-footer-links">
           <a href="index.html" class="footer__link">Home</a>
           <a href="about.html" class="footer__link">About Us</a>
           <a href="contact.html" class="footer__link">Contact</a>
@@ -405,11 +405,11 @@
       if (alertBox) {
         if (status === 'verified') {
           alertBox.innerHTML = `
-            <div style="background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); border-left: 5px solid #15803D; border-radius: var(--radius-md); padding: var(--space-lg); display: flex; gap: var(--space-md); align-items: flex-start;">
-              <i data-lucide="badge-check" style="width: 28px; height: 28px; color: #15803D; flex-shrink: 0; margin-top: 2px;"></i>
-              <div>
-                <strong style="color: #0F4530; font-size: var(--fs-md); display: block; margin-bottom: 2px;">Official Verification Active</strong>
-                <p style="font-size: var(--fs-sm); color: var(--color-dark); margin: 0; line-height: 1.6;">
+            <div class="dash-alert-box dash-alert--verified">
+              <i data-lucide="badge-check" class="dash-alert-icon"></i>
+              <div class="dash-alert-body">
+                <strong class="dash-alert-title">Official Verification Active</strong>
+                <p class="dash-alert-desc">
                   Your civil service credentials have been authenticated by the National Secretariat. Full access to training circulars, election ballots, and state chapter representation is activated.
                 </p>
               </div>
@@ -417,11 +417,11 @@
           `;
         } else if (status === 'pending') {
           alertBox.innerHTML = `
-            <div style="background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); border-left: 5px solid #D97706; border-radius: var(--radius-md); padding: var(--space-lg); display: flex; gap: var(--space-md); align-items: flex-start;">
-              <i data-lucide="clock" style="width: 28px; height: 28px; color: #D97706; flex-shrink: 0; margin-top: 2px;"></i>
-              <div>
-                <strong style="color: #92400E; font-size: var(--fs-md); display: block; margin-bottom: 2px;">Application Under Secretariat Review</strong>
-                <p style="font-size: var(--fs-sm); color: var(--color-dark); margin: 0; line-height: 1.6;">
+            <div class="dash-alert-box dash-alert--pending">
+              <i data-lucide="clock" class="dash-alert-icon"></i>
+              <div class="dash-alert-body">
+                <strong class="dash-alert-title">Application Under Secretariat Review</strong>
+                <p class="dash-alert-desc">
                   Your membership enrollment record has been chartered. Secretariat Desk Officers are currently matching your Staff ID against the Integrated Personnel and Payroll Information System (IPPIS) / State Civil Service Commission rolls. Review typically concludes in 24–48 working hours.
                 </p>
               </div>
@@ -430,14 +430,14 @@
         } else if (status === 'disapproved') {
           const reason = (profile && profile.disapprovedReason) || 'Submitted staff credentials or appointment documents did not match civil service rolls.';
           alertBox.innerHTML = `
-            <div style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-left: 5px solid #DC2626; border-radius: var(--radius-md); padding: var(--space-lg); display: flex; gap: var(--space-md); align-items: flex-start;">
-              <i data-lucide="alert-octagon" style="width: 28px; height: 28px; color: #DC2626; flex-shrink: 0; margin-top: 2px;"></i>
-              <div style="flex: 1;">
-                <strong style="color: #991B1B; font-size: var(--fs-md); display: block; margin-bottom: 2px;">Application Disapproved / Correction Required</strong>
-                <p style="font-size: var(--fs-sm); color: var(--color-dark); margin-bottom: var(--space-sm); line-height: 1.6;">
+            <div class="dash-alert-box dash-alert--disapproved">
+              <i data-lucide="alert-octagon" class="dash-alert-icon"></i>
+              <div class="dash-alert-body">
+                <strong class="dash-alert-title">Application Disapproved / Correction Required</strong>
+                <p class="dash-alert-desc" style="margin-bottom: var(--space-sm);">
                   <strong>Secretariat Notice:</strong> ${reason}
                 </p>
-                <a href="membership.html#register" class="btn btn--primary btn--sm" style="gap: 6px;">
+                <a href="membership.html#register" class="btn btn--primary btn--sm" style="gap: 6px; min-height: 44px; display: inline-flex; align-items: center;">
                   <i data-lucide="edit" style="width: 14px; height: 14px;"></i>
                   <span>Submit Corrected Reapplication →</span>
                 </a>
