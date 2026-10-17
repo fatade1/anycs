@@ -4267,6 +4267,366 @@ p {
   }
 }
 
+/* ==========================================================================
+   AUTHENTICATED NAVBAR USER MENU & DROPDOWN
+   ========================================================================== */
+.navbar__user-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.nav-user-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(15, 69, 48, 0.08);
+  border: 1px solid rgba(15, 69, 48, 0.22);
+  border-radius: var(--radius-full);
+  padding: 4px 12px 4px 6px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  color: var(--color-primary-dark);
+  font-family: inherit;
+}
+
+.nav-user-btn:hover,
+.nav-user-btn.active {
+  background: rgba(15, 69, 48, 0.14);
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+.nav-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #15803D 100%);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.76rem;
+  font-weight: 800;
+  border: 1.5px solid #E9CE74;
+  box-shadow: 0 2px 6px rgba(15, 69, 48, 0.2);
+  flex-shrink: 0;
+}
+
+.nav-user-info {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  line-height: 1.15;
+}
+
+.nav-user-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  max-width: 130px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-user-status {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.nav-user-status.status-verified {
+  color: #15803D;
+}
+
+.nav-user-status.status-pending {
+  color: #D97706;
+}
+
+.nav-user-status.status-disapproved {
+  color: #DC2626;
+}
+
+/* User Dropdown Menu Card */
+.nav-user-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 260px;
+  background: #FFFFFF;
+  border: 1px solid rgba(15, 69, 48, 0.16);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 16px 40px rgba(15, 69, 48, 0.18), 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 8px 0;
+  z-index: 1001;
+  display: none;
+  animation: dropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-user-dropdown.open {
+  display: block;
+}
+
+@keyframes dropdownFadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.nav-user-dropdown .dropdown-header {
+  padding: 10px 16px 12px;
+  background: rgba(15, 69, 48, 0.04);
+  border-bottom: 1px solid var(--color-light-gray);
+  margin-bottom: 4px;
+}
+
+.nav-user-dropdown .dropdown-member-id {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-weight: 800;
+  font-size: 0.88rem;
+  color: var(--color-primary);
+  display: block;
+}
+
+.nav-user-dropdown .dropdown-mda {
+  font-size: 0.72rem;
+  color: var(--color-gray);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  color: var(--color-dark);
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.nav-dropdown-item:hover {
+  background: rgba(15, 69, 48, 0.06);
+  color: var(--color-primary);
+  padding-left: 19px;
+}
+
+.nav-dropdown-item i,
+.nav-dropdown-item svg {
+  width: 16px;
+  height: 16px;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.nav-dropdown-item.signout-btn {
+  color: #DC2626;
+}
+
+.nav-dropdown-item.signout-btn:hover {
+  background: rgba(220, 38, 38, 0.08);
+  color: #B91C1C;
+}
+
+.nav-dropdown-item.signout-btn i,
+.nav-dropdown-item.signout-btn svg {
+  color: #DC2626;
+}
+
+/* ==========================================================================
+   MEMBER PORTAL DASHBOARD STYLES
+   ========================================================================== */
+.member-dashboard-hero {
+  background: linear-gradient(135deg, #092B1E 0%, #0F4530 60%, #15803D 100%);
+  color: #FFFFFF;
+  padding: calc(var(--nav-height) + var(--space-2xl)) 0 var(--space-3xl);
+  position: relative;
+  overflow: hidden;
+}
+
+.member-dashboard-hero::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, rgba(233, 206, 116, 0.22) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.member-dashboard-grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: var(--space-2xl);
+  align-items: start;
+  margin-top: -40px;
+  position: relative;
+  z-index: 10;
+}
+
+/* Digital Membership Slip Card */
+.member-slip-card {
+  background: #FFFFFF;
+  border: 2px solid #E9CE74;
+  border-radius: var(--radius-xl);
+  box-shadow: 0 16px 40px rgba(15, 69, 48, 0.16);
+  overflow: hidden;
+  position: relative;
+}
+
+.member-slip-header {
+  background: linear-gradient(135deg, #0F4530 0%, #092B1E 100%);
+  color: #FFFFFF;
+  padding: var(--space-lg);
+  text-align: center;
+  border-bottom: 2px solid #E9CE74;
+}
+
+.member-slip-header .coat-crest {
+  height: 52px;
+  width: auto;
+  margin: 0 auto 6px;
+  display: block;
+}
+
+.member-slip-body {
+  padding: var(--space-xl);
+}
+
+.member-status-ribbon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-md);
+}
+
+.member-status-ribbon.status-verified {
+  background: rgba(34, 197, 94, 0.15);
+  color: #15803D;
+  border: 1px solid rgba(34, 197, 94, 0.35);
+}
+
+.member-status-ribbon.status-pending {
+  background: rgba(245, 158, 11, 0.15);
+  color: #B45309;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.member-status-ribbon.status-disapproved {
+  background: rgba(239, 68, 68, 0.15);
+  color: #B91C1C;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.slip-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--color-light-gray);
+  font-size: 0.85rem;
+}
+
+.slip-detail-row:last-child {
+  border-bottom: none;
+}
+
+.slip-detail-row .label {
+  color: var(--color-gray);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.slip-detail-row .value {
+  color: var(--color-dark);
+  font-weight: 700;
+  text-align: right;
+  max-width: 60%;
+  word-break: break-word;
+}
+
+/* Quick Action Tiles on Dashboard */
+.action-tiles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-lg);
+  margin-top: var(--space-lg);
+}
+
+.action-tile-card {
+  background: #FFFFFF;
+  border: 1px solid var(--color-light-gray);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  transition: all var(--transition-fast);
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+}
+
+.action-tile-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-primary);
+  box-shadow: 0 12px 28px rgba(15, 69, 48, 0.1);
+}
+
+.action-tile-card .tile-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: rgba(15, 69, 48, 0.08);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-md);
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 900px) {
+  .member-dashboard-grid {
+    grid-template-columns: 1fr;
+    margin-top: -20px;
+  }
+  .navbar__user-menu {
+    width: 100%;
+  }
+  .nav-user-btn {
+    width: 100%;
+    justify-content: space-between;
+    padding: 8px 14px;
+  }
+  .nav-user-dropdown {
+    position: static;
+    width: 100%;
+    box-shadow: none;
+    border: 1px solid var(--color-light-gray);
+    margin-top: 8px;
+  }
+}
+
+
 
 
 

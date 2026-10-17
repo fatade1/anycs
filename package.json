@@ -11,6 +11,7 @@
     "puppeteer-core": "^25.13.0"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
     "lucide": "^1.54.0"
   }
 }

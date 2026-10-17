@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initProjectGalleryModal();
   initDynamicResources();
   initDynamicMediaGallery();
+  initMemberAuthSystem();
 });
 
 // ---- Navbar scroll effect & active page highlighting ----
@@ -299,21 +300,56 @@ function initAuthModal() {
   // Sign In Form Submission
   const authForm = modal.querySelector('#modalAuthForm');
   if (authForm) {
-    authForm.addEventListener('submit', (e) => {
+    authForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const idInput = authForm.querySelector('#modalMemberId');
       const passVal = passInput ? passInput.value : '';
+      const rememberCheckbox = authForm.querySelector('#rememberMe');
+      const submitBtn = authForm.querySelector('button[type="submit"]');
 
-      if (!idInput.value.trim() || !passVal.trim()) {
-        showToast('Please enter both your Membership ID and Password.', 'error');
+      const identifier = idInput ? idInput.value.trim() : '';
+      if (!identifier || !passVal.trim()) {
+        showToast('Please enter both your Membership ID / Email and Password.', 'error');
         return;
       }
 
-      showToast(`Welcome back! Verifying credentials for ${idInput.value.trim()}...`, 'success');
-      setTimeout(() => {
+      const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<span>Verifying credentials...</span>`;
+      }
+
+      try {
+        if (!window.NCSYF_AUTH) {
+          throw new Error('Authentication service is initializing. Please try again.');
+        }
+
+        const res = await window.NCSYF_AUTH.signIn({
+          identifier: identifier,
+          password: passVal,
+          rememberMe: rememberCheckbox ? rememberCheckbox.checked : true
+        });
+
+        const memberName = res.profile ? `${res.profile.firstName} ${res.profile.lastName}` : (res.user.email || 'Member');
+        showToast(`Welcome back, ${memberName}! Signed in successfully.`, 'success');
+
         closeModal();
-        showToast('Verification successful. Member session initialized.', 'success');
-      }, 1000);
+
+        // Update navbar state immediately across the current page without reloading
+        await updateNavbarAuthState();
+
+        // If on signin page, redirect to dashboard
+        if (window.location.pathname.endsWith('signin.html')) {
+          window.location.href = 'dashboard.html';
+        }
+      } catch (err) {
+        showToast(err.message || 'Authentication failed. Please check your credentials.', 'error');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnHtml;
+        }
+      }
     });
   }
 
@@ -341,13 +377,23 @@ function initAuthModal() {
 
   const forgotForm = modal.querySelector('#forgotPasswordForm');
   if (forgotForm) {
-    forgotForm.addEventListener('submit', (e) => {
+    forgotForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const emailField = forgotForm.querySelector('#resetEmail');
-      if (emailField && emailField.value.trim()) {
-        showToast(`Password reset link sent to ${emailField.value.trim()}`, 'success');
+      const identifier = emailField ? emailField.value.trim() : '';
+      if (!identifier) {
+        showToast('Please enter your registered email address or Membership ID.', 'error');
+        return;
+      }
+      try {
+        if (window.NCSYF_AUTH) {
+          await window.NCSYF_AUTH.resetPassword(identifier);
+        }
+        showToast(`Password recovery instructions dispatched to ${identifier}.`, 'success');
         forgotSection.style.display = 'none';
         authMainSection.style.display = 'block';
+      } catch (err) {
+        showToast(err.message || 'Could not send recovery instructions. Please try again.', 'error');
       }
     });
   }
@@ -822,6 +868,17 @@ function handleMembershipSubmit(e) {
       showToast(`Corrected reapplication submitted for Member ID: ${finalMemberId}.`, 'success');
     } else {
       showToast(`Registration chartered! Membership ID: ${finalMemberId}.`, 'success');
+    }
+
+    // Persist applicant chosen password into auth service
+    const passwordInput = form.querySelector('#password');
+    const userPass = passwordInput && passwordInput.value ? passwordInput.value.trim() : 'Member@2026';
+    if (window.NCSYF_AUTH && newMemberRecord.email) {
+      window.NCSYF_AUTH.signUp({
+        email: newMemberRecord.email,
+        password: userPass,
+        memberProfile: newMemberRecord
+      }).catch(authErr => console.warn('Could not register auth identity:', authErr));
     }
   } catch (storageErr) {
     console.warn('Could not sync registration to local store:', storageErr);
@@ -2116,3 +2173,204 @@ function initMediaGalleryModalEvents() {
     }
   });
 }
+
+// ==========================================================================
+// Global Shared Authentication State & Navigation Controller
+// ==========================================================================
+
+function escapeAuthHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+async function updateNavbarAuthState() {
+  const ctaContainers = document.querySelectorAll('.navbar__cta');
+  if (!ctaContainers.length) return;
+
+  let session = null;
+  let profile = null;
+
+  if (window.NCSYF_AUTH) {
+    try {
+      session = await window.NCSYF_AUTH.getSession();
+      if (session && (session.user || session.userId)) {
+        profile = await window.NCSYF_AUTH.getCurrentProfile();
+      }
+    } catch (e) {
+      console.warn('Could not retrieve auth session for navbar:', e);
+    }
+  }
+
+  ctaContainers.forEach(container => {
+    if (session && (session.user || session.userId)) {
+      const user = session.user || session;
+      const firstName = (profile && profile.firstName) ? profile.firstName : (user.email ? user.email.split('@')[0] : 'Member');
+      const lastName = (profile && profile.lastName) ? profile.lastName : '';
+      const fullName = `${firstName} ${lastName}`.trim();
+      const initials = ((firstName[0] || '') + (lastName[0] || '')).toUpperCase() || 'M';
+      const memberId = (profile && (profile.memberId || profile.id)) ? (profile.memberId || profile.id) : (user.email || 'NCSYF Member');
+      const status = (profile && profile.status) ? profile.status.toLowerCase() : 'pending';
+      const statusLabels = {
+        verified: 'Verified',
+        pending: 'Pending',
+        disapproved: 'Disapproved'
+      };
+      const statusLabel = statusLabels[status] || 'Member';
+      const mda = (profile && (profile.mda || profile.stateChapter)) ? (profile.mda || profile.stateChapter) : 'Civil Service Member';
+
+      container.innerHTML = `
+        <div class="navbar__user-menu">
+          <button class="nav-user-btn" type="button" aria-expanded="false" aria-label="Member Account Menu" id="navUserMenuBtn">
+            <div class="nav-user-avatar">${escapeAuthHtml(initials)}</div>
+            <div class="nav-user-info">
+              <span class="nav-user-name">${escapeAuthHtml(firstName)}</span>
+              <span class="nav-user-status status-${escapeAuthHtml(status)}">${escapeAuthHtml(statusLabel)}</span>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="nav-user-chevron">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+          <div class="nav-user-dropdown" id="navUserDropdown">
+            <div class="dropdown-header">
+              <span class="dropdown-member-id">${escapeAuthHtml(memberId)}</span>
+              <div class="dropdown-mda">${escapeAuthHtml(mda)}</div>
+            </div>
+            <a href="dashboard.html" class="nav-dropdown-item">
+              <i data-lucide="layout-dashboard"></i>
+              <span>My Member Dashboard</span>
+            </a>
+            <a href="dashboard.html#credentialSlip" class="nav-dropdown-item">
+              <i data-lucide="badge-check"></i>
+              <span>Digital Credential Slip</span>
+            </a>
+            <a href="resources.html" class="nav-dropdown-item">
+              <i data-lucide="file-text"></i>
+              <span>Resource Hub</span>
+            </a>
+            <div class="dropdown-divider"></div>
+            <button class="nav-dropdown-item text-danger" id="navSignOutBtn" type="button">
+              <i data-lucide="log-out"></i>
+              <span>Sign Out</span>
+            </button>
+          </div>
+        </div>
+      `;
+
+      const menuBtn = container.querySelector('#navUserMenuBtn');
+      const dropdown = container.querySelector('#navUserDropdown');
+      const signOutBtn = container.querySelector('#navSignOutBtn');
+
+      if (menuBtn && dropdown) {
+        menuBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const isOpen = dropdown.classList.contains('open');
+          document.querySelectorAll('.nav-user-dropdown.open').forEach(d => {
+            if (d !== dropdown) d.classList.remove('open');
+          });
+          dropdown.classList.toggle('open', !isOpen);
+          menuBtn.classList.toggle('active', !isOpen);
+          menuBtn.setAttribute('aria-expanded', String(!isOpen));
+        });
+      }
+
+      if (signOutBtn) {
+        signOutBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          try {
+            if (window.NCSYF_AUTH) {
+              await window.NCSYF_AUTH.signOut();
+            }
+            showToast('You have been signed out safely.', 'info');
+            await updateNavbarAuthState();
+            if (window.location.pathname.endsWith('dashboard.html')) {
+              window.location.href = 'signin.html';
+            }
+          } catch (err) {
+            console.error('Sign out error:', err);
+            showToast('Error signing out. Please try again.', 'error');
+          }
+        });
+      }
+    } else {
+      container.innerHTML = `
+        <button class="btn btn--green-gradient btn--sm" data-open-signin type="button">
+          <span>Sign In</span>
+        </button>
+      `;
+
+      const signInBtn = container.querySelector('[data-open-signin]');
+      if (signInBtn) {
+        signInBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const modal = document.getElementById('signInModal');
+          if (modal) {
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+            const firstInput = modal.querySelector('input');
+            if (firstInput) setTimeout(() => firstInput.focus(), 100);
+          } else {
+            window.location.href = 'signin.html';
+          }
+        });
+      }
+    }
+  });
+
+  const footerSigninBtns = document.querySelectorAll('.footer [data-open-signin]');
+  footerSigninBtns.forEach(btn => {
+    if (session && session.user) {
+      btn.textContent = 'Go to Member Dashboard';
+      btn.onclick = () => { window.location.href = 'dashboard.html'; };
+    } else {
+      btn.textContent = 'Sign In to Portal';
+      btn.onclick = (e) => {
+        e.preventDefault();
+        const modal = document.getElementById('signInModal');
+        if (modal) {
+          modal.classList.add('open');
+          document.body.style.overflow = 'hidden';
+        } else {
+          window.location.href = 'signin.html';
+        }
+      };
+    }
+  });
+
+  if (typeof refreshIcons === 'function') {
+    refreshIcons();
+  }
+}
+
+function initMemberAuthSystem() {
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.navbar__user-menu')) {
+      document.querySelectorAll('.nav-user-dropdown.open').forEach(dropdown => {
+        dropdown.classList.remove('open');
+        const btn = dropdown.parentElement.querySelector('.nav-user-btn');
+        if (btn) {
+          btn.classList.remove('active');
+          btn.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+  });
+
+  window.addEventListener('ncsyf:auth-change', () => {
+    updateNavbarAuthState();
+  });
+
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'ncsyf_auth_session' || e.key === 'ncsyf_registered_members') {
+      updateNavbarAuthState();
+    }
+  });
+
+  updateNavbarAuthState();
+}
+

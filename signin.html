@@ -50,11 +50,11 @@
 
       <!-- Main Sign In Form -->
       <div id="pageSignInSection">
-        <form id="standaloneSignInForm" onsubmit="event.preventDefault(); showToast('Verifying Membership ID and logging in...'); setTimeout(() => { window.location.href='index.html'; }, 1200);">
+        <form id="standaloneSignInForm">
           <div class="form-group">
-            <label class="form-label" for="pageMemberId">Membership ID *</label>
-            <input type="text" id="pageMemberId" class="form-input" placeholder="e.g. ANYCS-2026-0842 or Official Staff ID" required>
-            <span style="font-size: var(--fs-xs); color: var(--color-gray); margin-top: 4px; display: block;">Enter your assigned ANYCS ID or official MDA Staff ID</span>
+            <label class="form-label" for="pageMemberId">Registered Email or Membership ID *</label>
+            <input type="text" id="pageMemberId" class="form-input" placeholder="e.g. name@mda.gov.ng or NCSYF-1995-0001" required autofocus>
+            <span style="font-size: var(--fs-xs); color: var(--color-gray); margin-top: 4px; display: block;">Enter your registered civil service email or assigned NCSYF Member ID</span>
           </div>
 
           <div class="form-group">
@@ -67,13 +67,13 @@
 
           <div class="form-extras">
             <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--color-dark-gray);">
-              <input type="checkbox" style="accent-color: var(--color-primary);"> Remember this device
+              <input type="checkbox" id="pageRememberMe" style="accent-color: var(--color-primary);" checked> Remember this device
             </label>
             <a href="#" class="forgot-link" onclick="event.preventDefault(); document.getElementById('pageSignInSection').style.display='none'; document.getElementById('pageForgotSection').style.display='block';">Forget Password?</a>
           </div>
 
-          <button type="submit" class="btn btn--primary btn--lg" style="width: 100%; justify-content: center;">
-            Sign In to Portal →
+          <button type="submit" id="btnPageSubmit" class="btn btn--primary btn--lg" style="width: 100%; justify-content: center;">
+            <span>Sign In to Portal →</span>
           </button>
 
           <div style="text-align: center; margin-top: var(--space-xl); padding-top: var(--space-lg); border-top: 1px solid var(--color-light-gray); font-size: var(--fs-sm); color: var(--color-dark-gray);">
@@ -94,10 +94,10 @@
           <p style="font-size: var(--fs-sm); color: var(--color-gray);">Enter your registered details to receive account recovery instructions</p>
         </div>
 
-        <form onsubmit="event.preventDefault(); showToast('Password reset link sent to your registered email.', 'success'); document.getElementById('pageForgotSection').style.display='none'; document.getElementById('pageSignInSection').style.display='block';">
+        <form id="standaloneForgotForm">
           <div class="form-group">
             <label class="form-label" for="pageResetEmail">Registered Email or Membership ID *</label>
-            <input type="text" id="pageResetEmail" class="form-input" placeholder="e.g. name@mda.gov.ng or ANYCS-XXXX" required>
+            <input type="text" id="pageResetEmail" class="form-input" placeholder="e.g. name@mda.gov.ng or NCSYF-1995-0001" required>
           </div>
 
           <button type="submit" class="btn btn--primary" style="width: 100%; justify-content: center; margin-top: var(--space-md);">
@@ -131,6 +131,86 @@
 
   <script src="js/lucide.min.js"></script>
   <script src="js/icons.js"></script>
+  <script src="js/supabase.min.js"></script>
+  <script src="js/auth-service.js"></script>
   <script src="js/main.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Standalone Sign In Form handler
+      const form = document.getElementById('standaloneSignInForm');
+      if (form) {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const idInput = document.getElementById('pageMemberId');
+          const passInput = document.getElementById('pagePassword');
+          const rememberCheckbox = document.getElementById('pageRememberMe');
+          const submitBtn = document.getElementById('btnPageSubmit');
+
+          const identifier = idInput ? idInput.value.trim() : '';
+          const password = passInput ? passInput.value : '';
+
+          if (!identifier || !password) {
+            showToast('Please enter both your Membership ID / Email and Password.', 'error');
+            return;
+          }
+
+          const originalText = submitBtn.innerHTML;
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<span>Verifying credentials...</span>';
+
+          try {
+            if (!window.NCSYF_AUTH) {
+              throw new Error('Authentication service is initializing. Please try again.');
+            }
+
+            const res = await window.NCSYF_AUTH.signIn({
+              identifier: identifier,
+              password: password,
+              rememberMe: rememberCheckbox ? rememberCheckbox.checked : true
+            });
+
+            const memberName = res.profile ? `${res.profile.firstName} ${res.profile.lastName}` : (res.user.email || 'Member');
+            showToast(`Welcome back, ${memberName}! Signed in successfully.`, 'success');
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectUrl = urlParams.get('redirect') || 'dashboard.html';
+
+            setTimeout(() => {
+              window.location.href = redirectUrl;
+            }, 500);
+          } catch (err) {
+            showToast(err.message || 'Authentication failed. Please verify your credentials.', 'error');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+          }
+        });
+      }
+
+      // Standalone Forgot Password Form handler
+      const forgotForm = document.getElementById('standaloneForgotForm');
+      if (forgotForm) {
+        forgotForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const emailInput = document.getElementById('pageResetEmail');
+          const identifier = emailInput ? emailInput.value.trim() : '';
+          if (!identifier) {
+            showToast('Please enter your registered email address or Membership ID.', 'error');
+            return;
+          }
+          try {
+            if (window.NCSYF_AUTH) {
+              await window.NCSYF_AUTH.resetPassword(identifier);
+            }
+            showToast(`Password recovery link dispatched to ${identifier}. Please check your inbox.`, 'success');
+            document.getElementById('pageForgotSection').style.display = 'none';
+            document.getElementById('pageSignInSection').style.display = 'block';
+          } catch (err) {
+            showToast(err.message || 'Could not send recovery link. Please try again.', 'error');
+          }
+        });
+      }
+    });
+  </script>
 </body>
 </html>
