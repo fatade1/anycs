@@ -75,3 +75,14 @@ window.NCSYF_CONFIG = {
 ## 4. Zero-Downtime Resilience
 - **Online Mode**: When credentials are provided and the database is reachable, all registration submissions, approvals, project updates, downloads, and logins interact directly with Supabase.
 - **Offline / Local Fallback**: If working offline, developing without network, or before credentials are entered, the portal automatically falls back to its built-in local store without breaking any workflows or tests.
+
+---
+
+## 5. Starting Fresh (Clearing Existing Members)
+If you previously ran setup with demo members and want to start completely fresh with 0 members:
+1. In your **Supabase Dashboard** -> **SQL Editor**, paste and run [`supabase/clear_members.sql`](file:///Users/ffh/Documents/Designs/anycs/supabase/clear_members.sql):
+   ```sql
+   TRUNCATE TABLE public.member_profiles CASCADE;
+   ```
+2. In the **Admin Portal** (`/admin`), open either the **Members** tab or **System Settings** and click **Clear All Members** / **Delete All Members (Start Fresh)**.
+3. This resets the member roster to 0 while keeping your Super Admin credentials, Thematic Projects, Circulars/Resources, and Gallery Albums 100% intact.

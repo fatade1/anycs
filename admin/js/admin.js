@@ -27,211 +27,8 @@ const SEED_ADMIN_USERS = [
   }
 ];
 
-// ---- Realistic Initial Seed Data ----
-const SEED_MEMBERS = [
-  {
-    id: 'NCSYF-1995-0001',
-    memberId: 'NCSYF-1995-0001',
-    firstName: 'Amina',
-    lastName: 'Ibrahim',
-    category: 'full',
-    memberTypeLabel: 'Full Member (18–35 yrs)',
-    dob: '1995-04-12',
-    age: 31,
-    gender: 'female',
-    phone: '+234 803 219 4012',
-    email: 'amina.ibrahim@health.gov.ng',
-    tier: 'federal',
-    tierLabel: 'Federal Government MDA',
-    mda: 'Federal Ministry of Health & Social Welfare, Abuja',
-    stateChapter: 'FCT Abuja',
-    staffId: 'FMoH/2019/0842',
-    docType: 'staff_id_card',
-    docTypeLabel: 'Official Staff Identification Card',
-    status: 'verified',
-    registeredAt: '2026-09-28 14:22:10'
-  },
-  {
-    id: 'NCSYF-1998-0001',
-    memberId: 'NCSYF-1998-0001',
-    firstName: 'Chidiebere',
-    lastName: 'Okonkwo',
-    category: 'full',
-    memberTypeLabel: 'Full Member (18–35 yrs)',
-    dob: '1998-11-05',
-    age: 27,
-    gender: 'male',
-    phone: '+234 812 873 9921',
-    email: 'chidi.okonkwo@nitda.gov.ng',
-    tier: 'federal',
-    tierLabel: 'Federal Government MDA',
-    mda: 'National Information Technology Development Agency (NITDA)',
-    stateChapter: 'FCT Abuja',
-    staffId: 'NITDA/TS/2021/319',
-    docType: 'appointment_letter',
-    docTypeLabel: 'Valid Letter of Employment / Appointment',
-    status: 'verified',
-    registeredAt: '2026-09-29 09:14:05'
-  },
-  {
-    id: 'NCSYF-1987-0001',
-    memberId: 'NCSYF-1987-0001',
-    firstName: 'Babatunde',
-    lastName: 'Adeleke',
-    category: 'associate',
-    memberTypeLabel: 'Associate Member (After 35 yrs / Alumni)',
-    dob: '1987-03-18',
-    age: 39,
-    gender: 'male',
-    phone: '+234 802 334 1180',
-    email: 'badeleke@lagosstate.gov.ng',
-    tier: 'state',
-    tierLabel: 'State Government MDA',
-    mda: 'Lagos State Ministry of Science & Technology',
-    stateChapter: 'Lagos',
-    staffId: 'LASG/ST/04118',
-    docType: 'gazette',
-    docTypeLabel: 'Official Civil Service Gazette Notice',
-    status: 'verified',
-    registeredAt: '2026-09-29 16:45:30'
-  },
-  {
-    id: 'NCSYF-1996-0001',
-    memberId: 'NCSYF-1996-0001',
-    firstName: 'Fatima',
-    lastName: 'Bello',
-    category: 'full',
-    memberTypeLabel: 'Full Member (18–35 yrs)',
-    dob: '1996-08-22',
-    age: 30,
-    gender: 'female',
-    phone: '+234 806 771 2004',
-    email: 'fbello@kano.gov.ng',
-    tier: 'state',
-    tierLabel: 'State Government MDA',
-    mda: 'Kano State Civil Service Commission',
-    stateChapter: 'Kano',
-    staffId: 'KNS/CSC/2020/094',
-    docType: 'staff_id_card',
-    docTypeLabel: 'Official Staff Identification Card',
-    status: 'pending',
-    registeredAt: '2026-09-30 11:08:44'
-  },
-  {
-    id: 'NCSYF-1984-0001',
-    memberId: 'NCSYF-1984-0001',
-    firstName: 'Emeka',
-    lastName: 'Nwosu',
-    category: 'associate',
-    memberTypeLabel: 'Associate Member (After 35 yrs / Alumni)',
-    dob: '1984-06-12',
-    age: 42,
-    gender: 'male',
-    phone: '+234 803 551 0928',
-    email: 'emeka.nwosu@npa.gov.ng',
-    tier: 'federal',
-    tierLabel: 'Federal Government MDA',
-    mda: 'Nigerian Ports Authority (NPA)',
-    stateChapter: 'Rivers',
-    staffId: 'NPA/ENG/2012/044',
-    docType: 'appointment_letter',
-    docTypeLabel: 'Valid Letter of Employment / Appointment',
-    status: 'verified',
-    registeredAt: '2026-10-01 10:30:19'
-  },
-  {
-    id: 'NCSYF-2000-0001',
-    memberId: 'NCSYF-2000-0001',
-    firstName: 'Zainab',
-    lastName: 'Mustapha',
-    category: 'full',
-    memberTypeLabel: 'Full Member (18–35 yrs)',
-    dob: '2000-01-14',
-    age: 26,
-    gender: 'female',
-    phone: '+234 818 902 4432',
-    email: 'z.mustapha@kaduna.gov.ng',
-    tier: 'lga',
-    tierLabel: 'Local Government Council',
-    mda: 'Zaria Local Government Council Administration',
-    stateChapter: 'Kaduna',
-    staffId: 'ZLG/ADM/2022/112',
-    docType: 'staff_id_card',
-    docTypeLabel: 'Official Staff Identification Card',
-    status: 'pending',
-    registeredAt: '2026-10-02 08:40:22'
-  },
-  {
-    id: 'NCSYF-1997-0001',
-    memberId: 'NCSYF-1997-0001',
-    firstName: 'Oluwaseun',
-    lastName: 'Ajayi',
-    category: 'full',
-    memberTypeLabel: 'Full Member (18–35 yrs)',
-    dob: '1997-07-09',
-    age: 29,
-    gender: 'male',
-    phone: '+234 814 620 5511',
-    email: 'o.ajayi@fmf.gov.ng',
-    tier: 'federal',
-    tierLabel: 'Federal Government MDA',
-    mda: 'Federal Ministry of Finance, Budget & National Planning',
-    stateChapter: 'FCT Abuja',
-    staffId: 'FMF/BNP/2020/718',
-    docType: 'gazette',
-    docTypeLabel: 'Official Civil Service Gazette Notice',
-    status: 'verified',
-    registeredAt: '2026-10-03 15:19:00'
-  },
-  {
-    id: 'NCSYF-1986-0001',
-    memberId: 'NCSYF-1986-0001',
-    firstName: 'Halima',
-    lastName: 'Danjuma',
-    category: 'associate',
-    memberTypeLabel: 'Associate Member (After 35 yrs / Alumni)',
-    dob: '1986-12-04',
-    age: 39,
-    gender: 'female',
-    phone: '+234 809 332 1980',
-    email: 'h.danjuma@education.gov.ng',
-    tier: 'federal',
-    tierLabel: 'Federal Government MDA',
-    mda: 'Federal Ministry of Education / UBEC',
-    stateChapter: 'Plateau',
-    staffId: 'UBEC/PL/2015/882',
-    docType: 'appointment_letter',
-    docTypeLabel: 'Valid Letter of Employment / Appointment',
-    status: 'verified',
-    registeredAt: '2026-10-04 12:05:41'
-  },
-  {
-    id: 'NCSYF-1999-0001',
-    memberId: 'NCSYF-1999-0001',
-    firstName: 'Tari',
-    lastName: 'Ebiware',
-    category: 'full',
-    memberTypeLabel: 'Full Member (18–35 yrs)',
-    dob: '1999-05-18',
-    age: 27,
-    gender: 'male',
-    phone: '+234 805 119 7720',
-    email: 'tari.ebiware@bayelsa.gov.ng',
-    tier: 'state',
-    tierLabel: 'State Government MDA',
-    mda: 'Bayelsa State Ministry of Environment',
-    stateChapter: 'Bayelsa',
-    staffId: 'BY/ENV/2023/502',
-    docType: 'staff_id_card',
-    docTypeLabel: 'Official Staff Identification Card',
-    status: 'disapproved',
-    disapprovedReason: 'Official Staff ID / File number could not be authenticated with MDA records',
-    disapprovedNotes: 'The staff file number provided could not be matched against the official State Ministry nominal roll. Please reapply uploading your formal Letter of Appointment.',
-    disapprovedAt: '2026-10-06 14:10:00',
-    canReapply: true,
-    registeredAt: '2026-10-05 11:32:15'
-  }
-];
+// ---- Realistic Initial Seed Data (Cleared to start fresh with 0 members) ----
+const SEED_MEMBERS = [];
 
 const SEED_PROJECTS = [
   {
@@ -458,11 +255,11 @@ function saveAdminUsers(users) {
 
 function getStoredMembers() {
   const data = localStorage.getItem(STORAGE_KEYS.MEMBERS);
-  let members = SEED_MEMBERS;
+  let members = [];
   if (data) {
     try {
       const parsed = JSON.parse(data);
-      if (Array.isArray(parsed) && parsed.length) members = parsed;
+      if (Array.isArray(parsed)) members = parsed;
     } catch (e) {}
   }
 
@@ -495,7 +292,7 @@ function getStoredMembers() {
     }
   });
 
-  if (modified || !data) {
+  if (modified) {
     localStorage.setItem(STORAGE_KEYS.MEMBERS, JSON.stringify(members));
   }
   return members;
@@ -1709,12 +1506,17 @@ function renderMembersTable() {
   }
 
   if (!filtered.length) {
+    const isTotalEmpty = members.length === 0;
     tbody.innerHTML = `
       <tr>
-        <td colspan="9" class="table-empty-cell" style="text-align: center; padding: 36px; color: var(--admin-text-muted);">
-          <div style="margin-bottom: 8px; color: var(--admin-text-muted);">${getIconSvg('search', { size: 32 })}</div>
-          <strong>No matching member applications found</strong>
-          <p style="font-size: 0.82rem; margin-top: 4px;">Try adjusting your search criteria or category filters.</p>
+        <td colspan="9" class="table-empty-cell" style="text-align: center; padding: 48px 24px; color: var(--admin-text-muted);">
+          <div style="margin-bottom: 12px; color: var(--admin-text-muted);">${getIconSvg('users', { size: 36 })}</div>
+          <strong style="font-size: 1rem; color: var(--admin-text-primary);">${isTotalEmpty ? 'No Registered Members Yet' : 'No matching member applications found'}</strong>
+          <p style="font-size: 0.85rem; margin-top: 6px; max-width: 440px; margin-left: auto; margin-right: auto; line-height: 1.5;">
+            ${isTotalEmpty 
+              ? 'The membership directory is currently empty and ready for fresh registrations. When civil servants submit their application on the membership portal, their dossiers will appear here.' 
+              : 'Try adjusting your search criteria or category filters to find member records.'}
+          </p>
         </td>
       </tr>
     `;
@@ -2846,6 +2648,41 @@ window.exportDatabaseJson = function() {
   URL.revokeObjectURL(url);
 
   showAdminToast('Full system database exported to JSON successfully.');
+};
+
+window.clearAllMembers = async function() {
+  if (!isSuperAdmin()) {
+    showAdminToast('Access Denied: Super Admin privileges required.', 'error');
+    return;
+  }
+
+  const existingCount = getStoredMembers().length;
+  const msg = existingCount > 0 
+    ? `Are you sure you want to delete all ${existingCount} registered members and start completely fresh? This will permanently remove all member profiles, credentials, and verification dossiers.` 
+    : 'Are you sure you want to wipe all member profiles and credentials to start fresh?';
+
+  if (!confirm(msg)) return;
+
+  // 1. Clear local member rosters & auth sessions
+  localStorage.setItem(STORAGE_KEYS.MEMBERS, JSON.stringify([]));
+  localStorage.setItem('ncsyf_auth_identities', JSON.stringify([]));
+  localStorage.removeItem('ncsyf_member_auth_session');
+
+  // 2. Clear Supabase cloud table if connected
+  if (window.NCSYF_DB && window.NCSYF_DB.members && typeof window.NCSYF_DB.members.clearAll === 'function') {
+    try {
+      await window.NCSYF_DB.members.clearAll();
+    } catch (err) {
+      console.warn('Supabase member clear error:', err);
+    }
+  }
+
+  // 3. Re-render UI views immediately
+  renderDashboard();
+  renderMembersTable();
+  if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+
+  showAdminToast('All members deleted successfully. Member directory is now fresh and empty.');
 };
 
 window.resetFactoryData = function() {

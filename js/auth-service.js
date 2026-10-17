@@ -21,205 +21,11 @@
   const config = (global.NCSYF_CONFIG) || {};
   let supabaseClient = null;
 
-  // Initial Seed Auth Accounts for Realistic Existing Members
-  // Passwords are pre-hashed using SHA-256 with salts (default test password: Member@2026)
-  const SEED_AUTH_USERS = [
-    {
-      id: 'usr_amina_1995_001',
-      email: 'amina.ibrahim@health.gov.ng',
-      memberId: 'NCSYF-1995-0001',
-      salt: 'slt_amina_1995',
-      passwordHash: '868019e992b8d4bb6c9069dcf46ffcb79fbf98a7a9be3b593649ec3d038ea826',
-      createdAt: '2026-09-28T14:22:10Z'
-    },
-    {
-      id: 'usr_chidi_1998_001',
-      email: 'chidi.okonkwo@nitda.gov.ng',
-      memberId: 'NCSYF-1998-0001',
-      salt: 'slt_chidi_1998',
-      passwordHash: 'd7a8d5696d5b03513a863aa9528d77d704ad53c292f7036437d2f476a269fa58',
-      createdAt: '2026-09-29T09:14:05Z'
-    },
-    {
-      id: 'usr_babatunde_1987_001',
-      email: 'badeleke@lagosstate.gov.ng',
-      memberId: 'NCSYF-1987-0001',
-      salt: 'slt_badeleke_1987',
-      passwordHash: '20bfaf0e4ec8f1c841bb425cff2f08a4740e53a25b1285e6833b8a6be7b6b198',
-      createdAt: '2026-09-29T16:45:30Z'
-    },
-    {
-      id: 'usr_fatima_1996_001',
-      email: 'fbello@kano.gov.ng',
-      aliasEmail: 'fatima.bello@education.gov.ng',
-      memberId: 'NCSYF-1996-0001',
-      salt: 'slt_fatima_1996',
-      passwordHash: '6d03f6f17835d03a1fc65902b489a200aa9cbcc7a19c7270e538ef430a66d036',
-      createdAt: '2026-10-01T11:05:44Z'
-    },
-    {
-      id: 'usr_chinedu_1988_001',
-      email: 'chinedu.okafor@works.gov.ng',
-      memberId: 'NCSYF-1988-0001',
-      salt: 'slt_chinedu_1988',
-      passwordHash: 'c4e36582ea81d9f43f873e3465dd899651ba59343ee06575cb2fa874e1d13fa7',
-      createdAt: '2026-10-01T09:12:00Z'
-    },
-    {
-      id: 'usr_tari_1999_001',
-      email: 'tari.ebiware@bayelsa.gov.ng',
-      memberId: 'NCSYF-1999-0001',
-      salt: 'slt_tari_1999',
-      passwordHash: 'a5789b7b99b6d85915d52b960c1d683e95058f83038a8e32c7fe2d2ce9cb4e48',
-      createdAt: '2026-10-03T13:20:00Z'
-    }
-  ];
+  // Initial Seed Auth Accounts (Cleared to start fresh with 0 members)
+  const SEED_AUTH_USERS = [];
 
-  // Seed Member Profiles Directory (Mirrored across backend & local fallback)
-  const SEED_MEMBERS = [
-    {
-      id: 'NCSYF-1995-0001',
-      memberId: 'NCSYF-1995-0001',
-      userId: 'usr_amina_1995_001',
-      firstName: 'Amina',
-      lastName: 'Ibrahim',
-      category: 'full',
-      memberTypeLabel: 'Full Member (18–35 yrs)',
-      dob: '1995-04-12',
-      age: 31,
-      gender: 'female',
-      phone: '+234 803 219 4012',
-      email: 'amina.ibrahim@health.gov.ng',
-      tier: 'federal',
-      tierLabel: 'Federal Government MDA',
-      mda: 'Federal Ministry of Health & Social Welfare, Abuja',
-      stateChapter: 'FCT Abuja',
-      staffId: 'FMoH/2019/0842',
-      docType: 'staff_id_card',
-      docTypeLabel: 'Official Staff Identification Card',
-      status: 'verified',
-      registeredAt: '2026-09-28 14:22:10'
-    },
-    {
-      id: 'NCSYF-1998-0001',
-      memberId: 'NCSYF-1998-0001',
-      userId: 'usr_chidi_1998_001',
-      firstName: 'Chidiebere',
-      lastName: 'Okonkwo',
-      category: 'full',
-      memberTypeLabel: 'Full Member (18–35 yrs)',
-      dob: '1998-11-05',
-      age: 27,
-      gender: 'male',
-      phone: '+234 812 873 9921',
-      email: 'chidi.okonkwo@nitda.gov.ng',
-      tier: 'federal',
-      tierLabel: 'Federal Government MDA',
-      mda: 'National Information Technology Development Agency (NITDA)',
-      stateChapter: 'FCT Abuja',
-      staffId: 'NITDA/TS/2021/319',
-      docType: 'appointment_letter',
-      docTypeLabel: 'Valid Letter of Employment / Appointment',
-      status: 'verified',
-      registeredAt: '2026-09-29 09:14:05'
-    },
-    {
-      id: 'NCSYF-1987-0001',
-      memberId: 'NCSYF-1987-0001',
-      userId: 'usr_babatunde_1987_001',
-      firstName: 'Babatunde',
-      lastName: 'Adeleke',
-      category: 'associate',
-      memberTypeLabel: 'Associate Member (After 35 yrs / Alumni)',
-      dob: '1987-03-18',
-      age: 39,
-      gender: 'male',
-      phone: '+234 802 334 1180',
-      email: 'badeleke@lagosstate.gov.ng',
-      tier: 'state',
-      tierLabel: 'State Government MDA',
-      mda: 'Lagos State Ministry of Science & Technology',
-      stateChapter: 'Lagos',
-      staffId: 'LASG/ST/04118',
-      docType: 'gazette',
-      docTypeLabel: 'Official Civil Service Gazette Notice',
-      status: 'verified',
-      registeredAt: '2026-09-29 16:45:30'
-    },
-    {
-      id: 'NCSYF-1996-0001',
-      memberId: 'NCSYF-1996-0001',
-      userId: 'usr_fatima_1996_001',
-      firstName: 'Fatima',
-      lastName: 'Bello',
-      category: 'full',
-      memberTypeLabel: 'Full Member (18–35 yrs)',
-      dob: '1996-08-22',
-      age: 30,
-      gender: 'female',
-      phone: '+234 806 771 2004',
-      email: 'fbello@kano.gov.ng',
-      tier: 'state',
-      tierLabel: 'State Government MDA',
-      mda: 'Kano State Civil Service Commission',
-      stateChapter: 'Kano',
-      staffId: 'KNS/CSC/2020/094',
-      docType: 'staff_id_card',
-      docTypeLabel: 'Official Staff Identification Card',
-      status: 'pending',
-      registeredAt: '2026-09-30 11:08:44'
-    },
-    {
-      id: 'NCSYF-1988-0001',
-      memberId: 'NCSYF-1988-0001',
-      userId: 'usr_chinedu_1988_001',
-      firstName: 'Chinedu',
-      lastName: 'Okafor',
-      category: 'associate',
-      memberTypeLabel: 'Associate Member (After 35 yrs / Alumni)',
-      dob: '1988-05-14',
-      age: 38,
-      gender: 'male',
-      phone: '+234 803 441 9920',
-      email: 'chinedu.okafor@works.gov.ng',
-      tier: 'federal',
-      tierLabel: 'Federal Government MDA',
-      mda: 'Federal Ministry of Works & Housing',
-      stateChapter: 'Anambra',
-      staffId: 'FMW/ENG/2016/401',
-      docType: 'appointment_letter',
-      docTypeLabel: 'Valid Letter of Employment / Appointment',
-      status: 'verified',
-      registeredAt: '2026-10-01 09:12:00'
-    },
-    {
-      id: 'NCSYF-1999-0001',
-      memberId: 'NCSYF-1999-0001',
-      userId: 'usr_tari_1999_001',
-      firstName: 'Tari',
-      lastName: 'Ebiware',
-      category: 'full',
-      memberTypeLabel: 'Full Member (18–35 yrs)',
-      dob: '1999-05-18',
-      age: 27,
-      gender: 'male',
-      phone: '+234 805 119 7720',
-      email: 'tari.ebiware@bayelsa.gov.ng',
-      tier: 'state',
-      tierLabel: 'State Government MDA',
-      mda: 'Bayelsa State Ministry of Environment',
-      stateChapter: 'Bayelsa',
-      staffId: 'BY/ENV/2023/502',
-      docType: 'staff_id_card',
-      docTypeLabel: 'Official Staff Identification Card',
-      status: 'disapproved',
-      disapprovedReason: 'Official Staff ID / File number could not be authenticated with MDA records',
-      disapprovedNotes: 'The staff file number provided could not be matched against the official State Ministry nominal roll. Please reapply uploading your formal Letter of Appointment.',
-      disapprovedAt: '2026-10-06 14:10:00',
-      canReapply: true,
-      registeredAt: '2026-10-05 11:32:15'
-    }
-  ];
+  // Seed Member Profiles Directory (Cleared to start fresh with 0 members)
+  const SEED_MEMBERS = [];
 
   // Subscribers for state changes
   const authStateListeners = [];
@@ -256,14 +62,13 @@
   function getStoredAuthUsers() {
     const raw = localStorage.getItem(AUTH_KEYS.USERS);
     if (!raw) {
-      localStorage.setItem(AUTH_KEYS.USERS, JSON.stringify(SEED_AUTH_USERS));
-      return SEED_AUTH_USERS;
+      return [];
     }
     try {
       const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) && parsed.length ? parsed : SEED_AUTH_USERS;
+      return Array.isArray(parsed) ? parsed : [];
     } catch (e) {
-      return SEED_AUTH_USERS;
+      return [];
     }
   }
 
@@ -274,16 +79,13 @@
   function getStoredMembers() {
     const raw = localStorage.getItem(AUTH_KEYS.MEMBERS);
     if (!raw) {
-      localStorage.setItem(AUTH_KEYS.MEMBERS, JSON.stringify(SEED_MEMBERS));
-      return SEED_MEMBERS;
+      return [];
     }
     try {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      localStorage.setItem(AUTH_KEYS.MEMBERS, JSON.stringify(SEED_MEMBERS));
-      return SEED_MEMBERS;
+      return Array.isArray(parsed) ? parsed : [];
     } catch (e) {
-      return SEED_MEMBERS;
+      return [];
     }
   }
 

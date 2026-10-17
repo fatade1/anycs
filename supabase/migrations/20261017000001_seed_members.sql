@@ -1,123 +1,17 @@
 -- ==========================================================================
--- NCSYF SEED MEMBERS MIGRATION
+-- NCSYF SEED MEMBERS MIGRATION (CLEARED FOR FRESH START)
 -- Nigeria Civil Service Youths' Forum (NCSYF)
 -- Migration: 20261017000001_seed_members.sql
 -- ==========================================================================
+-- Mock seed members have been removed as requested to start fresh with 0 members.
+-- All real member records will be generated via portal registration.
 
--- Populate realistic existing members with their official NCSYF-YYYY-XXXX Member IDs
-INSERT INTO public.member_profiles (
-    member_id, email, first_name, last_name, category, member_type_label,
-    dob, age, gender, phone, tier, tier_label, mda, state_chapter, staff_id,
-    doc_type, doc_type_label, status, registered_at
-) VALUES
-(
+-- Ensure table is clean if demo records were previously seeded:
+DELETE FROM public.member_profiles 
+WHERE member_id IN (
     'NCSYF-1995-0001',
-    'amina.ibrahim@health.gov.ng',
-    'Amina',
-    'Ibrahim',
-    'full',
-    'Full Member (18–35 yrs)',
-    '1995-04-12',
-    31,
-    'female',
-    '+234 803 219 4012',
-    'federal',
-    'Federal Government MDA',
-    'Federal Ministry of Health & Social Welfare, Abuja',
-    'FCT Abuja',
-    'FMoH/2019/0842',
-    'staff_id_card',
-    'Official Staff Identification Card',
-    'verified',
-    '2026-09-28 14:22:10+01'
-),
-(
     'NCSYF-1998-0001',
-    'chidi.okonkwo@nitda.gov.ng',
-    'Chidiebere',
-    'Okonkwo',
-    'full',
-    'Full Member (18–35 yrs)',
-    '1998-11-05',
-    27,
-    'male',
-    '+234 812 873 9921',
-    'federal',
-    'Federal Government MDA',
-    'National Information Technology Development Agency (NITDA)',
-    'FCT Abuja',
-    'NITDA/TS/2021/319',
-    'appointment_letter',
-    'Valid Letter of Employment / Appointment',
-    'verified',
-    '2026-09-29 09:14:05+01'
-),
-(
     'NCSYF-1987-0001',
-    'badeleke@lagosstate.gov.ng',
-    'Babatunde',
-    'Adeleke',
-    'associate',
-    'Associate Member (After 35 yrs / Alumni)',
-    '1987-03-18',
-    39,
-    'male',
-    '+234 802 334 1180',
-    'state',
-    'State Government MDA',
-    'Lagos State Ministry of Science & Technology',
-    'Lagos',
-    'LASG/ST/04118',
-    'gazette',
-    'Official Civil Service Gazette Notice',
-    'verified',
-    '2026-09-29 16:45:30+01'
-),
-(
     'NCSYF-1996-0001',
-    'fbello@kano.gov.ng',
-    'Fatima',
-    'Bello',
-    'full',
-    'Full Member (18–35 yrs)',
-    '1996-08-22',
-    30,
-    'female',
-    '+234 806 771 2004',
-    'state',
-    'State Government MDA',
-    'Kano State Civil Service Commission',
-    'Kano',
-    'KNS/CSC/2020/094',
-    'staff_id_card',
-    'Official Staff Identification Card',
-    'pending',
-    '2026-10-01 11:05:44+01'
-),
-(
-    'NCSYF-1999-0001',
-    'tari.ebikeme@bayelsa.gov.ng',
-    'Tari',
-    'Ebikeme',
-    'full',
-    'Full Member (18–35 yrs)',
-    '1999-02-14',
-    27,
-    'male',
-    '+234 807 552 9013',
-    'state',
-    'State Government MDA',
-    'Bayelsa State Ministry of Environment',
-    'Bayelsa',
-    'BY/ENV/2022/108',
-    'staff_id_card',
-    'Official Staff Identification Card',
-    'disapproved',
-    '2026-10-03 13:20:00+01'
-)
-ON CONFLICT (email) DO UPDATE SET
-    member_id = EXCLUDED.member_id,
-    first_name = EXCLUDED.first_name,
-    last_name = EXCLUDED.last_name,
-    status = EXCLUDED.status,
-    mda = EXCLUDED.mda;
+    'NCSYF-1999-0001'
+);

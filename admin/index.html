@@ -318,6 +318,9 @@
                 <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" id="btnExportMembersCsv">
                   <i data-lucide="download"></i><span>Export CSV</span>
                 </button>
+                <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.4);" onclick="clearAllMembers()" title="Delete all members and start fresh">
+                  <i data-lucide="trash-2"></i><span>Clear All Members</span>
+                </button>
               </div>
             </div>
 
@@ -608,6 +611,9 @@
               <div style="margin-top: 28px; border-top: 1px solid var(--admin-border); padding-top: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
                 <button type="button" class="btn-admin btn-admin-sm btn-admin-outline" onclick="exportDatabaseJson()">
                   <i data-lucide="database"></i><span>Backup All Stores to JSON</span>
+                </button>
+                <button type="button" class="btn-admin btn-admin-sm btn-admin-outline" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.4);" onclick="clearAllMembers()" title="Delete all members and start fresh">
+                  <i data-lucide="trash-2"></i><span>Delete All Members (Start Fresh)</span>
                 </button>
                 <button type="button" class="btn-admin btn-admin-sm btn-admin-outline" onclick="resetFactoryData()">
                   <i data-lucide="rotate-ccw"></i><span>Reset Demo Stores</span>
@@ -1083,20 +1089,6 @@
       showAdminToast('Complete JSON database backup exported.');
     }
 
-    function resetFactoryData() {
-      if (!confirm('Reset local demo stores back to official seeds? Any newly added records will be refreshed.')) return;
-      localStorage.removeItem(STORAGE_KEYS.MEMBERS);
-      localStorage.removeItem(STORAGE_KEYS.PROJECTS);
-      localStorage.removeItem(STORAGE_KEYS.RESOURCES);
-      getStoredMembers();
-      getStoredProjects();
-      getStoredResources();
-      renderDashboard();
-      renderMembersTable();
-      renderProjectsList();
-      renderResourcesList();
-      showAdminToast('Demo data restored successfully.');
-    }
   </script>
 </body>
 </html>

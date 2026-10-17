@@ -227,7 +227,7 @@
               .select('*')
               .order('registered_at', { ascending: false });
 
-            if (!error && Array.isArray(data) && data.length > 0) {
+            if (!error && Array.isArray(data)) {
               const mapped = data.map(rowToMember);
               try {
                 localStorage.setItem(STORAGE_KEYS.MEMBERS, JSON.stringify(mapped));
@@ -358,6 +358,25 @@
           try {
             await client.from('member_profiles').delete().eq('member_id', memberId);
           } catch (err) {}
+        }
+      },
+
+      async clearAll() {
+        // 1. Local
+        try {
+          localStorage.setItem(STORAGE_KEYS.MEMBERS, JSON.stringify([]));
+          localStorage.setItem('ncsyf_auth_identities', JSON.stringify([]));
+          localStorage.removeItem('ncsyf_member_auth_session');
+        } catch (e) {}
+
+        // 2. Supabase
+        const client = getClient();
+        if (client) {
+          try {
+            await client.from('member_profiles').delete().neq('member_id', 'NON_EXISTENT_PLACEHOLDER');
+          } catch (err) {
+            console.warn('Supabase member_profiles clearAll error:', err);
+          }
         }
       }
     },
