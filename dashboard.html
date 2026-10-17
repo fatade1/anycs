@@ -20,8 +20,12 @@
         left: 0;
         top: 0;
         width: 100%;
+        max-width: 520px;
         box-shadow: none;
         border: 2px solid #0F4530;
+        background: #0F4530 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
       }
       .navbar, .footer, .btn, .no-print { display: none !important; }
     }
@@ -64,183 +68,211 @@
   </div>
 
   <!-- Authenticated Member Dashboard View (Hidden until session verified) -->
-  <div id="authDashboardContent" style="display: none; flex: 1;">
-    
-    <!-- Hero Header -->
+  <div id="authDashboardContent" style="display: none; flex: 1;">    <!-- Hero Header -->
     <header class="member-dashboard-hero">
-      <div class="container">
-        <div style="max-width: 800px;">
-          <span class="hero__badge-pill" style="border-color: rgba(233,206,116,0.4); color: var(--color-accent); margin-bottom: var(--space-sm);">
+      <div class="container dash-hero-container">
+        <div class="dash-hero-main">
+          <div class="dash-hero-badge">
             <i data-lucide="shield-check" style="width: 14px; height: 14px;"></i>
             <span>NCSYF Certified Member Workspace • Federal Republic of Nigeria</span>
-          </span>
-          <h1 id="dashMemberGreeting" style="font-size: var(--fs-3xl); font-weight: 800; margin-bottom: var(--space-xs); line-height: 1.2;">
+          </div>
+          <h1 id="dashMemberGreeting">
             Welcome back, Serving Officer
           </h1>
-          <p style="font-size: var(--fs-base); color: rgba(255,255,255,0.85); line-height: 1.6; margin-bottom: 0;">
+          <p class="dash-hero-desc">
             Manage your official Forum credentials, check secretariat verification status, access digital circulars, and participate in national initiatives.
           </p>
+        </div>
+        <div class="dash-hero-chips">
+          <div class="dash-hero-chip">
+            <span class="chip-label">Tier / MDA</span>
+            <span class="chip-val" id="dashHeroTier">Federal Civil Service</span>
+          </div>
+          <div class="dash-hero-chip">
+            <span class="chip-label">State Chapter</span>
+            <span class="chip-val" id="dashHeroChapter">FCT Abuja</span>
+          </div>
+          <div class="dash-hero-chip">
+            <span class="chip-label">Verification</span>
+            <span class="chip-val status-verified" id="dashHeroStatus">Verified Active</span>
+          </div>
         </div>
       </div>
     </header>
 
     <!-- Main Workspace Body -->
-    <main class="container" style="padding-bottom: var(--space-4xl);">
-      <div class="member-dashboard-grid">
+    <main class="container dashboard-main-wrapper">
+      
+      <!-- Top Row: Executive Digital Smart Card + Profile Particulars & Verification Alert -->
+      <div class="dashboard-top-grid">
         
-        <!-- Left Column: Digital Membership Credential Slip -->
-        <aside>
-          <div class="member-slip-card" id="printableSlipCard">
-            <div class="member-slip-header">
-              <img src="images/logo.png" alt="NCSYF Crest" class="coat-crest">
-              <div style="font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-accent);">
-                Federal Republic of Nigeria
+        <!-- Left Column: Executive Digital Credential Card -->
+        <div>
+          <div class="executive-id-card" id="printableSlipCard">
+            <div class="card-header-bar">
+              <div class="card-header-brand">
+                <img src="images/logo.png" alt="NCSYF Crest" class="card-header-crest">
+                <div>
+                  <div class="card-org-title">Federal Republic of Nigeria</div>
+                  <div class="card-org-sub">Civil Service Youths' Forum</div>
+                </div>
               </div>
-              <h2 style="font-size: var(--fs-md); font-weight: 800; color: #FFFFFF; margin: 2px 0 0;">
-                Civil Service Youths' Forum
-              </h2>
-              <span style="font-size: 0.72rem; color: rgba(255,255,255,0.7);">Official Membership Credential</span>
+              <div class="card-security-chip" title="Cryptographic Micro-Credential"></div>
             </div>
 
-            <div class="member-slip-body">
-              <!-- Verification Status Ribbon -->
-              <div style="text-align: center;">
+            <!-- Member ID Block with Single-Line Mono Font & Copy Action -->
+            <div class="card-member-id-container">
+              <div>
+                <span class="card-member-id-label">Assigned Member ID</span>
+                <span id="slipMemberId" class="card-member-id-value">NCSYF-1995-0001</span>
+              </div>
+              <button type="button" id="btnCopyDashMemberId" class="card-btn-copy" title="Copy Membership ID">
+                <i data-lucide="copy" style="width: 13px; height: 13px;"></i>
+                <span>Copy</span>
+              </button>
+            </div>
+
+            <!-- Officer Name & MDA + Verification Status Ribbon -->
+            <div class="card-bottom-grid">
+              <div>
+                <div class="card-user-name" id="slipFullName">—</div>
+                <div class="card-user-mda" id="slipMda">—</div>
+              </div>
+              <div>
                 <div id="slipStatusRibbon" class="member-status-ribbon status-verified">
                   <span id="slipStatusDot">●</span>
                   <span id="slipStatusText">Verified Active Member</span>
                 </div>
               </div>
-
-              <!-- Membership ID Card Box -->
-              <div class="member-id-credential-card" style="margin: 0 0 var(--space-lg); padding: 12px 16px;">
-                <div class="member-id-card-header" style="margin-bottom: 4px;">
-                  <span class="label" style="font-size: 0.68rem;">Assigned Member ID</span>
-                  <span class="status-tag" style="font-size: 0.65rem;">Login Credential</span>
-                </div>
-                <div class="member-id-value-row" style="padding: 6px 12px;">
-                  <span id="slipMemberId" class="member-id-text" style="font-size: 1.25rem;">NCSYF-1995-0001</span>
-                  <button type="button" id="btnCopyDashMemberId" class="btn-copy-id" style="padding: 4px 10px; font-size: 0.75rem;">
-                    <i data-lucide="copy" style="width: 13px; height: 13px;"></i>
-                    <span>Copy</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Detailed Member Data -->
-              <div class="slip-detail-row">
-                <span class="label">Full Name</span>
-                <span class="value" id="slipFullName">—</span>
-              </div>
-              <div class="slip-detail-row">
-                <span class="label">Category</span>
-                <span class="value" id="slipCategory">Full Member (18–35 yrs)</span>
-              </div>
-              <div class="slip-detail-row">
-                <span class="label">Institution / MDA</span>
-                <span class="value" id="slipMda">—</span>
-              </div>
-              <div class="slip-detail-row">
-                <span class="label">MDA Staff / File ID</span>
-                <span class="value" id="slipStaffId">—</span>
-              </div>
-              <div class="slip-detail-row">
-                <span class="label">State Chapter</span>
-                <span class="value" id="slipStateChapter">FCT Abuja</span>
-              </div>
-              <div class="slip-detail-row">
-                <span class="label">Chartered Date</span>
-                <span class="value" id="slipJoinDate">—</span>
-              </div>
-
-              <!-- Action button on slip -->
-              <div class="no-print" style="margin-top: var(--space-lg); display: flex; flex-direction: column; gap: 8px;">
-                <button type="button" class="btn btn--outline btn--sm" onclick="window.print()" style="width: 100%; justify-content: center; gap: 6px;">
-                  <i data-lucide="printer" style="width: 15px; height: 15px;"></i>
-                  <span>Print Official Credential Slip</span>
-                </button>
-              </div>
             </div>
           </div>
-        </aside>
 
-        <!-- Right Column: Verification Status Notices, Actions & Privileges -->
-        <section>
-          
+          <!-- Card Actions (Print Slip) -->
+          <div class="id-card-actions no-print">
+            <button type="button" class="btn btn--outline" onclick="window.print()" style="gap: 8px; width: 100%; justify-content: center;">
+              <i data-lucide="printer" style="width: 15px; height: 15px;"></i>
+              <span>Print Official Credential Slip</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Column: Verification Alert Notice & Detailed Particulars Grid -->
+        <div class="profile-particulars-card">
           <!-- Dynamic Verification Alert Box -->
-          <div id="dashVerificationAlert"></div>
+          <div class="verification-alert-wrapper">
+            <div id="dashVerificationAlert"></div>
+          </div>
 
-          <!-- Quick Action Tiles -->
-          <div style="margin-top: var(--space-xl);">
-            <h3 style="font-size: var(--fs-lg); color: var(--color-primary); margin-bottom: var(--space-sm); font-weight: 800;">
-              Member Privileges &amp; Services
+          <!-- Particulars Header -->
+          <div class="particulars-header">
+            <h3 class="particulars-header-title">
+              <i data-lucide="file-badge"></i>
+              <span>Official Registry Particulars</span>
             </h3>
-            
-            <div class="action-tiles-grid">
-              <a href="resources.html" class="action-tile-card">
-                <div class="tile-icon">
-                  <i data-lucide="book-open"></i>
-                </div>
-                <h4 style="font-size: var(--fs-md); color: var(--color-primary); margin-bottom: 4px;">Civil Service e-Library</h4>
-                <p style="font-size: var(--fs-xs); color: var(--color-gray); margin-bottom: 0; line-height: 1.5;">
-                  Access civil service circulars, governance whitepapers, and administrative reform guidelines.
-                </p>
-              </a>
-
-              <a href="projects.html" class="action-tile-card">
-                <div class="tile-icon">
-                  <i data-lucide="folder-kanban"></i>
-                </div>
-                <h4 style="font-size: var(--fs-md); color: var(--color-primary); margin-bottom: 4px;">National Youth Initiatives</h4>
-                <p style="font-size: var(--fs-xs); color: var(--color-gray); margin-bottom: 0; line-height: 1.5;">
-                  Participate in cross-MDA digital innovation projects and nationwide capacity summits.
-                </p>
-              </a>
-
-              <a href="chapters.html" class="action-tile-card">
-                <div class="tile-icon">
-                  <i data-lucide="map-pin"></i>
-                </div>
-                <h4 style="font-size: var(--fs-md); color: var(--color-primary); margin-bottom: 4px;">State Chapter Hub</h4>
-                <p style="font-size: var(--fs-xs); color: var(--color-gray); margin-bottom: 0; line-height: 1.5;">
-                  Connect with your state chapter coordinator and fellow youth officers in your region.
-                </p>
-              </a>
-
-              <a href="contact.html" class="action-tile-card">
-                <div class="tile-icon">
-                  <i data-lucide="headphones"></i>
-                </div>
-                <h4 style="font-size: var(--fs-md); color: var(--color-primary); margin-bottom: 4px;">Secretariat Helpdesk</h4>
-                <p style="font-size: var(--fs-xs); color: var(--color-gray); margin-bottom: 0; line-height: 1.5;">
-                  Submit inquiries, credential change requests, or institutional partnership notes.
-                </p>
-              </a>
-            </div>
+            <span style="font-size: 0.72rem; color: var(--color-gray); font-weight: 600;">Authentic Record</span>
           </div>
 
-          <!-- Security & Session Control Card -->
-          <div style="margin-top: var(--space-2xl); background: #FFFFFF; border: 1px solid var(--color-light-gray); border-radius: var(--radius-lg); padding: var(--space-xl); box-shadow: 0 4px 16px rgba(0,0,0,0.04);">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-md);">
-              <div>
-                <h4 style="font-size: var(--fs-md); color: var(--color-primary); margin-bottom: 4px; font-weight: 700;">
-                  Session &amp; Security Controls
-                </h4>
-                <p style="font-size: var(--fs-xs); color: var(--color-gray); margin-bottom: 0;">
-                  Logged in as <strong id="dashAccountEmail" style="color: var(--color-dark);">member@mda.gov.ng</strong> • Active Session
-                </p>
-              </div>
-              <button type="button" id="btnDashSignOut" class="btn btn--outline btn--sm" style="color: #DC2626; border-color: rgba(220,38,38,0.4); gap: 6px;">
-                <i data-lucide="log-out" style="width: 15px; height: 15px;"></i>
-                <span>Sign Out from Workspace</span>
-              </button>
+          <!-- 2-Column Key-Value Particulars Grid -->
+          <div class="particulars-grid">
+            <div class="particular-item">
+              <span class="p-label">Membership Category</span>
+              <span class="p-val" id="slipCategory">Full Member (18–35 yrs)</span>
+            </div>
+            <div class="particular-item">
+              <span class="p-label">MDA Staff / File ID</span>
+              <span class="p-val" id="slipStaffId">—</span>
+            </div>
+            <div class="particular-item">
+              <span class="p-label">Designated State Chapter</span>
+              <span class="p-val" id="slipStateChapter">FCT Abuja</span>
+            </div>
+            <div class="particular-item">
+              <span class="p-label">Chartered / Registered Date</span>
+              <span class="p-val" id="slipJoinDate">—</span>
+            </div>
+            <div class="particular-item" style="grid-column: 1 / -1;">
+              <span class="p-label">Authenticated Account Email</span>
+              <span class="p-val" id="dashParticularEmail" style="color: var(--color-primary); font-weight: 700;">—</span>
             </div>
           </div>
-
-        </section>
+        </div>
 
       </div>
-    </main>
 
+      <!-- Second Row: Balanced 4-Column Member Privileges & Services -->
+      <section class="services-section">
+        <div class="services-section-header">
+          <div>
+            <h2>Member Privileges &amp; Services</h2>
+            <p>Access authenticated civil service tools, circulars, and youth governance programs</p>
+          </div>
+        </div>
+        
+        <div class="dashboard-services-grid">
+          <a href="resources.html" class="service-card">
+            <div class="service-card-top">
+              <div class="service-icon-box">
+                <i data-lucide="book-open"></i>
+              </div>
+              <span class="service-arrow"><i data-lucide="arrow-up-right"></i></span>
+            </div>
+            <h3>Civil Service e-Library</h3>
+            <p>Access civil service circulars, governance whitepapers, and administrative reform guidelines.</p>
+          </a>
+
+          <a href="projects.html" class="service-card">
+            <div class="service-card-top">
+              <div class="service-icon-box">
+                <i data-lucide="folder-kanban"></i>
+              </div>
+              <span class="service-arrow"><i data-lucide="arrow-up-right"></i></span>
+            </div>
+            <h3>National Youth Initiatives</h3>
+            <p>Participate in cross-MDA digital innovation projects and nationwide capacity summits.</p>
+          </a>
+
+          <a href="chapters.html" class="service-card">
+            <div class="service-card-top">
+              <div class="service-icon-box">
+                <i data-lucide="map-pin"></i>
+              </div>
+              <span class="service-arrow"><i data-lucide="arrow-up-right"></i></span>
+            </div>
+            <h3>State Chapter Hub</h3>
+            <p>Connect with your state chapter coordinator and fellow youth officers in your region.</p>
+          </a>
+
+          <a href="contact.html" class="service-card">
+            <div class="service-card-top">
+              <div class="service-icon-box">
+                <i data-lucide="headphones"></i>
+              </div>
+              <span class="service-arrow"><i data-lucide="arrow-up-right"></i></span>
+            </div>
+            <h3>Secretariat Helpdesk</h3>
+            <p>Submit inquiries, credential change requests, or institutional partnership notes.</p>
+          </a>
+        </div>
+      </section>
+
+      <!-- Third Row: Session & Security Controls Bar -->
+      <div class="security-status-bar">
+        <div class="security-status-left">
+          <div class="security-shield-icon">
+            <i data-lucide="shield-check" style="width: 20px; height: 20px;"></i>
+          </div>
+          <div class="security-status-info">
+            <h4>Session &amp; Security Controls</h4>
+            <p>Authenticated as <strong id="dashAccountEmail" style="color: var(--color-dark);">member@mda.gov.ng</strong> • Active Secured Workspace</p>
+          </div>
+        </div>
+        <button type="button" id="btnDashSignOut" class="btn btn--outline btn--sm" style="color: #DC2626; border-color: rgba(220,38,38,0.35); gap: 6px;">
+          <i data-lucide="log-out" style="width: 14px; height: 14px;"></i>
+          <span>Sign Out from Workspace</span>
+        </button>
+      </div>
+
+    </main>
   </div>
 
   <!-- Footer -->
@@ -323,7 +355,33 @@
       if (elSlipStaff) elSlipStaff.textContent = staffId;
       if (elSlipState) elSlipState.textContent = stateChapter;
       if (elSlipDate) elSlipDate.textContent = joinDate;
-      if (elAccountEmail) elAccountEmail.textContent = profile ? profile.email : session.email;
+      const userEmail = profile ? profile.email : session.email;
+      if (elAccountEmail) elAccountEmail.textContent = userEmail;
+
+      const elParticularEmail = document.getElementById('dashParticularEmail');
+      if (elParticularEmail) elParticularEmail.textContent = userEmail;
+
+      const elHeroTier = document.getElementById('dashHeroTier');
+      const elHeroChapter = document.getElementById('dashHeroChapter');
+      const elHeroStatus = document.getElementById('dashHeroStatus');
+      if (elHeroTier) {
+        const tierName = profile && profile.tierOfGovernment ? (profile.tierOfGovernment.charAt(0).toUpperCase() + profile.tierOfGovernment.slice(1) + ' Level') : 'Federal Civil Service';
+        elHeroTier.textContent = tierName;
+      }
+      if (elHeroChapter) elHeroChapter.textContent = stateChapter;
+      if (elHeroStatus) {
+        elHeroStatus.className = 'chip-val';
+        if (status === 'verified') {
+          elHeroStatus.classList.add('status-verified');
+          elHeroStatus.textContent = 'Verified Active';
+        } else if (status === 'pending') {
+          elHeroStatus.classList.add('status-pending');
+          elHeroStatus.textContent = 'Pending Review';
+        } else if (status === 'disapproved') {
+          elHeroStatus.classList.add('status-disapproved');
+          elHeroStatus.textContent = 'Disapproved';
+        }
+      }
 
       // Status Ribbon on Slip
       const ribbon = document.getElementById('slipStatusRibbon');
