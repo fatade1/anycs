@@ -236,6 +236,9 @@
           });
 
           if (error) {
+            if (error.message && error.message.toLowerCase().includes('email not confirmed')) {
+              throw new Error('Email not confirmed. To allow members to sign in without email verification, turn OFF "Confirm email" in your Supabase Dashboard under Authentication > Providers > Email.');
+            }
             throw new Error(error.message || 'Invalid email or password.');
           }
 
@@ -377,7 +380,7 @@
           if (error) throw new Error(error.message);
 
           if (data && data.user) {
-            // Insert linked profile into public.member_profiles
+            // Insert or update linked profile in public.member_profiles
             await supabaseClient.from('member_profiles').upsert({
               user_id: data.user.id,
               email: cleanEmail,
@@ -389,7 +392,22 @@
               state_chapter: memberProfile.stateChapter,
               staff_id: memberProfile.staffId,
               status: memberProfile.status || 'pending'
-            });
+            }, { onConflict: 'member_id' });
+
+            // If Supabase has "Confirm email" turned OFF, an active session is returned immediately
+            if (data.session) {
+              const sessionObj = {
+                userId: data.user.id,
+                email: data.user.email,
+                memberId: memberProfile ? memberProfile.memberId : null,
+                token: data.session.access_token,
+                expiresAt: data.session.expires_at ? new Date(data.session.expires_at * 1000).toISOString() : new Date(Date.now() + 86400000 * 7).toISOString(),
+                rememberMe: true
+              };
+              this._saveSession(sessionObj, true);
+              this._notifyListeners('SIGNED_IN', sessionObj, memberProfile);
+            }
+
             return { user: data.user, session: data.session };
           }
         } catch (supErr) {
