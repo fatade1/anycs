@@ -1251,7 +1251,10 @@ function setupEventListeners() {
     loginForm.addEventListener('submit', handleLogin);
   }
 
-  // 1-Click Demo Fill: Super Admin
+  // Password Visibility Toggles
+  setupAdminPasswordToggles();
+
+  // 1-Click Demo Fill: Super Admin (if present in DOM)
   const btnDemoSuperAdmin = document.getElementById('btnDemoSuperAdmin');
   if (btnDemoSuperAdmin) {
     btnDemoSuperAdmin.addEventListener('click', () => {
@@ -1260,14 +1263,6 @@ function setupEventListeners() {
       if (emailInput) emailInput.value = 'admin@ncsyf.com.ng';
       if (passInput) passInput.value = 'Secretariat@2026';
       showAdminToast('Super Admin credentials auto-filled. Click "Sign In" to proceed.');
-    });
-  }
-
-  // 1-Click Demo Fill: Regular Admin (Removed / info notice)
-  const btnDemoRegularAdmin = document.getElementById('btnDemoRegularAdmin');
-  if (btnDemoRegularAdmin) {
-    btnDemoRegularAdmin.addEventListener('click', () => {
-      showAdminToast('No default regular admin account exists. Create new accounts from the Admins tab.', 'info');
     });
   }
 
@@ -1415,6 +1410,40 @@ function setupEventListeners() {
   // Close on Escape key
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeAllModals();
+  });
+}
+
+// ==========================================================================
+// PASSWORD PREVIEW TOGGLE CONTROLLER
+// ==========================================================================
+function setupAdminPasswordToggles() {
+  document.querySelectorAll('.admin-password-toggle-btn').forEach(btn => {
+    if (btn.dataset.toggleBound) return;
+    btn.dataset.toggleBound = 'true';
+
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const wrapper = btn.closest('.admin-password-wrapper');
+      if (!wrapper) return;
+      const input = wrapper.querySelector('input');
+      if (!input) return;
+
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      const label = isPassword ? 'Hide password' : 'Show password';
+      btn.setAttribute('aria-label', label);
+      btn.setAttribute('title', label);
+
+      const iconName = isPassword ? 'eye-off' : 'eye';
+      if (typeof getIconSvg === 'function') {
+        btn.innerHTML = getIconSvg(iconName, { size: 18 });
+      } else {
+        btn.innerHTML = `<i data-lucide="${iconName}"></i>`;
+        if (window.lucide && typeof lucide.createIcons === 'function') {
+          lucide.createIcons({ root: btn });
+        }
+      }
+    });
   });
 }
 

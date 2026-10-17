@@ -77,9 +77,12 @@ async function run() {
     }
     await page.screenshot({ path: path.join(ARTIFACT_DIR, `screen_${vp.name}_login.png`) });
 
-    // Auto-fill and submit login
-    await page.click('#btnDemoSuperAdmin');
+    // Fill credentials and submit login
     await page.evaluate(() => {
+      const emailInput = document.getElementById('adminLoginEmail');
+      const passInput = document.getElementById('adminLoginPassword');
+      if (emailInput) emailInput.value = 'admin@ncsyf.com.ng';
+      if (passInput) passInput.value = 'Secretariat@2026';
       const form = document.getElementById('adminLoginForm');
       if (form) form.requestSubmit();
     });
