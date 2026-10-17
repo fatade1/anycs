@@ -18,21 +18,11 @@ const SEED_ADMIN_USERS = [
   {
     id: 'ADM-001',
     name: 'National Secretariat Super Admin',
-    email: 'admin@anycs.org.ng',
+    email: 'admin@ncsyf.com.ng',
     password: 'Secretariat@2026',
     role: 'super_admin',
     roleLabel: 'Super Administrator',
     createdAt: '2026-09-01',
-    status: 'active'
-  },
-  {
-    id: 'ADM-002',
-    name: 'Desk Operations Regular Admin',
-    email: 'officer@anycs.org.ng',
-    password: 'Officer@2026',
-    role: 'regular_admin',
-    roleLabel: 'Regular Administrator',
-    createdAt: '2026-09-15',
     status: 'active'
   }
 ];
@@ -413,16 +403,53 @@ const SEED_GALLERY_ALBUMS = [
 // ---- Store Helpers ----
 function getStoredAdminUsers() {
   const data = localStorage.getItem(STORAGE_KEYS.ADMIN_USERS);
-  if (!data) {
-    localStorage.setItem(STORAGE_KEYS.ADMIN_USERS, JSON.stringify(SEED_ADMIN_USERS));
-    return SEED_ADMIN_USERS;
+  let admins = SEED_ADMIN_USERS;
+  if (data) {
+    try {
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed) && parsed.length) admins = parsed;
+    } catch (e) {}
   }
-  try {
-    const parsed = JSON.parse(data);
-    return Array.isArray(parsed) && parsed.length ? parsed : SEED_ADMIN_USERS;
-  } catch (e) {
-    return SEED_ADMIN_USERS;
+
+  // Ensure only authorized admins exist, superadmin is admin@ncsyf.com.ng, and old demo accounts are purged
+  let modified = false;
+  const initialLen = admins.length;
+  // Remove old seed / demo accounts that shouldn't exist
+  admins = admins.filter(a => a.email !== 'officer@anycs.org.ng' && a.email !== 'admin@anycs.org.ng');
+  if (admins.length !== initialLen) modified = true;
+
+  // Ensure admin@ncsyf.com.ng exists as the primary superadmin
+  const hasSuper = admins.some(a => a.email.toLowerCase() === 'admin@ncsyf.com.ng');
+  if (!hasSuper) {
+    const adm001 = admins.find(a => a.id === 'ADM-001');
+    if (adm001) {
+      adm001.email = 'admin@ncsyf.com.ng';
+      adm001.name = 'National Secretariat Super Admin';
+      adm001.role = 'super_admin';
+      adm001.roleLabel = 'Super Administrator';
+      adm001.password = 'Secretariat@2026';
+      adm001.status = 'active';
+      modified = true;
+    } else {
+      admins.unshift({
+        id: 'ADM-001',
+        name: 'National Secretariat Super Admin',
+        email: 'admin@ncsyf.com.ng',
+        password: 'Secretariat@2026',
+        role: 'super_admin',
+        roleLabel: 'Super Administrator',
+        createdAt: '2026-09-01',
+        status: 'active'
+      });
+      modified = true;
+    }
   }
+
+  if (modified || !data) {
+    localStorage.setItem(STORAGE_KEYS.ADMIN_USERS, JSON.stringify(admins));
+  }
+
+  return admins;
 }
 
 function saveAdminUsers(users) {
@@ -1230,21 +1257,17 @@ function setupEventListeners() {
     btnDemoSuperAdmin.addEventListener('click', () => {
       const emailInput = document.getElementById('adminLoginEmail');
       const passInput = document.getElementById('adminLoginPassword');
-      if (emailInput) emailInput.value = 'admin@anycs.org.ng';
+      if (emailInput) emailInput.value = 'admin@ncsyf.com.ng';
       if (passInput) passInput.value = 'Secretariat@2026';
-      showAdminToast('Super Admin demo credentials auto-filled. Click "Sign In" to proceed.');
+      showAdminToast('Super Admin credentials auto-filled. Click "Sign In" to proceed.');
     });
   }
 
-  // 1-Click Demo Fill: Regular Admin
+  // 1-Click Demo Fill: Regular Admin (Removed / info notice)
   const btnDemoRegularAdmin = document.getElementById('btnDemoRegularAdmin');
   if (btnDemoRegularAdmin) {
     btnDemoRegularAdmin.addEventListener('click', () => {
-      const emailInput = document.getElementById('adminLoginEmail');
-      const passInput = document.getElementById('adminLoginPassword');
-      if (emailInput) emailInput.value = 'officer@anycs.org.ng';
-      if (passInput) passInput.value = 'Officer@2026';
-      showAdminToast('Regular Admin demo credentials auto-filled. Click "Sign In" to proceed.');
+      showAdminToast('No default regular admin account exists. Create new accounts from the Admins tab.', 'info');
     });
   }
 
@@ -1426,20 +1449,23 @@ function handleLogin(e) {
       showAdminToast('Access Denied: This administrator account has been revoked by Super Admin.', 'error');
       return;
     }
+    // Verify password if defined on account
+    if (matched.password && matched.password !== password) {
+      showAdminToast('Incorrect password. Please verify your credentials or contact Super Admin.', 'error');
+      return;
+    }
     role = matched.role;
     displayName = matched.name;
-  } else if (
-    email.toLowerCase() === 'admin@anycs.org.ng' || 
-    email.toLowerCase().includes('super') || 
-    email.toLowerCase().includes('secretariat') || 
-    password === 'Secretariat@2026'
-  ) {
+  } else if (email.toLowerCase() === 'admin@ncsyf.com.ng') {
+    if (password !== 'Secretariat@2026') {
+      showAdminToast('Incorrect password for Super Administrator.', 'error');
+      return;
+    }
     role = 'super_admin';
     displayName = 'National Secretariat Super Admin';
   } else {
-    role = 'regular_admin';
-    const prefix = email.split('@')[0];
-    displayName = prefix.charAt(0).toUpperCase() + prefix.slice(1).replace('.', ' ');
+    showAdminToast('Access Denied: No administrator account found with this email. Please log in with the Super Admin account or contact the Secretariat.', 'error');
+    return;
   }
 
   const session = {
@@ -2573,7 +2599,7 @@ function renderAdminsTable() {
 
   tbody.innerHTML = admins.map(a => {
     const isSuper = a.role === 'super_admin';
-    const isPrimary = a.id === 'ADM-001' || a.email === 'admin@anycs.org.ng';
+    const isPrimary = a.id === 'ADM-001' || a.email.toLowerCase() === 'admin@ncsyf.com.ng';
     const isSelf = currentSession && currentSession.email && currentSession.email.toLowerCase() === a.email.toLowerCase();
     const isRevoked = a.status === 'revoked';
 
@@ -2677,7 +2703,7 @@ window.toggleAdminStatus = function(adminId) {
   const admin = admins.find(a => a.id === adminId);
   if (!admin) return;
 
-  if (admin.id === 'ADM-001') {
+  if (admin.id === 'ADM-001' || admin.email.toLowerCase() === 'admin@ncsyf.com.ng') {
     showAdminToast('Cannot revoke the primary Super Administrator account.', 'error');
     return;
   }
@@ -2700,7 +2726,7 @@ window.deleteAdmin = function(adminId) {
   const admin = admins.find(a => a.id === adminId);
   if (!admin) return;
 
-  if (admin.id === 'ADM-001') {
+  if (admin.id === 'ADM-001' || admin.email.toLowerCase() === 'admin@ncsyf.com.ng') {
     showAdminToast('Cannot delete the primary Super Administrator account.', 'error');
     return;
   }
