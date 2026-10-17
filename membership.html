@@ -342,8 +342,8 @@
                 </div>
               </div>
 
-              <div style="display: flex; gap: var(--space-sm); flex-wrap: wrap;">
-                <button type="button" id="btnInlineSuccessSignIn" class="btn btn--green-gradient btn--sm" style="gap: 6px;">
+              <div class="success-inline-actions">
+                <button type="button" id="btnInlineSuccessSignIn" class="btn btn--green-gradient btn--sm btn-primary-action" style="gap: 6px;">
                   <i data-lucide="log-in" style="width: 15px; height: 15px;"></i>
                   <span>Sign In with Membership ID →</span>
                 </button>
@@ -729,12 +729,12 @@
       </div>
 
       <!-- Action Buttons -->
-      <div style="display: flex; gap: var(--space-md); flex-wrap: wrap;">
-        <button type="button" id="btnSuccessSignIn" class="btn btn--green-gradient btn--lg" style="flex: 1; justify-content: center; gap: 8px;">
+      <div class="success-modal-actions">
+        <button type="button" id="btnSuccessSignIn" class="btn btn--green-gradient btn--lg btn-primary-action" style="gap: 8px;">
           <i data-lucide="log-in" style="width: 18px; height: 18px;"></i>
           <span>Sign In with Membership ID →</span>
         </button>
-        <button type="button" class="btn btn--outline btn--lg" data-close-reg-success style="justify-content: center;">
+        <button type="button" class="btn btn--outline btn--lg" data-close-reg-success id="btnSuccessDone" style="justify-content: center;">
           Done
         </button>
       </div>

@@ -4244,26 +4244,150 @@ p {
   animation: fadeIn 0.4s ease-out;
 }
 
+/* Registration Success Dialog & Inline Banner Actions */
+.success-modal-actions,
+.success-inline-actions {
+  display: flex;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.success-modal-actions .btn-primary-action,
+.success-inline-actions .btn-primary-action {
+  flex: 1;
+  justify-content: center;
+  gap: 8px;
+}
+
 @media (max-width: 640px) {
   .registration-success-dialog {
-    padding: var(--space-xl) var(--space-md);
+    padding: 24px 16px 36px;
+    margin: 12px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 18px;
+    width: calc(100% - 24px);
+    box-sizing: border-box;
   }
+
+  .success-badge-icon {
+    width: 52px;
+    height: 52px;
+    margin-bottom: 8px;
+  }
+
+  .success-badge-icon i,
+  .success-badge-icon svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  #regSuccessHeading {
+    font-size: 1.25rem !important;
+    line-height: 1.3;
+  }
+
+  .member-id-credential-card {
+    padding: 14px 12px;
+    border-radius: 14px;
+    margin: 12px 0 14px;
+  }
+
   .member-id-value-row {
     flex-direction: column;
     align-items: stretch;
     text-align: center;
     gap: 10px;
+    padding: 10px 12px;
   }
+
   .member-id-text {
-    font-size: 1.3rem;
+    font-size: 1.25rem;
+    letter-spacing: 0.05em;
+    text-align: center;
+    word-break: break-all;
   }
+
   .btn-copy-id {
-    justify-content: center;
-    width: 100%;
+    width: 100% !important;
+    justify-content: center !important;
+    min-height: 42px;
+    font-size: 0.82rem;
   }
+
+  .email-dispatch-notice {
+    padding: 12px;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .email-dispatch-notice .icon-wrap i,
+  .email-dispatch-notice .icon-wrap svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .email-dispatch-notice span {
+    font-size: 0.74rem;
+    line-height: 1.45;
+  }
+
   .applicant-summary-grid {
     grid-template-columns: 1fr;
     gap: 8px;
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+
+  .applicant-summary-grid .summary-cell .label {
+    font-size: 0.64rem;
+  }
+
+  .applicant-summary-grid .summary-cell .val {
+    font-size: 0.82rem;
+  }
+
+  /* Make modal buttons 100% full width and stacked on mobile */
+  .success-modal-actions {
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .success-modal-actions .btn,
+  .success-modal-actions button {
+    width: 100% !important;
+    flex: none !important;
+    justify-content: center !important;
+    min-height: 46px;
+    font-size: 0.88rem;
+  }
+
+  /* Inline success banner on mobile */
+  .success-banner-inline {
+    padding: 18px 14px;
+    border-radius: 16px;
+    margin-bottom: var(--space-xl);
+  }
+
+  .success-banner-inline h3 {
+    font-size: 1.15rem !important;
+  }
+
+  .success-inline-actions {
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .success-inline-actions .btn,
+  .success-inline-actions button {
+    width: 100% !important;
+    flex: none !important;
+    justify-content: center !important;
+    min-height: 44px;
+    font-size: 0.85rem;
   }
 }
 
@@ -5000,24 +5124,312 @@ p {
 }
 
 @media (max-width: 640px) {
-  .dashboard-services-grid {
-    grid-template-columns: 1fr;
+  .member-dashboard-hero {
+    padding: calc(var(--nav-height) + var(--space-md)) 0 var(--space-xl);
   }
+
+  .dash-hero-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-md);
+  }
+
+  .dash-hero-main {
+    max-width: 100%;
+  }
+
+  .dash-hero-badge {
+    font-size: 0.68rem;
+    padding: 4px 10px;
+    gap: 6px;
+    white-space: normal;
+    line-height: 1.35;
+  }
+
+  .member-dashboard-hero h1,
+  .member-dashboard-hero #dashMemberGreeting {
+    font-size: 1.45rem !important;
+    line-height: 1.25;
+    margin: 8px 0 6px;
+    word-break: break-word;
+  }
+
+  .dash-hero-desc {
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+
+  /* Balanced Hero Chips Grid on Mobile: 2 on row 1, 1 full-width on row 2 */
+  .dash-hero-chips {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  .dash-hero-chip {
+    min-width: 0;
+    padding: 8px 12px;
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .dash-hero-chip .chip-label {
+    font-size: 0.62rem;
+    margin-bottom: 2px;
+  }
+
+  .dash-hero-chip .chip-val {
+    font-size: 0.82rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .dash-hero-chip:last-child {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 14px;
+  }
+
+  .dash-hero-chip:last-child .chip-label {
+    margin-bottom: 0;
+  }
+
+  /* Main Wrapper Spacing on Mobile */
+  .dashboard-main-wrapper {
+    padding: var(--space-lg) 0 var(--space-3xl);
+  }
+
+  .dashboard-top-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-2xl);
+  }
+
+  /* Executive ID Card on Mobile */
+  .executive-id-card {
+    padding: 18px 16px;
+    border-radius: 16px;
+  }
+
+  .card-header-bar {
+    margin-bottom: 14px;
+  }
+
+  .card-header-crest {
+    height: 32px;
+  }
+
+  .card-org-title {
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+  }
+
+  .card-org-sub {
+    font-size: 0.74rem;
+  }
+
+  .card-security-chip {
+    width: 32px;
+    height: 22px;
+  }
+
+  /* ID Container & Copy Button on Mobile */
+  .card-member-id-container {
+    padding: 8px 12px;
+    margin-bottom: 14px;
+    gap: 8px;
+  }
+
+  .card-member-id-label {
+    font-size: 0.6rem;
+  }
+
+  .card-member-id-value {
+    font-size: 0.98rem;
+    letter-spacing: 0.04em;
+  }
+
+  .card-btn-copy {
+    padding: 5px 10px;
+    font-size: 0.72rem;
+    flex-shrink: 0;
+  }
+
+  /* Stack Name/MDA and Verified Ribbon cleanly */
+  .card-bottom-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .card-user-name {
+    font-size: 1.05rem;
+  }
+
+  .card-user-mda {
+    font-size: 0.75rem;
+    max-width: 100%;
+    white-space: normal;
+    line-height: 1.4;
+  }
+
+  .member-status-ribbon {
+    align-self: flex-start;
+    white-space: nowrap;
+    font-size: 0.7rem;
+    padding: 4px 10px;
+  }
+
+  /* Print Slip Button full width touch target */
+  .id-card-actions {
+    margin-top: 10px;
+  }
+
+  .id-card-actions .btn {
+    width: 100% !important;
+    justify-content: center !important;
+    min-height: 44px;
+    font-size: 0.85rem;
+  }
+
+  /* Profile Particulars Card on Mobile */
+  .profile-particulars-card {
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+
+  .particulars-header {
+    padding-bottom: 10px;
+    margin-bottom: 14px;
+  }
+
+  .particulars-header-title {
+    font-size: 0.95rem;
+  }
+
   .particulars-grid {
     grid-template-columns: 1fr;
+    gap: 0;
   }
-  .id-card-actions {
+
+  .particular-item {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(15, 69, 48, 0.08);
+  }
+
+  .particular-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .particular-item .p-label {
+    font-size: 0.68rem;
+    margin-bottom: 2px;
+  }
+
+  .particular-item .p-val {
+    font-size: 0.88rem;
+  }
+
+  /* Services Grid on Mobile */
+  .services-section {
+    margin-bottom: var(--space-2xl);
+  }
+
+  .services-section-header {
+    margin-bottom: var(--space-md);
+  }
+
+  .services-section-header h2 {
+    font-size: 1.15rem;
+  }
+
+  .dashboard-services-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .service-card {
+    padding: 16px 14px;
+  }
+
+  .service-card-top {
+    margin-bottom: 10px;
+  }
+
+  .service-icon-box {
+    width: 38px;
+    height: 38px;
+  }
+
+  .service-icon-box i,
+  .service-icon-box svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .service-card h3 {
+    font-size: 0.92rem;
+    margin-bottom: 4px;
+  }
+
+  .service-card p {
+    font-size: 0.75rem;
+    line-height: 1.45;
+  }
+
+  /* Security Status Bar on Mobile */
+  .security-status-bar {
     flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 16px 14px;
   }
+
+  .security-status-left {
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .security-shield-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .security-status-info h4 {
+    font-size: 0.82rem;
+  }
+
+  .security-status-info p {
+    font-size: 0.72rem;
+    line-height: 1.4;
+  }
+
+  #btnDashSignOut {
+    width: 100% !important;
+    justify-content: center !important;
+    min-height: 44px;
+    font-size: 0.84rem;
+  }
+}
+
+@media (max-width: 380px) {
   .card-member-id-value {
-    font-size: 1rem;
+    font-size: 0.86rem;
   }
-  .dash-hero-chips {
-    width: 100%;
+  .card-btn-copy {
+    padding: 4px 8px;
+    font-size: 0.68rem;
   }
-  .dash-hero-chip {
-    flex: 1;
-    min-width: 100px;
+  .member-status-ribbon {
+    font-size: 0.65rem;
+    padding: 3px 8px;
   }
 }
 
