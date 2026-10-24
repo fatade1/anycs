@@ -2309,4 +2309,143 @@ body.sidebar-open {
   color: #1D4ED8;
 }
 
+/* ==========================================================================
+   Admin Governance Directory & Upload Styles
+   ========================================================================== */
+.gov-subnav-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--admin-bg-page);
+  padding: 6px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--admin-border);
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+
+.gov-subnav-btn {
+  padding: 8px 18px;
+  border-radius: var(--radius-md);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--admin-text-muted);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gov-subnav-btn.active {
+  background: var(--admin-primary);
+  color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(15, 69, 48, 0.2);
+}
+
+.gov-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.gov-member-card {
+  background: #FFFFFF;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  position: relative;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.gov-member-card:hover {
+  border-color: var(--admin-accent-dark);
+}
+
+.gov-photo-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.gov-photo-preview {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--admin-primary-subtle);
+  color: var(--admin-primary);
+  border: 2px solid var(--admin-accent-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.gov-state-card {
+  background: #FFFFFF;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.gov-state-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.gov-state-title {
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--admin-primary);
+}
+
+.gov-state-zone-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(233, 206, 116, 0.2);
+  color: #855e00;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.gov-state-exec-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .gov-state-exec-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.gov-exec-box {
+  background: var(--admin-bg-page);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 

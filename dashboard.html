@@ -77,7 +77,7 @@
             <span>NCSYF Certified Member Workspace • Federal Republic of Nigeria</span>
           </div>
           <h1 id="dashMemberGreeting">
-            Welcome back, Serving Officer
+            Welcome, Serving Officer
           </h1>
           <p class="dash-hero-desc">
             Manage your official Forum credentials, check secretariat verification status, access digital circulars, and participate in national initiatives.
@@ -93,7 +93,7 @@
             <span class="chip-val" id="dashHeroChapter">FCT Abuja</span>
           </div>
           <div class="dash-hero-chip">
-            <span class="chip-label">Verification</span>
+            <span class="chip-label">Verification Status</span>
             <span class="chip-val status-verified" id="dashHeroStatus">Verified Active</span>
           </div>
         </div>
@@ -106,7 +106,7 @@
       <!-- Top Row: Executive Digital Smart Card + Profile Particulars & Verification Alert -->
       <div class="dashboard-top-grid">
         
-        <!-- Left Column: Executive Digital Credential Card -->
+        <!-- Left Column: Executive Digital Credential Card (Official Credential Slip) -->
         <div class="card-wrapper-col">
           <div class="executive-id-card" id="printableSlipCard">
             <div class="card-header-bar">
@@ -123,7 +123,7 @@
             <!-- Member ID Block with Single-Line Mono Font & Copy Action -->
             <div class="card-member-id-container">
               <div>
-                <span class="card-member-id-label">Assigned Member ID</span>
+                <span class="card-member-id-label">Membership ID</span>
                 <span id="slipMemberId" class="card-member-id-value">NCSYF-1995-0001</span>
               </div>
               <button type="button" id="btnCopyDashMemberId" class="card-btn-copy" title="Copy Membership ID">
@@ -139,6 +139,7 @@
                 <div class="card-user-mda" id="slipMda">—</div>
               </div>
               <div>
+                <span style="display: block; font-size: 0.68rem; color: rgba(255, 255, 255, 0.7); text-transform: uppercase; font-weight: 700; margin-bottom: 2px;">Membership Status</span>
                 <div id="slipStatusRibbon" class="member-status-ribbon status-verified">
                   <span id="slipStatusDot">●</span>
                   <span id="slipStatusText">Verified Active Member</span>
@@ -175,12 +176,12 @@
           <!-- 2-Column Key-Value Particulars Grid -->
           <div class="particulars-grid">
             <div class="particular-item">
-              <span class="p-label">Membership Category</span>
-              <span class="p-val" id="slipCategory">Full Member (18–35 yrs)</span>
+              <span class="p-label">Membership ID</span>
+              <span class="p-val" id="particularMemberId" style="font-family: var(--font-mono); font-weight: 700; color: var(--color-primary);">—</span>
             </div>
             <div class="particular-item">
-              <span class="p-label">MDA Staff / File ID</span>
-              <span class="p-val" id="slipStaffId">—</span>
+              <span class="p-label">Membership Category</span>
+              <span class="p-val" id="slipCategory">Full Member (18–35 yrs)</span>
             </div>
             <div class="particular-item">
               <span class="p-label">Designated State Chapter</span>
@@ -279,7 +280,7 @@
   <footer class="footer dashboard-footer no-print">
     <div class="container">
       <div class="dashboard-footer-inner">
-        <span class="dash-footer-copy">© 2026 Nigeria Civil Service Youths' Forum (NCSYF). All rights reserved. • <a href="admin/index.html" class="dash-footer-admin-link">Admin Portal</a></span>
+        <span class="dash-footer-copy">© 2026 Nigeria Civil Service Youths' Forum (NCSYF). All rights reserved.</span>
         <div class="dash-footer-links">
           <a href="index.html" class="footer__link">Home</a>
           <a href="about.html" class="footer__link">About Us</a>
@@ -337,25 +338,25 @@
       const joinDate = profile ? (profile.registeredAt ? profile.registeredAt.split(' ')[0] : '2026-09-28') : '2026-09-28';
       const status = profile ? (profile.status || 'verified') : 'verified';
 
-      // Header Greeting
+      // Header Greeting: Welcome, Full Name of the Member
       const elGreeting = document.getElementById('dashMemberGreeting');
-      if (elGreeting) elGreeting.textContent = `Welcome back, ${fullName}`;
+      if (elGreeting) elGreeting.textContent = `Welcome, ${fullName}`;
 
       // Slip Elements
       const elSlipId = document.getElementById('slipMemberId');
       const elSlipName = document.getElementById('slipFullName');
       const elSlipCat = document.getElementById('slipCategory');
       const elSlipMda = document.getElementById('slipMda');
-      const elSlipStaff = document.getElementById('slipStaffId');
+      const elParticularId = document.getElementById('particularMemberId');
       const elSlipState = document.getElementById('slipStateChapter');
       const elSlipDate = document.getElementById('slipJoinDate');
       const elAccountEmail = document.getElementById('dashAccountEmail');
 
       if (elSlipId) elSlipId.textContent = memberId;
+      if (elParticularId) elParticularId.textContent = memberId;
       if (elSlipName) elSlipName.textContent = fullName;
       if (elSlipCat) elSlipCat.textContent = category;
       if (elSlipMda) elSlipMda.textContent = mda;
-      if (elSlipStaff) elSlipStaff.textContent = staffId;
       if (elSlipState) elSlipState.textContent = stateChapter;
       if (elSlipDate) elSlipDate.textContent = joinDate;
       const userEmail = profile ? profile.email : session.email;
@@ -368,8 +369,9 @@
       const elHeroChapter = document.getElementById('dashHeroChapter');
       const elHeroStatus = document.getElementById('dashHeroStatus');
       if (elHeroTier) {
-        const tierName = profile && profile.tierOfGovernment ? (profile.tierOfGovernment.charAt(0).toUpperCase() + profile.tierOfGovernment.slice(1) + ' Level') : 'Federal Civil Service';
-        elHeroTier.textContent = tierName;
+        const tierName = profile && profile.tierOfGovernment ? (profile.tierOfGovernment.charAt(0).toUpperCase() + profile.tierOfGovernment.slice(1) + ' Level') : 'Federal Level';
+        const mdaVal = (profile && profile.mda) ? profile.mda : '';
+        elHeroTier.textContent = mdaVal ? `${tierName} • ${mdaVal}` : tierName;
       }
       if (elHeroChapter) elHeroChapter.textContent = stateChapter;
       if (elHeroStatus) {
@@ -431,7 +433,12 @@
             </div>
           `;
         } else if (status === 'disapproved') {
-          const reason = (profile && profile.disapprovedReason) || 'Submitted staff credentials or appointment documents did not match civil service rolls.';
+          function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+          }
+          const rawReason = (profile && profile.disapprovedReason) || 'Submitted staff credentials or appointment documents did not match civil service rolls.';
+          const reason = escapeHtml(rawReason);
           alertBox.innerHTML = `
             <div class="dash-alert-box dash-alert--disapproved">
               <i data-lucide="alert-octagon" class="dash-alert-icon"></i>

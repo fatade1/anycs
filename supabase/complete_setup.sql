@@ -6,7 +6,7 @@
 -- 1. Open your Supabase Project Dashboard (https://app.supabase.com)
 -- 2. Click "SQL Editor" in the left sidebar
 -- 3. Click "New query", paste the entire contents of this file, and click "Run"
--- 4. All tables, triggers, Row Level Security (RLS) policies, storage buckets,
+-- 4. All tables, security triggers, Row Level Security (RLS) policies, storage buckets,
 --    and initial records will be created instantly and idempotently.
 -- ==========================================================================
 
@@ -37,7 +37,160 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- ==========================================================================
--- 2. MEMBER PROFILES TABLE (PUBLIC.MEMBER_PROFILES)
+-- 2. ADMINISTRATIVE PERSONNEL TABLE (PUBLIC.ADMIN_USERS)
+-- ==========================================================================
+CREATE TABLE IF NOT EXISTS public.admin_users (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    role TEXT NOT NULL DEFAULT 'admin',
+    role_label TEXT DEFAULT 'Administrator',
+    status TEXT NOT NULL DEFAULT 'active',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_admin_users_email ON public.admin_users(email);
+CREATE INDEX IF NOT EXISTS idx_admin_users_role ON public.admin_users(role);
+
+DROP TRIGGER IF EXISTS trigger_admin_users_updated_at ON public.admin_users;
+CREATE TRIGGER trigger_admin_users_updated_at
+    BEFORE UPDATE ON public.admin_users
+    FOR EACH ROW
+    EXECUTE FUNCTION public.handle_updated_at();
+
+-- ==========================================================================
+-- 3. ADMINISTRATIVE ACCESS CONTROL FUNCTIONS & SECURE RPCs
+-- ==========================================================================
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN AS $$
+BEGIN
+    RETURN (
+        auth.role() = 'service_role' OR
+        EXISTS (
+            SELECT 1 FROM public.admin_users
+            WHERE LOWER(email) = LOWER(auth.jwt()->>'email')
+              AND status = 'active'
+        )
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
+
+CREATE OR REPLACE FUNCTION public.is_super_admin()
+RETURNS BOOLEAN AS $$
+BEGIN
+    RETURN (
+        auth.role() = 'service_role' OR
+        EXISTS (
+            SELECT 1 FROM public.admin_users
+            WHERE LOWER(email) = LOWER(auth.jwt()->>'email')
+              AND role = 'super_admin'
+              AND status = 'active'
+        )
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
+
+-- Secure member login email lookup:
+-- Allows member sign-in by Membership ID without granting table-wide SELECT on member_profiles
+CREATE OR REPLACE FUNCTION public.resolve_member_login_email(p_member_id TEXT)
+RETURNS TEXT
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    found_email TEXT;
+    clean_id TEXT;
+    norm_id TEXT;
+BEGIN
+    IF p_member_id IS NULL OR TRIM(p_member_id) = '' THEN
+        RETURN NULL;
+    END IF;
+
+    clean_id := UPPER(TRIM(p_member_id));
+    norm_id := REGEXP_REPLACE(clean_id, '[^A-Z0-9]', '', 'g');
+
+    -- 1. Exact match on member_id (trimmed, case-insensitive)
+    SELECT email INTO found_email
+    FROM public.member_profiles
+    WHERE UPPER(TRIM(member_id)) = clean_id
+    LIMIT 1;
+
+    -- 2. Normalized match on member_id (ignoring hyphens, slashes, spaces)
+    IF found_email IS NULL THEN
+        SELECT email INTO found_email
+        FROM public.member_profiles
+        WHERE REGEXP_REPLACE(UPPER(TRIM(member_id)), '[^A-Z0-9]', '', 'g') = norm_id
+        LIMIT 1;
+    END IF;
+
+    -- 3. Match on staff_id (exact or normalized)
+    IF found_email IS NULL THEN
+        SELECT email INTO found_email
+        FROM public.member_profiles
+        WHERE UPPER(TRIM(staff_id)) = clean_id
+           OR REGEXP_REPLACE(UPPER(TRIM(staff_id)), '[^A-Z0-9]', '', 'g') = norm_id
+        LIMIT 1;
+    END IF;
+
+    -- 4. Suffix match (e.g. user entered "2026-0001" without "NCSYF-")
+    IF found_email IS NULL AND LENGTH(clean_id) >= 6 THEN
+        SELECT email INTO found_email
+        FROM public.member_profiles
+        WHERE UPPER(TRIM(member_id)) LIKE '%' || clean_id
+        LIMIT 1;
+    END IF;
+
+    RETURN found_email;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.resolve_member_login_email(TEXT) TO anon, authenticated;
+
+-- Secure download counter increment:
+-- Allows atomic download counter bumps without granting table-wide UPDATE on resources
+CREATE OR REPLACE FUNCTION public.increment_resource_downloads(p_resource_id TEXT)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE public.resources
+    SET downloads = downloads + 1, updated_at = now()
+    WHERE id = p_resource_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+GRANT EXECUTE ON FUNCTION public.increment_resource_downloads(TEXT) TO anon, authenticated;
+
+-- ==========================================================================
+-- 4. ROW LEVEL SECURITY FOR ADMINISTRATIVE PERSONNEL
+-- ==========================================================================
+ALTER TABLE public.admin_users ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Admins can view and manage admin accounts" ON public.admin_users;
+DROP POLICY IF EXISTS "Authorized admins can view admin personnel" ON public.admin_users;
+CREATE POLICY "Authorized admins can view admin personnel"
+    ON public.admin_users FOR SELECT
+    TO authenticated, service_role
+    USING (
+        public.is_admin() OR
+        (auth.role() = 'service_role')
+    );
+
+DROP POLICY IF EXISTS "Super administrators can manage admin accounts" ON public.admin_users;
+CREATE POLICY "Super administrators can manage admin accounts"
+    ON public.admin_users FOR ALL
+    TO authenticated, service_role
+    USING (
+        public.is_super_admin() OR
+        (auth.role() = 'service_role')
+    )
+    WITH CHECK (
+        public.is_super_admin() OR
+        (auth.role() = 'service_role')
+    );
+
+-- ==========================================================================
+-- 5. MEMBER PROFILES TABLE (PUBLIC.MEMBER_PROFILES)
 -- ==========================================================================
 CREATE TABLE IF NOT EXISTS public.member_profiles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -82,17 +235,21 @@ CREATE TRIGGER trigger_member_profiles_updated_at
 CREATE OR REPLACE FUNCTION public.protect_member_sensitive_fields()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF (auth.role() = 'authenticated') THEN
-        IF (NEW.member_id <> OLD.member_id) THEN
+    -- If user is NOT an active admin or service role, forbid altering sensitive fields
+    IF NOT (public.is_admin() OR auth.role() = 'service_role') THEN
+        IF (NEW.member_id IS DISTINCT FROM OLD.member_id) THEN
             RAISE EXCEPTION 'Access Denied: Member ID cannot be modified by member.';
         END IF;
-        IF (NEW.user_id <> OLD.user_id) THEN
-            RAISE EXCEPTION 'Access Denied: User identity linkage cannot be changed.';
+        -- Allow linking user_id to auth.uid() if OLD.user_id was null or if authenticated user owns the email
+        IF (NEW.user_id IS DISTINCT FROM OLD.user_id) THEN
+            IF NOT (NEW.user_id = auth.uid() AND (OLD.user_id IS NULL OR LOWER(auth.jwt()->>'email') = LOWER(OLD.email))) THEN
+                RAISE EXCEPTION 'Access Denied: User identity linkage cannot be changed.';
+            END IF;
         END IF;
-        IF (NEW.status <> OLD.status) THEN
+        IF (NEW.status IS DISTINCT FROM OLD.status) THEN
             RAISE EXCEPTION 'Access Denied: Membership verification status can only be modified by the Secretariat.';
         END IF;
-        IF (NEW.category <> OLD.category) THEN
+        IF (NEW.category IS DISTINCT FROM OLD.category) THEN
             RAISE EXCEPTION 'Access Denied: Membership category cannot be changed directly.';
         END IF;
     END IF;
@@ -133,36 +290,59 @@ CREATE TRIGGER trigger_on_auth_user_created
     FOR EACH ROW
     EXECUTE FUNCTION public.handle_auth_user_created();
 
--- Row Level Security (RLS) for Member Profiles
+-- Row Level Security (RLS) for Member Profiles (Hardened for NDPA 2023 Compliance)
 ALTER TABLE public.member_profiles ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Members can view own profile" ON public.member_profiles;
-DROP POLICY IF EXISTS "Public can verify member validity" ON public.member_profiles;
 DROP POLICY IF EXISTS "Public can view members" ON public.member_profiles;
-CREATE POLICY "Public can view members"
+DROP POLICY IF EXISTS "Public can verify member validity" ON public.member_profiles;
+DROP POLICY IF EXISTS "Members can view own profile" ON public.member_profiles;
+CREATE POLICY "Members can view own profile"
     ON public.member_profiles FOR SELECT
     TO anon, authenticated
-    USING (true);
+    USING (
+        (auth.uid() = user_id) OR
+        (LOWER(auth.jwt()->>'email') = LOWER(email)) OR
+        public.is_admin() OR
+        (auth.role() = 'service_role')
+    );
 
 DROP POLICY IF EXISTS "Applicants can submit registration profiles" ON public.member_profiles;
 CREATE POLICY "Applicants can submit registration profiles"
     ON public.member_profiles FOR INSERT
     TO anon, authenticated
-    WITH CHECK (true);
+    WITH CHECK (
+        (status = 'pending') AND
+        (user_id IS NULL OR user_id = auth.uid())
+    );
 
-DROP POLICY IF EXISTS "Members can update permitted own profile fields" ON public.member_profiles;
 DROP POLICY IF EXISTS "Permit member and admin updates" ON public.member_profiles;
-CREATE POLICY "Permit member and admin updates"
+DROP POLICY IF EXISTS "Members can update permitted own profile fields" ON public.member_profiles;
+DROP POLICY IF EXISTS "Members and admins can update permitted fields" ON public.member_profiles;
+CREATE POLICY "Members and admins can update permitted fields"
     ON public.member_profiles FOR UPDATE
     TO anon, authenticated
-    USING (true)
-    WITH CHECK (true);
+    USING (
+        (auth.uid() = user_id) OR
+        (LOWER(auth.jwt()->>'email') = LOWER(email)) OR
+        public.is_admin() OR
+        (auth.role() = 'service_role')
+    )
+    WITH CHECK (
+        (auth.uid() = user_id) OR
+        (LOWER(auth.jwt()->>'email') = LOWER(email)) OR
+        public.is_admin() OR
+        (auth.role() = 'service_role')
+    );
 
 DROP POLICY IF EXISTS "Permit member deletions" ON public.member_profiles;
-CREATE POLICY "Permit member deletions"
+DROP POLICY IF EXISTS "Only authorized administrators can delete members" ON public.member_profiles;
+CREATE POLICY "Only authorized administrators can delete members"
     ON public.member_profiles FOR DELETE
-    TO anon, authenticated
-    USING (true);
+    TO authenticated, service_role
+    USING (
+        public.is_admin() OR
+        (auth.role() = 'service_role')
+    );
 
 DROP POLICY IF EXISTS "Service role has full management access" ON public.member_profiles;
 CREATE POLICY "Service role has full management access"
@@ -172,7 +352,7 @@ CREATE POLICY "Service role has full management access"
     WITH CHECK (true);
 
 -- ==========================================================================
--- 3. PUBLIC INITIATIVES & PROJECTS TABLE (PUBLIC.PROJECTS)
+-- 6. PUBLIC INITIATIVES & PROJECTS TABLE (PUBLIC.PROJECTS)
 -- ==========================================================================
 CREATE TABLE IF NOT EXISTS public.projects (
     id TEXT PRIMARY KEY,
@@ -211,11 +391,11 @@ DROP POLICY IF EXISTS "Admins can manage projects" ON public.projects;
 CREATE POLICY "Admins can manage projects"
     ON public.projects FOR ALL
     TO authenticated, service_role
-    USING (true)
-    WITH CHECK (true);
+    USING (public.is_admin() OR auth.role() = 'service_role')
+    WITH CHECK (public.is_admin() OR auth.role() = 'service_role');
 
 -- ==========================================================================
--- 4. OFFICIAL CIRCULARS & RESOURCES TABLE (PUBLIC.RESOURCES)
+-- 7. OFFICIAL CIRCULARS & RESOURCES TABLE (PUBLIC.RESOURCES)
 -- ==========================================================================
 CREATE TABLE IF NOT EXISTS public.resources (
     id TEXT PRIMARY KEY,
@@ -250,21 +430,16 @@ CREATE POLICY "Public can view all resources"
     USING (true);
 
 DROP POLICY IF EXISTS "Public can increment resource download count" ON public.resources;
-CREATE POLICY "Public can increment resource download count"
-    ON public.resources FOR UPDATE
-    TO anon, authenticated
-    USING (true)
-    WITH CHECK (true);
 
 DROP POLICY IF EXISTS "Admins can manage resources" ON public.resources;
 CREATE POLICY "Admins can manage resources"
     ON public.resources FOR ALL
     TO authenticated, service_role
-    USING (true)
-    WITH CHECK (true);
+    USING (public.is_admin() OR auth.role() = 'service_role')
+    WITH CHECK (public.is_admin() OR auth.role() = 'service_role');
 
 -- ==========================================================================
--- 5. MEDIA GALLERY & PHOTO ALBUMS TABLE (PUBLIC.GALLERY_ALBUMS)
+-- 8. MEDIA GALLERY & PHOTO ALBUMS TABLE (PUBLIC.GALLERY_ALBUMS)
 -- ==========================================================================
 CREATE TABLE IF NOT EXISTS public.gallery_albums (
     id TEXT PRIMARY KEY,
@@ -301,43 +476,11 @@ DROP POLICY IF EXISTS "Admins can manage gallery albums" ON public.gallery_album
 CREATE POLICY "Admins can manage gallery albums"
     ON public.gallery_albums FOR ALL
     TO authenticated, service_role
-    USING (true)
-    WITH CHECK (true);
+    USING (public.is_admin() OR auth.role() = 'service_role')
+    WITH CHECK (public.is_admin() OR auth.role() = 'service_role');
 
 -- ==========================================================================
--- 6. ADMINISTRATIVE PERSONNEL TABLE (PUBLIC.ADMIN_USERS)
--- ==========================================================================
-CREATE TABLE IF NOT EXISTS public.admin_users (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    email TEXT UNIQUE NOT NULL,
-    role TEXT NOT NULL DEFAULT 'admin',
-    role_label TEXT DEFAULT 'Administrator',
-    status TEXT NOT NULL DEFAULT 'active',
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
-CREATE INDEX IF NOT EXISTS idx_admin_users_email ON public.admin_users(email);
-CREATE INDEX IF NOT EXISTS idx_admin_users_role ON public.admin_users(role);
-
-DROP TRIGGER IF EXISTS trigger_admin_users_updated_at ON public.admin_users;
-CREATE TRIGGER trigger_admin_users_updated_at
-    BEFORE UPDATE ON public.admin_users
-    FOR EACH ROW
-    EXECUTE FUNCTION public.handle_updated_at();
-
-ALTER TABLE public.admin_users ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "Admins can view and manage admin accounts" ON public.admin_users;
-CREATE POLICY "Admins can view and manage admin accounts"
-    ON public.admin_users FOR ALL
-    TO authenticated, service_role
-    USING (true)
-    WITH CHECK (true);
-
--- ==========================================================================
--- 7. SUPABASE STORAGE BUCKETS SETUP
+-- 9. SUPABASE STORAGE BUCKETS SETUP & HARDENED OBJECT POLICIES
 -- ==========================================================================
 INSERT INTO storage.buckets (id, name, public)
 VALUES 
@@ -366,20 +509,49 @@ CREATE POLICY "Applicants and members can upload KYC verification documents"
     WITH CHECK (bucket_id = 'member-documents');
 
 DROP POLICY IF EXISTS "Admins have full access to storage buckets" ON storage.objects;
-CREATE POLICY "Admins have full access to storage buckets"
+DROP POLICY IF EXISTS "Only administrators can read member verification documents" ON storage.objects;
+CREATE POLICY "Only administrators can read member verification documents"
+    ON storage.objects FOR SELECT
+    TO authenticated, service_role
+    USING (
+        bucket_id = 'member-documents' AND
+        (public.is_admin() OR auth.role() = 'service_role')
+    );
+
+DROP POLICY IF EXISTS "Only administrators can modify member documents" ON storage.objects;
+CREATE POLICY "Only administrators can modify member documents"
+    ON storage.objects FOR UPDATE
+    TO authenticated, service_role
+    USING (
+        bucket_id = 'member-documents' AND
+        (public.is_admin() OR auth.role() = 'service_role')
+    );
+
+DROP POLICY IF EXISTS "Only administrators can delete member documents" ON storage.objects;
+CREATE POLICY "Only administrators can delete member documents"
+    ON storage.objects FOR DELETE
+    TO authenticated, service_role
+    USING (
+        bucket_id = 'member-documents' AND
+        (public.is_admin() OR auth.role() = 'service_role')
+    );
+
+DROP POLICY IF EXISTS "Admins can manage public storage buckets" ON storage.objects;
+CREATE POLICY "Admins can manage public storage buckets"
     ON storage.objects FOR ALL
     TO authenticated, service_role
-    USING (true)
-    WITH CHECK (true);
+    USING (
+        bucket_id IN ('resource-circulars', 'gallery-media') AND
+        (public.is_admin() OR auth.role() = 'service_role')
+    )
+    WITH CHECK (
+        bucket_id IN ('resource-circulars', 'gallery-media') AND
+        (public.is_admin() OR auth.role() = 'service_role')
+    );
 
 -- ==========================================================================
--- 8. COMPREHENSIVE INITIAL SEED DATA
+-- 10. COMPREHENSIVE INITIAL SEED DATA
 -- ==========================================================================
-
--- Member Profiles: Clean fresh roster (0 members).
--- All member applications will be stored directly from the registration portal.
--- Note: If resetting an existing database that previously had test members, execute:
--- TRUNCATE TABLE public.member_profiles CASCADE;
 
 -- Seed Projects
 INSERT INTO public.projects (
@@ -429,80 +601,78 @@ INSERT INTO public.projects (
     'Public Service Transparency & Procurement Integrity Dashboard',
     'Governance & Economy',
     'Bureau of Public Procurement (BPP)',
-    'active',
-    'Active Implementation',
-    'All Federal MDAs',
-    '₦40,000,000',
-    'An open-source procurement analytics dashboard managed by young procurement and finance officers to track contract delivery benchmarks.',
-    '["images/project_governance.jpg"]'::jsonb,
-    '2026-10-01'
+    'completed',
+    'Successfully Concluded',
+    'All Federal Procurement Units',
+    '₦45,000,000',
+    'Developed by NCSYF Tech Fellow cohorts to track competitive tenders and contract awards in full alignment with national open-contracting data standards.',
+    '["images/project_digital_office.jpg"]'::jsonb,
+    '2026-08-10'
 )
 ON CONFLICT (id) DO UPDATE SET
     title = EXCLUDED.title,
     sector = EXCLUDED.sector,
     lead_mda = EXCLUDED.lead_mda,
     status = EXCLUDED.status,
-    description = EXCLUDED.description,
-    images = EXCLUDED.images;
+    budget = EXCLUDED.budget;
 
--- Seed Resources
+-- Seed Resources & Circulars
 INSERT INTO public.resources (
     id, title, category, publishing_mda, file_type, file_size, file_url, downloads, description, date_added
 ) VALUES
 (
     'RES-001',
-    'Federal Public Service Rules (PSR) 2026 Youth Operational Handbook',
-    'Legal Framework & Bye-laws',
-    'Office of the Head of Civil Service of the Federation (OHCSF)',
+    'Revised Public Service Rules (PSR 2026 Edition)',
+    'Official Circular',
+    'Office of the Head of the Civil Service of the Federation (OHCSF)',
     'PDF',
-    '4.2 MB',
-    '#',
+    '4.8 MB',
+    'docs/PSR_2026_Official_Compendium.pdf',
     1420,
-    'Complete annotated guide to public service ethics, promotion guidelines, discipline, and career progression for young civil servants.',
+    'The foundational regulatory framework governing tenure, promotion quotas, professional cadres, performance evaluation, and disciplinary codes across federal institutions.',
     '2026-09-10'
 ),
 (
     'RES-002',
-    'NCSYF Constitution & National Bye-laws (Adopted 2026)',
-    'Constitution & Charter',
-    'Nigeria Civil Service Youths'' Forum Secretariat',
+    'Federal Civil Service Digital Transformation Strategy (FCSSIP-25)',
+    'Policy Framework',
+    'Federal Ministry of Communications, Innovation & Digital Economy',
     'PDF',
-    '2.8 MB',
-    '#',
-    2890,
-    'The foundational legal charter defining membership rights, NEC governance, State Chapter structures, and election guidelines.',
-    '2026-09-12'
+    '3.2 MB',
+    'docs/FCSSIP_25_Digital_Strategy.pdf',
+    980,
+    'The official five-year blueprint charting enterprise cloud migration, digital records retention, electronic file approvals, and capacity building for early-career public servants.',
+    '2026-09-18'
 ),
 (
     'RES-003',
-    'Civil Service AI Literacy & Data Protection (NDPA 2023) Guidelines',
-    'Policy Brief & Circular',
-    'Nigeria Data Protection Commission (NDPC) & NITDA',
+    'Guidelines on Youth Innovators in Public Service (YIPS)',
+    'Guidelines',
+    'National Secretariat, NCSYF',
     'PDF',
-    '1.9 MB',
-    '#',
-    980,
-    'Standards and technical guidance for processing government records in compliance with the Nigeria Data Protection Act 2023.',
-    '2026-09-25'
+    '1.6 MB',
+    'docs/YIPS_Innovators_Operational_Handbook.pdf',
+    754,
+    'Operational playbook for establishing innovation sandboxes, cross-MDA project taskforces, and youth-led service redesign sprint teams in ministries and extra-ministerial agencies.',
+    '2026-10-02'
 ),
 (
     'RES-004',
-    'Monitoring & Evaluation (M&E) Framework for Youth Civil Service Projects',
-    'Training Manual & Toolkit',
-    'National Planning Commission / FMF',
-    'DOCX',
-    '1.1 MB',
-    '#',
-    650,
-    'Step-by-step toolkit with KPI scorecards, reporting templates, and audit benchmarks for MDA project coordinators.',
-    '2026-10-02'
+    'National Ethics & Anti-Corruption Code for Young Public Officers',
+    'Compliance Code',
+    'Independent Corrupt Practices Commission (ICPC) & Code of Conduct Bureau (CCB)',
+    'PDF',
+    '2.1 MB',
+    'docs/Public_Officer_Ethics_Manual.pdf',
+    612,
+    'Comprehensive guidance on conflict of interest disclosure, asset declarations, whistleblower protection mechanisms, and transparency standards for emerging leaders.',
+    '2026-08-25'
 )
 ON CONFLICT (id) DO UPDATE SET
     title = EXCLUDED.title,
     category = EXCLUDED.category,
     publishing_mda = EXCLUDED.publishing_mda,
-    file_type = EXCLUDED.file_type,
-    downloads = EXCLUDED.downloads;
+    file_type = EXCLUDED.file_type;
 
 -- Seed Gallery Albums
 INSERT INTO public.gallery_albums (
@@ -510,23 +680,23 @@ INSERT INTO public.gallery_albums (
 ) VALUES
 (
     'GAL-001',
-    'National Public Service Innovation Summit 2026',
-    'Summits & Conferences',
-    'International Conference Centre, Abuja FCT',
-    '2026-09-18',
-    'High-level federal assembly gathering 1,500+ young civil servants from all 36 States and FCT to formulate digital service delivery roadmaps and paperless workflows.',
-    '["images/gallery_national_summit.jpg", "images/african-youth-civil-servants.jpg", "images/project_digital_office.jpg"]'::jsonb,
-    'images/gallery_national_summit.jpg',
-    '2026-09-18'
+    'Inauguration of NCSYF National Executive Council',
+    'Inauguration & Ceremonies',
+    'State House Banquet Hall, Presidential Villa, Abuja',
+    '2026-09-08',
+    'Official swearing-in of the 2026–2028 National Executive Council by representatives of the Head of the Civil Service of the Federation.',
+    '["images/gallery_presidential_inauguration.jpg", "images/african-youth-civil-servants.jpg"]'::jsonb,
+    'images/gallery_presidential_inauguration.jpg',
+    '2026-09-08'
 ),
 (
     'GAL-002',
-    'State Chapter Official Leadership Inauguration & Induction',
-    'State Chapter Invocations',
-    'Public Service Staff Hall, Lagos & FCT Secretariat',
+    'South-West Regional Youth Public Servants Town Hall',
+    'Town Halls & Seminars',
+    'Federal Secretariat Complex Conference Pavilion, Ibadan, Oyo State',
     '2026-09-22',
-    'Formal swearing-in ceremony for newly appointed State Chapter Executive Committees and zonal youth coordinators driving Track B public service modernization.',
-    '["images/gallery_state_inauguration.jpg", "images/project_governance.jpg"]'::jsonb,
+    'Over 600 young federal and state civil servants gathered to deliberate on civil service modernization, promotion benchmarks, and welfare modernization.',
+    '["images/gallery_state_inauguration.jpg"]'::jsonb,
     'images/gallery_state_inauguration.jpg',
     '2026-09-22'
 ),
@@ -559,20 +729,60 @@ ON CONFLICT (id) DO UPDATE SET
     images = EXCLUDED.images;
 
 -- Seed Superadmin in public.admin_users
-INSERT INTO public.admin_users (
-    id, name, email, role, role_label, status, created_at
-) VALUES
-(
-    'ADM-001',
-    'National Secretariat Super Admin',
-    'admin@ncsyf.com.ng',
-    'super_admin',
-    'Super Administrator',
-    'active',
-    '2026-09-01 08:00:00+01'
-)
-ON CONFLICT (email) DO UPDATE SET
-    name = EXCLUDED.name,
-    role = EXCLUDED.role,
-    role_label = EXCLUDED.role_label,
-    status = EXCLUDED.status;
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM public.admin_users WHERE LOWER(email) = 'admin@ncsyf.com.ng') THEN
+        UPDATE public.admin_users
+        SET role = 'super_admin',
+            role_label = 'Super Administrator',
+            status = 'active'
+        WHERE LOWER(email) = 'admin@ncsyf.com.ng';
+    ELSE
+        INSERT INTO public.admin_users (
+            id, name, email, role, role_label, status
+        ) VALUES (
+            'ADM-001',
+            'National Secretariat Super Admin',
+            'admin@ncsyf.com.ng',
+            'super_admin',
+            'Super Administrator',
+            'active'
+        );
+    END IF;
+
+    IF EXISTS (SELECT 1 FROM public.admin_users WHERE LOWER(email) = 'fatadetolulope@gmail.com') THEN
+        UPDATE public.admin_users
+        SET role = 'super_admin',
+            role_label = 'Super Administrator',
+            status = 'active'
+        WHERE LOWER(email) = 'fatadetolulope@gmail.com';
+    ELSE
+        INSERT INTO public.admin_users (
+            id, name, email, role, role_label, status
+        ) VALUES (
+            'ADM-TOLULOPE',
+            'Tolulope Fatade',
+            'fatadetolulope@gmail.com',
+            'super_admin',
+            'Super Administrator',
+            'active'
+        );
+    END IF;
+END $$;
+
+-- Dedicated Admin Roster Access RPC
+CREATE OR REPLACE FUNCTION public.get_all_member_profiles_admin()
+RETURNS SETOF public.member_profiles
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT *
+    FROM public.member_profiles
+    ORDER BY registered_at DESC;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.get_all_member_profiles_admin() TO anon, authenticated;

@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Portal | Nigeria Civil Service Youths' Forum (NCSYF)</title>
   <meta name="description" content="Administrative Management Console for Nigeria Civil Service Youths' Forum — Member Verification, Project Uploads, and Resource Administration.">
-  <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="../images/favicon-16x16.png">
-  <link rel="shortcut icon" href="../favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+  <link rel="shortcut icon" href="images/favicon.ico">
   <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
@@ -18,8 +18,8 @@
   <div id="adminLoginView" class="admin-login-wrapper" style="display: none;">
     <div class="admin-login-card">
       <div class="admin-login-header">
-        <a href="../index.html" title="NCSYF Home">
-          <img src="../images/logo.png" alt="NCSYF Logo" class="admin-login-logo">
+        <a href="https://ncsyf.com.ng" title="NCSYF Public Website">
+          <img src="images/logo.png" alt="NCSYF Logo" class="admin-login-logo">
         </a>
         <h1 class="admin-login-title">Admin Management Portal</h1>
         <p class="admin-login-subtitle">Nigeria Civil Service Youths' Forum (NCSYF)</p>
@@ -54,7 +54,7 @@
         </button>
 
         <div style="text-align: center; margin-top: 24px;">
-          <a href="../index.html" style="font-size: 0.84rem; color: var(--admin-primary); font-weight: 700; text-decoration: none;">
+          <a href="https://ncsyf.com.ng" style="font-size: 0.84rem; color: var(--admin-primary); font-weight: 700; text-decoration: none;">
             ← Return to Public Website
           </a>
         </div>
@@ -73,7 +73,7 @@
     <!-- Sidebar Navigation -->
     <aside id="adminSidebar" class="admin-sidebar">
       <div class="sidebar-brand">
-        <img src="../images/logo.png" alt="NCSYF Logo" class="sidebar-brand-img">
+        <img src="images/logo.png" alt="NCSYF Logo" class="sidebar-brand-img">
         <div class="sidebar-brand-text">
           <h2>NCSYF Admin</h2>
           <span>National Console</span>
@@ -113,6 +113,11 @@
           <span class="badge" id="sidebarBadgeGallery">0</span>
         </a>
 
+        <a class="sidebar-link" data-admin-tab="governance" id="sidebarLinkGovernance">
+          <span class="icon"><i data-lucide="landmark"></i></span>
+          <span>Governance</span>
+        </a>
+
         <div class="sidebar-heading" id="sidebarHeadingAdminManage">Administration &amp; System</div>
 
         <a class="sidebar-link" data-admin-tab="admins" id="sidebarLinkAdmins">
@@ -126,7 +131,7 @@
           <span>Backend &amp; Settings</span>
         </a>
 
-        <a href="../index.html" target="_blank" class="sidebar-link" title="Open public site in new tab">
+        <a href="https://ncsyf.com.ng" target="_blank" rel="noopener noreferrer" class="sidebar-link" title="Open public site in new tab">
           <span class="icon"><i data-lucide="external-link"></i></span>
           <span>Public Website ↗</span>
         </a>
@@ -480,6 +485,89 @@
         </div>
 
         <!-- ==================================================================
+             TAB 4C: GOVERNANCE DIRECTORY & LEADERSHIP UPLOAD
+             ================================================================== -->
+        <div id="tab-governance" class="admin-tab-pane" style="display: none;">
+          <div class="admin-card">
+            <div class="admin-card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+              <div class="admin-card-title">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <h3 style="margin: 0;">Governance Upload &amp; Leadership Directory</h3>
+                  <span class="badge-status verified" style="font-size: 0.74rem;">Synced with Public Website</span>
+                </div>
+                <p>Upload photographs, names, positions and biographies for Patrons, Matrons, NEC, and all 37 State Chapters</p>
+              </div>
+
+              <div class="admin-toolbar" style="margin-left: auto;">
+                <button type="button" class="btn-admin btn-primary-green btn-admin-sm" onclick="saveGovernanceChanges()" id="btnSaveGovernance">
+                  <i data-lucide="save"></i><span>Save Governance Changes</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Segmented Subnav Bar -->
+            <div style="padding: 0 24px;">
+              <div class="gov-subnav-bar">
+                <button type="button" class="gov-subnav-btn active" data-gov-subtab="patrons-matrons">
+                  <i data-lucide="shield-check" style="width: 15px; height: 15px;"></i>
+                  <span>Patrons &amp; Matrons (3 Each)</span>
+                </button>
+                <button type="button" class="gov-subnav-btn" data-gov-subtab="nec">
+                  <i data-lucide="landmark" style="width: 15px; height: 15px;"></i>
+                  <span>National Executive Council (8)</span>
+                </button>
+                <button type="button" class="gov-subnav-btn" data-gov-subtab="states">
+                  <i data-lucide="map" style="width: 15px; height: 15px;"></i>
+                  <span>State Chapters (36 States + FCT)</span>
+                </button>
+              </div>
+            </div>
+
+            <div style="padding: 0 24px 24px;">
+              <!-- Subtab 1: Patrons & Matrons -->
+              <div id="govSubtabPatronsMatrons">
+                <h4 style="color: var(--admin-primary); margin-bottom: 14px; font-weight: 800; font-size: 1.05rem;">Board of Patrons (3 Slots)</h4>
+                <div class="gov-cards-grid" id="govPatronsGrid" style="margin-bottom: 28px;">
+                  <!-- Populated by JS -->
+                </div>
+
+                <h4 style="color: var(--admin-primary); margin-bottom: 14px; font-weight: 800; font-size: 1.05rem;">Boards of Matrons (3 Slots)</h4>
+                <div class="gov-cards-grid" id="govMatronsGrid">
+                  <!-- Populated by JS -->
+                </div>
+              </div>
+
+              <!-- Subtab 2: National Executive Council (8) -->
+              <div id="govSubtabNec" style="display: none;">
+                <h4 style="color: var(--admin-primary); margin-bottom: 14px; font-weight: 800; font-size: 1.05rem;">National Executive Council (8 Principal Officers)</h4>
+                <div class="gov-cards-grid" id="govNecGrid">
+                  <!-- Populated by JS -->
+                </div>
+              </div>
+
+              <!-- Subtab 3: State Chapters (36 States + FCT) -->
+              <div id="govSubtabStates" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 18px;">
+                  <div>
+                    <h4 style="color: var(--admin-primary); margin-bottom: 4px; font-weight: 800; font-size: 1.05rem;">State Chapters (36 States &amp; FCT)</h4>
+                    <p style="font-size: 0.82rem; color: var(--admin-text-muted); margin: 0;">Configure State Coordinator, State Secretary, and Track B Grassroots Projects for each state chapter.</p>
+                  </div>
+                  <div class="search-box" style="max-width: 320px;">
+                    <span class="icon"><i data-lucide="search"></i></span>
+                    <input type="text" id="adminGovStateSearch" placeholder="Filter states...">
+                  </div>
+                </div>
+
+                <div class="gov-cards-grid" id="govStatesGrid">
+                  <!-- Populated by JS -->
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ==================================================================
              TAB 5: ADMIN TEAM MANAGEMENT (SUPER ADMIN)
              ================================================================== -->
         <div id="tab-admins" class="admin-tab-pane" style="display: none;">
@@ -598,7 +686,7 @@
                   <button type="button" class="btn-admin btn-admin-sm btn-admin-outline" onclick="copySupabaseSetupSql()">
                     <i data-lucide="copy"></i><span>Copy SQL Setup Script</span>
                   </button>
-                  <a href="../supabase/complete_setup.sql" download="ncsyf_complete_setup.sql" class="btn-admin btn-admin-sm btn-admin-outline" style="text-decoration: none;">
+                  <a href="supabase/complete_setup.sql" download="ncsyf_complete_setup.sql" class="btn-admin btn-admin-sm btn-admin-outline" style="text-decoration: none;">
                     <i data-lucide="download"></i><span>Download complete_setup.sql</span>
                   </a>
                   <a href="https://app.supabase.com" target="_blank" rel="noopener noreferrer" class="btn-admin btn-admin-sm btn-admin-outline" style="text-decoration: none;">
@@ -661,13 +749,10 @@
 
           <div class="admin-form-grid-2">
             <div class="admin-form-group">
-              <label class="admin-label" for="newProjectSector">Priority Sector *</label>
-              <select id="newProjectSector" class="admin-select" required>
-                <option value="Technology & Innovation">Technology &amp; Innovation</option>
-                <option value="Agriculture & Food Security">Agriculture &amp; Food Security</option>
-                <option value="Healthcare & Social Welfare">Healthcare &amp; Social Welfare</option>
-                <option value="Governance & Economy">Governance &amp; Economy</option>
-                <option value="Education & Leadership">Education &amp; Leadership</option>
+              <label class="admin-label" for="newProjectTrack">Project Track *</label>
+              <select id="newProjectTrack" class="admin-select" required>
+                <option value="Track A">Track A – By Sector (Thematic, Multi-State)</option>
+                <option value="Track B">Track B – By State (Locally Scoped)</option>
               </select>
             </div>
 
@@ -681,9 +766,72 @@
             </div>
           </div>
 
+          <!-- Dynamic Track Selection Fields -->
+          <!-- Track A: 7 Priority Sectors -->
+          <div class="admin-form-group" id="projectTrackAGroup">
+            <label class="admin-label" for="newProjectSectorTrackA">Track A Priority Sector *</label>
+            <select id="newProjectSectorTrackA" class="admin-select">
+              <option value="Education and Youth Capacity Development">Education and Youth Capacity Development</option>
+              <option value="Health and Public Wellbeing">Health and Public Wellbeing</option>
+              <option value="Agriculture and Food Security">Agriculture and Food Security</option>
+              <option value="ICT, Innovation and Digital Skills">ICT, Innovation and Digital Skills</option>
+              <option value="Governance and Civic Engagement">Governance and Civic Engagement</option>
+              <option value="Energy, Environment and Climate Resilience">Energy, Environment and Climate Resilience</option>
+              <option value="Industry, Entrepreneurship and Economic Empowerment">Industry, Entrepreneurship and Economic Empowerment</option>
+            </select>
+          </div>
+
+          <!-- Track B: 36 States + FCT Multi-Select Dropdown -->
+          <div class="admin-form-group" id="projectTrackBGroup" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label class="admin-label" for="newProjectStatesTrackB" style="margin-bottom: 0;">Target States &amp; FCT (Select at least one, or multiple) *</label>
+              <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" id="btnToggleAllStates" style="padding: 2px 8px; font-size: 0.72rem;">Toggle Select All</button>
+            </div>
+            <select id="newProjectStatesTrackB" class="admin-select" multiple size="6" style="height: auto; min-height: 125px;">
+              <option value="Abia">Abia</option>
+              <option value="Adamawa">Adamawa</option>
+              <option value="Akwa Ibom">Akwa Ibom</option>
+              <option value="Anambra">Anambra</option>
+              <option value="Bauchi">Bauchi</option>
+              <option value="Bayelsa">Bayelsa</option>
+              <option value="Benue">Benue</option>
+              <option value="Borno">Borno</option>
+              <option value="Cross River">Cross River</option>
+              <option value="Delta">Delta</option>
+              <option value="Ebonyi">Ebonyi</option>
+              <option value="Edo">Edo</option>
+              <option value="Ekiti">Ekiti</option>
+              <option value="Enugu">Enugu</option>
+              <option value="FCT (Abuja)">FCT (Abuja)</option>
+              <option value="Gombe">Gombe</option>
+              <option value="Imo">Imo</option>
+              <option value="Jigawa">Jigawa</option>
+              <option value="Kaduna">Kaduna</option>
+              <option value="Kano">Kano</option>
+              <option value="Katsina">Katsina</option>
+              <option value="Kebbi">Kebbi</option>
+              <option value="Kogi">Kogi</option>
+              <option value="Kwara">Kwara</option>
+              <option value="Lagos">Lagos</option>
+              <option value="Nasarawa">Nasarawa</option>
+              <option value="Niger">Niger</option>
+              <option value="Ogun">Ogun</option>
+              <option value="Ondo">Ondo</option>
+              <option value="Osun">Osun</option>
+              <option value="Oyo">Oyo</option>
+              <option value="Plateau">Plateau</option>
+              <option value="Rivers">Rivers</option>
+              <option value="Sokoto">Sokoto</option>
+              <option value="Taraba">Taraba</option>
+              <option value="Yobe">Yobe</option>
+              <option value="Zamfara">Zamfara</option>
+            </select>
+            <span style="font-size: 0.75rem; color: var(--admin-text-muted); display: block; margin-top: 4px;">Hold Ctrl / Cmd (or tap on mobile) to select multiple states.</span>
+          </div>
+
           <div class="admin-form-group">
-            <label class="admin-label" for="newProjectMda">Lead Ministry, Department or Agency (MDA) *</label>
-            <input type="text" id="newProjectMda" class="admin-input" placeholder="e.g. Federal Ministry of Communications" required>
+            <label class="admin-label" for="newProjectStakeholders">Stakeholders and Sponsors *</label>
+            <input type="text" id="newProjectStakeholders" class="admin-input" placeholder="e.g. Federal Ministry of Youth, UNDP, Bank of Industry, State Governments" required>
           </div>
 
           <div class="admin-form-grid-2">
@@ -992,7 +1140,7 @@
         <input type="hidden" id="editingGalleryId" value="">
         <div class="admin-modal-body">
           <p style="font-size: 0.85rem; color: var(--admin-text-muted); margin-bottom: 14px;">
-            Upload high-resolution event photographs for the public website Media Gallery (<a href="../resources.html#media" target="_blank" style="color: var(--admin-primary); text-decoration: underline; font-weight: 600;">resources.html#media</a>). Photos are automatically optimized for web performance.
+            Upload high-resolution event photographs for the public website Media Gallery (<a href="https://ncsyf.com.ng/resources.html#media" target="_blank" rel="noopener noreferrer" style="color: var(--admin-primary); text-decoration: underline; font-weight: 600;">resources.html#media</a>). Photos are automatically optimized for web performance.
           </p>
 
           <div class="admin-form-group">
@@ -1059,14 +1207,15 @@
   <div id="adminToastContainer" class="admin-toast-container"></div>
 
   <!-- Supabase & Data Layer -->
-  <script src="../js/supabase.min.js"></script>
-  <script src="../js/supabase-env.js"></script>
-  <script src="../js/supabase-config.js"></script>
-  <script src="../js/supabase-db.js"></script>
+  <script src="js/supabase.min.js"></script>
+  <script src="js/supabase-env.js"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/supabase-db.js"></script>
 
   <!-- Admin Scripts -->
   <script src="js/lucide.min.js"></script>
   <script src="js/icons.js"></script>
+  <script src="js/governance-sync.js"></script>
   <script src="js/admin.js"></script>
 
   <script>

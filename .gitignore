@@ -2,3 +2,21 @@
 Thumbs.db
 node_modules/
 scratch/
+
+# Secrets and environment files
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+*.crt
+
+# Database dumps, exports, and backup files
+*backup*.json
+*.backup.json
+*.dump
+*.sql.gz
+
+# Deployment and system artifacts
+.vercel

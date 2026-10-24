@@ -13,13 +13,76 @@ const STORAGE_KEYS = {
   API_CONFIG: 'ncsyf_admin_api_config'
 };
 
-// ---- Administrator Accounts Seed Data ----
+// HTML Output Encoding Helper to neutralize XSS vectors
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+// Cryptographic Password Hashing Utility (Web Crypto API)
+async function hashAdminPassword(password, salt) {
+  if (!window.crypto || !window.crypto.subtle) {
+    return 'hash_' + salt + '_' + btoa(password);
+  }
+  const encoder = new TextEncoder();
+  const data = encoder.encode(`${salt}:${password}`);
+  const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Login Rate Limiting & Brute-Force Lockout for Administration Console
+const ADMIN_FAILED_LOGIN_KEY = 'ncsyf_admin_failed_attempts';
+const ADMIN_MAX_FAILED_ATTEMPTS = 5;
+const ADMIN_LOCKOUT_MS = 5 * 60 * 1000; // 5 minutes
+
+function checkAdminLoginRateLimit() {
+  try {
+    const raw = sessionStorage.getItem(ADMIN_FAILED_LOGIN_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed.lockUntil && Date.now() < parsed.lockUntil) {
+        const remSecs = Math.ceil((parsed.lockUntil - Date.now()) / 1000);
+        throw new Error(`Too many failed login attempts. Workstation temporarily locked. Please try again in ${remSecs} seconds.`);
+      }
+    }
+  } catch (e) {
+    if (e.message && e.message.includes('Too many failed')) throw e;
+  }
+}
+
+function recordAdminFailedLogin() {
+  try {
+    const raw = sessionStorage.getItem(ADMIN_FAILED_LOGIN_KEY);
+    const state = raw ? JSON.parse(raw) : { count: 0, lockUntil: 0 };
+    state.count = (state.count || 0) + 1;
+    if (state.count >= ADMIN_MAX_FAILED_ATTEMPTS) {
+      state.lockUntil = Date.now() + ADMIN_LOCKOUT_MS;
+      state.count = 0;
+    }
+    sessionStorage.setItem(ADMIN_FAILED_LOGIN_KEY, JSON.stringify(state));
+  } catch (e) {}
+}
+
+function resetAdminFailedLogin() {
+  try {
+    sessionStorage.removeItem(ADMIN_FAILED_LOGIN_KEY);
+  } catch (e) {}
+}
+
+// ---- Administrator Accounts Seed Data (Hashed - No Plaintext Credentials) ----
 const SEED_ADMIN_USERS = [
   {
     id: 'ADM-001',
     name: 'National Secretariat Super Admin',
     email: 'admin@ncsyf.com.ng',
-    password: 'Secretariat@2026',
+    passwordHash: '46940140b4a15dc9d9ac3474834d86cfd8dd2a37f06055519995c811b6ce2cb8',
+    salt: 'ncsyf_sec_2026_salt',
     role: 'super_admin',
     roleLabel: 'Super Administrator',
     createdAt: '2026-09-01',
@@ -224,7 +287,9 @@ function getStoredAdminUsers() {
       adm001.name = 'National Secretariat Super Admin';
       adm001.role = 'super_admin';
       adm001.roleLabel = 'Super Administrator';
-      adm001.password = 'Secretariat@2026';
+      adm001.passwordHash = '46940140b4a15dc9d9ac3474834d86cfd8dd2a37f06055519995c811b6ce2cb8';
+      adm001.salt = 'ncsyf_sec_2026_salt';
+      delete adm001.password;
       adm001.status = 'active';
       modified = true;
     } else {
@@ -232,7 +297,8 @@ function getStoredAdminUsers() {
         id: 'ADM-001',
         name: 'National Secretariat Super Admin',
         email: 'admin@ncsyf.com.ng',
-        password: 'Secretariat@2026',
+        passwordHash: '46940140b4a15dc9d9ac3474834d86cfd8dd2a37f06055519995c811b6ce2cb8',
+        salt: 'ncsyf_sec_2026_salt',
         role: 'super_admin',
         roleLabel: 'Super Administrator',
         createdAt: '2026-09-01',
@@ -510,15 +576,28 @@ let uploadedResourceImages = [];
 let uploadedGalleryImages = [];
 
 function resolveAdminMediaUrl(url) {
-  if (!url) return '../images/african-youth-civil-servants.jpg';
-  if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://') || url.startsWith('../') || url.startsWith('/')) {
+  if (!url) return 'images/african-youth-civil-servants.jpg';
+  if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/')) {
     return url;
   }
-  return `../${url}`;
+  return url.replace(/^\.\.\//, '');
 }
 
 function compressImageFile(file, maxDimension = 1280, quality = 0.82) {
   return new Promise((resolve) => {
+    if (!file) return resolve(null);
+    const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    const ALLOWED_IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+    const ext = (file.name ? file.name.split('.').pop() || '' : '').toLowerCase();
+    if (!ALLOWED_IMAGE_EXTS.includes(ext) || (file.type && !ALLOWED_IMAGE_TYPES.includes(file.type))) {
+      showAdminToast('Disallowed image format. Only JPG, PNG, WEBP, and GIF images are permitted.', 'error');
+      return resolve(null);
+    }
+    if (file.size > 15 * 1024 * 1024) {
+      showAdminToast('Image exceeds maximum allowed size (15 MB).', 'error');
+      return resolve(null);
+    }
+
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
@@ -541,7 +620,7 @@ function compressImageFile(file, maxDimension = 1280, quality = 0.82) {
         ctx.drawImage(img, 0, 0, width, height);
         resolve(canvas.toDataURL('image/jpeg', quality));
       };
-      img.onerror = () => resolve(e.target.result);
+      img.onerror = () => resolve(null);
       img.src = e.target.result;
     };
     reader.onerror = () => resolve(null);
@@ -845,8 +924,31 @@ function setupResourceDropzone() {
       return;
     }
 
+    const ext = (getFileExtension(file.name) || '').toUpperCase();
+    const ALLOWED_DOC_EXTENSIONS = ['PDF', 'DOC', 'DOCX', 'XLS', 'XLSX', 'PPT', 'PPTX', 'TXT', 'RTF', 'CSV'];
+    if (!ALLOWED_DOC_EXTENSIONS.includes(ext)) {
+      showAdminToast(`Disallowed file format (.${ext}). Only approved office documents (PDF, DOCX, XLSX, PPTX, TXT) are permitted.`, 'error');
+      return;
+    }
+
+    const ALLOWED_MIME_TYPES = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.ms-powerpoint',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      'text/plain',
+      'text/csv',
+      'application/rtf'
+    ];
+    if (file.type && !ALLOWED_MIME_TYPES.includes(file.type)) {
+      showAdminToast(`File type "${file.type}" is not supported. Please upload an official PDF, Word, Excel, or PowerPoint circular.`, 'error');
+      return;
+    }
+
     dropzone.classList.remove('has-error');
-    const ext = getFileExtension(file.name) || 'PDF';
     const formattedSize = formatFileSize(file.size);
 
     if (formatSelect) {
@@ -1075,18 +1177,6 @@ function setupEventListeners() {
   // Supabase Settings & Cloud Storage Panel
   setupSupabaseSettingsPanel();
 
-  // 1-Click Demo Fill: Super Admin (if present in DOM)
-  const btnDemoSuperAdmin = document.getElementById('btnDemoSuperAdmin');
-  if (btnDemoSuperAdmin) {
-    btnDemoSuperAdmin.addEventListener('click', () => {
-      const emailInput = document.getElementById('adminLoginEmail');
-      const passInput = document.getElementById('adminLoginPassword');
-      if (emailInput) emailInput.value = 'admin@ncsyf.com.ng';
-      if (passInput) passInput.value = 'Secretariat@2026';
-      showAdminToast('Super Admin credentials auto-filled. Click "Sign In" to proceed.');
-    });
-  }
-
   // Logout buttons
   document.querySelectorAll('[data-admin-logout]').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -1176,6 +1266,59 @@ function setupEventListeners() {
   const newProjectForm = document.getElementById('newProjectForm');
   if (newProjectForm) {
     newProjectForm.addEventListener('submit', handleAddProject);
+  }
+
+  // Track A / Track B Switcher in New Project Form
+  const newProjectTrack = document.getElementById('newProjectTrack');
+  if (newProjectTrack) {
+    newProjectTrack.addEventListener('change', (e) => {
+      const val = e.target.value;
+      const groupA = document.getElementById('projectTrackAGroup');
+      const groupB = document.getElementById('projectTrackBGroup');
+      if (val === 'Track B') {
+        if (groupA) groupA.style.display = 'none';
+        if (groupB) groupB.style.display = 'block';
+      } else {
+        if (groupA) groupA.style.display = 'block';
+        if (groupB) groupB.style.display = 'none';
+      }
+    });
+  }
+
+  // Toggle All States in Track B
+  const btnToggleAllStates = document.getElementById('btnToggleAllStates');
+  if (btnToggleAllStates) {
+    btnToggleAllStates.addEventListener('click', () => {
+      const statesSelect = document.getElementById('newProjectStatesTrackB');
+      if (!statesSelect) return;
+      const options = Array.from(statesSelect.options);
+      const allSelected = options.every(opt => opt.selected);
+      options.forEach(opt => opt.selected = !allSelected);
+      btnToggleAllStates.textContent = allSelected ? 'Select All 36 States + FCT' : 'Deselect All';
+    });
+  }
+
+  // Governance subnav switcher buttons
+  document.querySelectorAll('.gov-subnav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.gov-subnav-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const subtab = btn.getAttribute('data-gov-subtab');
+      const panePatrons = document.getElementById('govSubtabPatronsMatrons');
+      const paneNec = document.getElementById('govSubtabNec');
+      const paneStates = document.getElementById('govSubtabStates');
+      if (panePatrons) panePatrons.style.display = subtab === 'patrons-matrons' ? 'block' : 'none';
+      if (paneNec) paneNec.style.display = subtab === 'nec' ? 'block' : 'none';
+      if (paneStates) paneStates.style.display = subtab === 'states' ? 'block' : 'none';
+    });
+  });
+
+  // Governance state search input
+  const adminGovStateSearch = document.getElementById('adminGovStateSearch');
+  if (adminGovStateSearch) {
+    adminGovStateSearch.addEventListener('input', (e) => {
+      renderAdminStateChapters(e.target.value);
+    });
   }
 
   // Resources filter & search
@@ -1271,7 +1414,7 @@ function setupAdminPasswordToggles() {
 // ==========================================================================
 // AUTHENTICATION LOGIC (Super Admin vs Regular Admin)
 // ==========================================================================
-function handleLogin(e) {
+async function handleLogin(e) {
   e.preventDefault();
   const form = e.target;
   const emailInput = form.querySelector('#adminLoginEmail');
@@ -1282,41 +1425,96 @@ function handleLogin(e) {
   const password = passwordInput ? passwordInput.value.trim() : '';
   const remember = rememberCheckbox ? rememberCheckbox.checked : false;
 
+  try {
+    checkAdminLoginRateLimit();
+  } catch (limitErr) {
+    showAdminToast(limitErr.message, 'error');
+    return;
+  }
+
   if (!email || !password) {
     showAdminToast('Please provide your admin email and password.', 'error');
     return;
   }
 
-  // Look up credentials in the Admin accounts registry
-  const adminUsers = getStoredAdminUsers();
-  const matched = adminUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
-
+  const genericError = 'Invalid administrator credentials or access denied.';
   let role = 'regular_admin';
   let displayName = 'Admin Official';
+  let authenticated = false;
 
-  if (matched) {
-    if (matched.status === 'revoked') {
-      showAdminToast('Access Denied: This administrator account has been revoked by Super Admin.', 'error');
-      return;
+  // 1. Supabase Cloud Auth if connected
+  const client = (window.NCSYF_CONFIG_MANAGER && typeof window.NCSYF_CONFIG_MANAGER.getClient === 'function')
+    ? window.NCSYF_CONFIG_MANAGER.getClient()
+    : null;
+
+  if (client) {
+    try {
+      const { data, error } = await client.auth.signInWithPassword({
+        email: email.toLowerCase(),
+        password: password
+      });
+
+      if (!error && data && data.user) {
+        // Verify active administrator role in admin_users database table
+        const { data: adminRecord } = await client
+          .from('admin_users')
+          .select('*')
+          .ilike('email', email.toLowerCase())
+          .maybeSingle();
+
+        if (adminRecord && adminRecord.status === 'active') {
+          role = adminRecord.role || 'regular_admin';
+          displayName = adminRecord.name || 'Secretariat Administrator';
+          authenticated = true;
+        } else {
+          await client.auth.signOut().catch(() => {});
+          recordAdminFailedLogin();
+          showAdminToast('Access Denied: This account does not possess active administrative authorization.', 'error');
+          return;
+        }
+      }
+    } catch (sbErr) {
+      console.warn('Supabase admin login attempt notice:', sbErr);
     }
-    // Verify password if defined on account
-    if (matched.password && matched.password !== password) {
-      showAdminToast('Incorrect password. Please verify your credentials or contact Super Admin.', 'error');
-      return;
+  }
+
+  // 2. Offline / Local fallback cryptographic verification
+  if (!authenticated) {
+    const adminUsers = getStoredAdminUsers();
+    const matched = adminUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+    if (matched && matched.status !== 'revoked') {
+      let isMatch = false;
+      if (matched.passwordHash && matched.salt) {
+        const hash = await hashAdminPassword(password, matched.salt);
+        isMatch = (hash === matched.passwordHash);
+      } else if (matched.password) {
+        // Upgrade legacy plaintext password to secure hash
+        isMatch = (matched.password === password);
+        if (isMatch) {
+          const salt = 'ncsyf_adm_' + Math.random().toString(36).substring(2, 10);
+          matched.passwordHash = await hashAdminPassword(password, salt);
+          matched.salt = salt;
+          delete matched.password;
+          saveAdminUsers(adminUsers);
+        }
+      }
+
+      if (isMatch) {
+        role = matched.role;
+        displayName = matched.name;
+        authenticated = true;
+      }
     }
-    role = matched.role;
-    displayName = matched.name;
-  } else if (email.toLowerCase() === 'admin@ncsyf.com.ng') {
-    if (password !== 'Secretariat@2026') {
-      showAdminToast('Incorrect password for Super Administrator.', 'error');
-      return;
-    }
-    role = 'super_admin';
-    displayName = 'National Secretariat Super Admin';
-  } else {
-    showAdminToast('Access Denied: No administrator account found with this email. Please log in with the Super Admin account or contact the Secretariat.', 'error');
+  }
+
+  if (!authenticated) {
+    recordAdminFailedLogin();
+    showAdminToast(genericError, 'error');
     return;
   }
+
+  resetAdminFailedLogin();
 
   const session = {
     email: email,
@@ -1373,6 +1571,7 @@ function switchTab(tabId) {
     projects: { title: 'National Projects', subtitle: 'Priority initiatives across Federal, State and LGA public services' },
     resources: { title: 'Publications & Resources', subtitle: 'Policy briefs, constitution, bye-laws and public service toolkits' },
     gallery: { title: 'Media Gallery & Photo Stream', subtitle: 'Upload and administer official photographs, summits and event albums' },
+    governance: { title: 'Governance Directory & State Chapters', subtitle: 'Upload leadership photographs, credentials and manage 37 State Chapters' },
     admins: { title: 'Admin Team & Roles', subtitle: 'Manage administrator accounts, assign permissions and revoke access' },
     settings: { title: 'System & Backend Settings', subtitle: 'Configure future backend API endpoints and manage data' }
   };
@@ -1398,6 +1597,7 @@ function switchTab(tabId) {
   if (tabId === 'projects') renderProjectsList();
   if (tabId === 'resources') renderResourcesList();
   if (tabId === 'gallery') renderGalleryList();
+  if (tabId === 'governance') renderGovernanceAdmin();
   if (tabId === 'admins') renderAdminsTable();
 }
 
@@ -1477,14 +1677,14 @@ function renderRecentMembersOverview(recentMembers) {
 
     return `
       <tr>
-        <td data-label="Full Name"><strong>${m.firstName || ''} ${m.lastName || ''}</strong></td>
+        <td data-label="Full Name"><strong>${escapeHtml(m.firstName || '')} ${escapeHtml(m.lastName || '')}</strong></td>
         <td data-label="Category">${catBadge}</td>
-        <td data-label="Member ID"><span class="member-id-tag">${m.memberId || m.id}</span></td>
-        <td data-label="Staff ID"><code>${m.staffId || 'N/A'}</code></td>
-        <td data-label="Ministry / MDA" style="max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${m.mda || 'Not specified'}">${m.mda || 'N/A'}</td>
+        <td data-label="Member ID"><span class="member-id-tag">${escapeHtml(m.memberId || m.id)}</span></td>
+        <td data-label="Staff ID"><code>${escapeHtml(m.staffId || 'N/A')}</code></td>
+        <td data-label="Ministry / MDA" style="max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(m.mda || 'Not specified')}">${escapeHtml(m.mda || 'N/A')}</td>
         <td data-label="Status">${statusBadge}</td>
         <td data-label="Action" class="cell-actions">
-          <button class="btn-admin btn-admin-outline btn-admin-sm btn-action-block" onclick="viewMemberDossier('${m.id}')">
+          <button class="btn-admin btn-admin-outline btn-admin-sm btn-action-block" onclick="viewMemberDossier('${escapeHtml(m.id)}')">
             View Details
           </button>
         </td>
@@ -1578,43 +1778,43 @@ function renderMembersTable() {
       <tr>
         <td data-label="Member">
           <div class="member-name-block">
-            <div style="font-weight: 700; color: var(--admin-primary);">${m.firstName || ''} ${m.lastName || ''}</div>
-            <div style="font-size: 0.76rem; color: var(--admin-text-muted); margin-top: 2px;">${m.email || 'No email provided'}</div>
+            <div style="font-weight: 700; color: var(--admin-primary);">${escapeHtml(m.firstName || '')} ${escapeHtml(m.lastName || '')}</div>
+            <div style="font-size: 0.76rem; color: var(--admin-text-muted); margin-top: 2px;">${escapeHtml(m.email || 'No email provided')}</div>
           </div>
         </td>
         <td data-label="Category">${catBadge}</td>
-        <td data-label="Member ID"><span class="member-id-tag">${m.memberId || m.id}</span></td>
-        <td data-label="Staff ID / File No."><code>${m.staffId || 'N/A'}</code></td>
+        <td data-label="Member ID"><span class="member-id-tag">${escapeHtml(m.memberId || m.id)}</span></td>
+        <td data-label="Staff ID / File No."><code>${escapeHtml(m.staffId || 'N/A')}</code></td>
         <td data-label="MDA & Tier">
           <div class="member-mda-block">
-            <div style="font-weight: 600; font-size: 0.85rem;">${m.mda || 'N/A'}</div>
-            <div style="font-size: 0.74rem; color: var(--admin-text-muted); margin-top: 2px;">${m.tierLabel || m.tier || 'Public Service'}</div>
+            <div style="font-weight: 600; font-size: 0.85rem;">${escapeHtml(m.mda || 'N/A')}</div>
+            <div style="font-size: 0.74rem; color: var(--admin-text-muted); margin-top: 2px;">${escapeHtml(m.tierLabel || m.tier || 'Public Service')}</div>
           </div>
         </td>
-        <td data-label="Chapter">${m.stateChapter || 'FCT Abuja'}</td>
+        <td data-label="Chapter">${escapeHtml(m.stateChapter || 'FCT Abuja')}</td>
         <td data-label="Status">${statusBadge}</td>
-        <td data-label="Date" style="font-size: 0.78rem; color: var(--admin-text-muted); white-space: nowrap;">${m.registeredAt ? m.registeredAt.split(' ')[0] : 'Recent'}</td>
+        <td data-label="Date" style="font-size: 0.78rem; color: var(--admin-text-muted); white-space: nowrap;">${escapeHtml(m.registeredAt ? m.registeredAt.split(' ')[0] : 'Recent')}</td>
         <td data-label="Actions" class="cell-actions">
           <div class="table-actions">
-            <button class="btn-icon-sm" title="View Full Application Dossier" onclick="viewMemberDossier('${m.id}')">
+            <button class="btn-icon-sm" title="View Full Application Dossier" onclick="viewMemberDossier('${escapeHtml(m.id)}')">
               ${getIconSvg('eye', { size: 15 })}
             </button>
             ${m.status !== 'verified' ? `
-              <button class="btn-icon-sm" style="color: #15803D;" title="Approve & Verify Application" onclick="updateMemberStatus('${m.id}', 'verified')">
+              <button class="btn-icon-sm" style="color: #15803D;" title="Approve & Verify Application" onclick="updateMemberStatus('${escapeHtml(m.id)}', 'verified')">
                 ${getIconSvg('check', { size: 15 })}
               </button>
             ` : ''}
             ${m.status !== 'disapproved' ? `
-              <button class="btn-icon-sm disapprove" title="Disapprove Verification (Allow Reapply)" onclick="openDisapproveModal('${m.id}')">
+              <button class="btn-icon-sm disapprove" title="Disapprove Verification (Allow Reapply)" onclick="openDisapproveModal('${escapeHtml(m.id)}')">
                 ${getIconSvg('ban', { size: 15 })}
               </button>
             ` : `
-              <button class="btn-icon-sm" style="color: #D97706;" title="Reset to Pending Review" onclick="updateMemberStatus('${m.id}', 'pending')">
+              <button class="btn-icon-sm" style="color: #D97706;" title="Reset to Pending Review" onclick="updateMemberStatus('${escapeHtml(m.id)}', 'pending')">
                 ${getIconSvg('rotate-ccw', { size: 15 })}
               </button>
             `}
             ${isSuper ? `
-              <button class="btn-icon-sm delete" title="Permanently Delete Member (Super Admin Only)" onclick="deleteMember('${m.id}')">
+              <button class="btn-icon-sm delete" title="Permanently Delete Member (Super Admin Only)" onclick="deleteMember('${escapeHtml(m.id)}')">
                 ${getIconSvg('trash-2', { size: 15 })}
               </button>
             ` : ''}
@@ -1651,8 +1851,8 @@ window.viewMemberDossier = function(memberId) {
   content.innerHTML = `
     <div class="dossier-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--admin-border); flex-wrap: wrap; gap: 10px;">
       <div>
-        <h4 style="font-size: 1.25rem; font-weight: 800; color: var(--admin-primary);">${m.firstName || ''} ${m.lastName || ''}</h4>
-        <div style="font-size: 0.8rem; color: var(--admin-text-muted); margin-top: 2px;">Application Reference ID: <code>${m.id}</code></div>
+        <h4 style="font-size: 1.25rem; font-weight: 800; color: var(--admin-primary);">${escapeHtml(m.firstName || '')} ${escapeHtml(m.lastName || '')}</h4>
+        <div style="font-size: 0.8rem; color: var(--admin-text-muted); margin-top: 2px;">Application Reference ID: <code>${escapeHtml(m.id)}</code></div>
       </div>
       <div style="display: flex; gap: 8px; flex-wrap: wrap;">
         ${catBadge}
@@ -1669,15 +1869,15 @@ window.viewMemberDossier = function(memberId) {
           <span style="background: #FEE2E2; color: #991B1B; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 12px; border: 1px solid rgba(220, 38, 38, 0.25);">CAN REAPPLY</span>
         </div>
         <div style="font-size: 0.85rem; color: #7F1D1D; margin-bottom: 4px;">
-          <strong>Disapproval Reason:</strong> ${m.disapprovedReason || 'Official credentials could not be authenticated with MDA nominal roll.'}
+          <strong>Disapproval Reason:</strong> ${escapeHtml(m.disapprovedReason || 'Official credentials could not be authenticated with MDA nominal roll.')}
         </div>
         ${m.disapprovedNotes ? `
           <div style="font-size: 0.8rem; color: #991B1B; background: rgba(255,255,255,0.7); padding: 8px 10px; border-radius: 4px; margin-top: 6px;">
-            <strong>Secretariat Guidance:</strong> ${m.disapprovedNotes}
+            <strong>Secretariat Guidance:</strong> ${escapeHtml(m.disapprovedNotes)}
           </div>
         ` : ''}
         <div style="font-size: 0.74rem; color: #B91C1C; margin-top: 6px;">
-          Decision recorded on: ${m.disapprovedAt || 'Recent'} • Applicant is permitted to submit a corrected application anytime.
+          Decision recorded on: ${escapeHtml(m.disapprovedAt || 'Recent')} • Applicant is permitted to submit a corrected application anytime.
         </div>
       </div>
     ` : ''}
@@ -1685,80 +1885,80 @@ window.viewMemberDossier = function(memberId) {
     <div class="dossier-grid">
       <div class="dossier-item">
         <label>Permanent Member ID</label>
-        <span><span class="member-id-tag">${m.memberId || m.id}</span></span>
+        <span><span class="member-id-tag">${escapeHtml(m.memberId || m.id)}</span></span>
       </div>
       <div class="dossier-item">
         <label>MDA Staff ID / File No.</label>
-        <span><code>${m.staffId || 'Not provided'}</code></span>
+        <span><code>${escapeHtml(m.staffId || 'Not provided')}</code></span>
       </div>
       <div class="dossier-item">
         <label>Membership Category</label>
-        <span>${m.memberTypeLabel || (isFull ? 'Full Member (18–35 yrs)' : 'Associate Member (After 35 yrs)')}</span>
+        <span>${escapeHtml(m.memberTypeLabel || (isFull ? 'Full Member (18–35 yrs)' : 'Associate Member (After 35 yrs)'))}</span>
       </div>
       <div class="dossier-item">
         <label>Tier of Public Service</label>
-        <span>${m.tierLabel || m.tier || 'Civil Service'}</span>
+        <span>${escapeHtml(m.tierLabel || m.tier || 'Civil Service')}</span>
       </div>
       <div class="dossier-item full-width">
         <label>Ministry, Department or Agency (MDA)</label>
-        <span>${m.mda || 'Not specified / Alumni transition'}</span>
+        <span>${escapeHtml(m.mda || 'Not specified / Alumni transition')}</span>
       </div>
       <div class="dossier-item">
         <label>State Chapter</label>
-        <span>${m.stateChapter || 'FCT Abuja'}</span>
+        <span>${escapeHtml(m.stateChapter || 'FCT Abuja')}</span>
       </div>
       <div class="dossier-item">
         <label>Official / Personal Email</label>
-        <span><a href="mailto:${m.email || ''}" style="color: var(--admin-primary); font-weight: 700;">${m.email || 'N/A'}</a></span>
+        <span><a href="mailto:${escapeHtml(m.email || '')}" style="color: var(--admin-primary); font-weight: 700;">${escapeHtml(m.email || 'N/A')}</a></span>
       </div>
       <div class="dossier-item">
         <label>Contact Phone Number</label>
-        <span>${m.phone || 'N/A'}</span>
+        <span>${escapeHtml(m.phone || 'N/A')}</span>
       </div>
       <div class="dossier-item">
         <label>Date of Birth / Age</label>
-        <span>${m.dob || 'N/A'} ${m.age ? `(${m.age} years old)` : ''}</span>
+        <span>${escapeHtml(m.dob || 'N/A')} ${m.age ? `(${escapeHtml(m.age)} years old)` : ''}</span>
       </div>
       <div class="dossier-item">
         <label>Gender</label>
-        <span>${m.gender ? (m.gender.charAt(0).toUpperCase() + m.gender.slice(1)) : 'N/A'}</span>
+        <span>${escapeHtml(m.gender ? (m.gender.charAt(0).toUpperCase() + m.gender.slice(1)) : 'N/A')}</span>
       </div>
       ${m.docTypeLabel || m.docType ? `
       <div class="dossier-item full-width">
         <label>Verification Document Type</label>
-        <span>${m.docTypeLabel || m.docType}</span>
+        <span>${escapeHtml(m.docTypeLabel || m.docType)}</span>
       </div>
       ` : ''}
       <div class="dossier-item full-width">
         <label>Registration Date &amp; Legal Consent</label>
-        <span>Submitted on ${m.registeredAt || 'Recent'} • NDPA 2023 Consent Confirmed (Verified) ${m.reappliedAt ? `• Reapplied: ${m.reappliedAt}` : ''}</span>
+        <span>Submitted on ${escapeHtml(m.registeredAt || 'Recent')} • NDPA 2023 Consent Confirmed (Verified) ${m.reappliedAt ? `• Reapplied: ${escapeHtml(m.reappliedAt)}` : ''}</span>
       </div>
     </div>
 
     <div class="dossier-actions" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
       ${isDisapproved ? `
-        <button type="button" class="btn-admin btn-admin-primary btn-admin-sm" onclick="updateMemberStatus('${m.id}', 'verified'); closeAllModals();">
+        <button type="button" class="btn-admin btn-admin-primary btn-admin-sm" onclick="updateMemberStatus('${escapeHtml(m.id)}', 'verified'); closeAllModals();">
           ${getIconSvg('check', { size: 14 })} Override &amp; Approve Verification
         </button>
-        <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" onclick="updateMemberStatus('${m.id}', 'pending'); closeAllModals();">
+        <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" onclick="updateMemberStatus('${escapeHtml(m.id)}', 'pending'); closeAllModals();">
           ${getIconSvg('rotate-ccw', { size: 14 })} Reset to Pending Review
         </button>
       ` : `
         ${m.status !== 'verified' ? `
-          <button type="button" class="btn-admin btn-admin-primary btn-admin-sm" onclick="updateMemberStatus('${m.id}', 'verified'); closeAllModals();">
+          <button type="button" class="btn-admin btn-admin-primary btn-admin-sm" onclick="updateMemberStatus('${escapeHtml(m.id)}', 'verified'); closeAllModals();">
             ${getIconSvg('check', { size: 14 })} Approve &amp; Verify Application
           </button>
         ` : `
-          <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" onclick="updateMemberStatus('${m.id}', 'pending'); closeAllModals();">
+          <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" onclick="updateMemberStatus('${escapeHtml(m.id)}', 'pending'); closeAllModals();">
             Mark as Pending Review
           </button>
         `}
-        <button type="button" class="btn-admin btn-admin-danger btn-admin-sm" style="background: #DC2626;" onclick="closeAllModals(); openDisapproveModal('${m.id}');">
+        <button type="button" class="btn-admin btn-admin-danger btn-admin-sm" style="background: #DC2626;" onclick="closeAllModals(); openDisapproveModal('${escapeHtml(m.id)}');">
           ${getIconSvg('ban', { size: 14 })} Disapprove Verification (Allow Reapply)
         </button>
       `}
       ${isSuper ? `
-        <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" style="color: #DC2626; border-color: #FECACA;" onclick="closeAllModals(); deleteMember('${m.id}');">
+        <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" style="color: #DC2626; border-color: #FECACA;" onclick="closeAllModals(); deleteMember('${escapeHtml(m.id)}');">
           ${getIconSvg('trash-2', { size: 14 })} Delete Record
         </button>
       ` : ''}
@@ -1967,12 +2167,15 @@ function renderProjectsList() {
         ` : ''}
 
         <div class="item-card-header">
-          <span class="item-badge-sector">${p.sector || 'Public Service'}</span>
+          <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+            <span class="item-badge-track" style="background: var(--admin-primary); color: #fff; font-size: 0.7rem; font-weight: 700; padding: 2px 7px; border-radius: 4px;">${p.track || 'Track A'}</span>
+            <span class="item-badge-sector">${p.sector || 'Public Service'}</span>
+          </div>
           ${statusBadge}
         </div>
         <h4 class="item-title">${p.title}</h4>
         <div class="item-agency" style="display: flex; align-items: center; gap: 6px;">
-          ${getIconSvg('landmark', { size: 14 })} <span>${p.leadMda}</span>
+          ${getIconSvg('landmark', { size: 14 })} <span>${p.stakeholders || p.leadMda || 'Public Sector Stakeholders'}</span>
         </div>
         <p class="item-desc">${p.description}</p>
         
@@ -2008,6 +2211,19 @@ window.openCreateProjectModal = function() {
   if (idInput) idInput.value = '';
   if (titleEl) titleEl.textContent = 'Upload / Initiate National Project';
   if (submitBtn) submitBtn.textContent = 'Publish Project Track';
+
+  const trackSelect = document.getElementById('newProjectTrack');
+  const groupA = document.getElementById('projectTrackAGroup');
+  const groupB = document.getElementById('projectTrackBGroup');
+  if (trackSelect) trackSelect.value = 'Track A';
+  if (groupA) groupA.style.display = 'block';
+  if (groupB) groupB.style.display = 'none';
+
+  const statesSelect = document.getElementById('newProjectStatesTrackB');
+  if (statesSelect) {
+    Array.from(statesSelect.options).forEach(opt => opt.selected = false);
+  }
+
   uploadedProjectImages = [];
   renderProjectImagePreviews();
   resetProjectDropzone();
@@ -2028,17 +2244,38 @@ window.openEditProjectModal = function(projectId) {
   if (submitBtn) submitBtn.textContent = 'Save Changes';
 
   const titleInput = document.getElementById('newProjectTitle');
-  const sectorSelect = document.getElementById('newProjectSector');
+  const trackSelect = document.getElementById('newProjectTrack');
+  const sectorTrackA = document.getElementById('newProjectSectorTrackA');
+  const statesTrackB = document.getElementById('newProjectStatesTrackB');
+  const groupA = document.getElementById('projectTrackAGroup');
+  const groupB = document.getElementById('projectTrackBGroup');
   const statusSelect = document.getElementById('newProjectStatus');
-  const mdaInput = document.getElementById('newProjectMda');
+  const stakeholdersInput = document.getElementById('newProjectStakeholders');
   const benInput = document.getElementById('newProjectBeneficiaries');
   const budgetInput = document.getElementById('newProjectBudget');
   const descInput = document.getElementById('newProjectDesc');
 
   if (titleInput) titleInput.value = p.title || '';
-  if (sectorSelect) sectorSelect.value = p.sector || 'Technology & Innovation';
+  
+  const currentTrack = p.track || (p.targetStates && p.targetStates.length ? 'Track B' : 'Track A');
+  if (trackSelect) trackSelect.value = currentTrack;
+
+  if (currentTrack === 'Track B') {
+    if (groupA) groupA.style.display = 'none';
+    if (groupB) groupB.style.display = 'block';
+    if (statesTrackB && p.targetStates) {
+      Array.from(statesTrackB.options).forEach(opt => {
+        opt.selected = p.targetStates.includes(opt.value);
+      });
+    }
+  } else {
+    if (groupA) groupA.style.display = 'block';
+    if (groupB) groupB.style.display = 'none';
+    if (sectorTrackA) sectorTrackA.value = p.sector || 'Education and Youth Capacity Development';
+  }
+
   if (statusSelect) statusSelect.value = p.status || 'active';
-  if (mdaInput) mdaInput.value = p.leadMda || '';
+  if (stakeholdersInput) stakeholdersInput.value = p.stakeholders || p.leadMda || '';
   if (benInput) benInput.value = p.targetBeneficiaries || '';
   if (budgetInput) budgetInput.value = p.budget || '';
   if (descInput) descInput.value = p.description || '';
@@ -2067,14 +2304,33 @@ function handleAddProject(e) {
   const editingId = editingIdInput ? editingIdInput.value.trim() : '';
 
   const title = form.querySelector('#newProjectTitle').value.trim();
-  const sector = form.querySelector('#newProjectSector').value;
-  const leadMda = form.querySelector('#newProjectMda').value.trim();
+  const track = form.querySelector('#newProjectTrack') ? form.querySelector('#newProjectTrack').value : 'Track A';
+  
+  let sector = '';
+  let targetStates = [];
+
+  if (track === 'Track B') {
+    const statesSelect = form.querySelector('#newProjectStatesTrackB');
+    if (statesSelect) {
+      targetStates = Array.from(statesSelect.selectedOptions).map(opt => opt.value);
+    }
+    if (targetStates.length === 0) {
+      showAdminToast('Please select at least one state or FCT for Track B.', 'error');
+      return;
+    }
+    sector = targetStates.length <= 2 ? `Track B: ${targetStates.join(', ')}` : `Track B: ${targetStates.length} States & FCT`;
+  } else {
+    const sectorTrackA = form.querySelector('#newProjectSectorTrackA');
+    sector = sectorTrackA ? sectorTrackA.value : 'Education and Youth Capacity Development';
+  }
+
+  const stakeholders = form.querySelector('#newProjectStakeholders').value.trim();
   const beneficiaries = form.querySelector('#newProjectBeneficiaries').value.trim();
   const budget = form.querySelector('#newProjectBudget').value.trim();
   const status = form.querySelector('#newProjectStatus').value;
   const description = form.querySelector('#newProjectDesc').value.trim();
 
-  if (!title || !leadMda || !description) {
+  if (!title || !stakeholders || !description) {
     showAdminToast('Please fill in all required project fields.', 'error');
     return;
   }
@@ -2086,7 +2342,13 @@ function handleAddProject(e) {
     'Healthcare & Social Welfare': ['images/project_healthcare.jpg'],
     'Governance & Economy': ['images/project_governance.jpg'],
     'Education & Leadership': ['images/african-youth-civil-servants.jpg'],
-    'Education & Youth Development': ['images/african-youth-civil-servants.jpg']
+    'Education and Youth Capacity Development': ['images/african-youth-civil-servants.jpg'],
+    'Health and Public Wellbeing': ['images/project_healthcare.jpg'],
+    'Agriculture and Food Security': ['images/project_agritech.jpg'],
+    'ICT, Innovation and Digital Skills': ['images/project_digital_office.jpg'],
+    'Governance and Civic Engagement': ['images/project_governance.jpg'],
+    'Energy, Environment and Climate Resilience': ['images/project_agritech.jpg'],
+    'Industry, Entrepreneurship and Economic Empowerment': ['images/project_digital_office.jpg']
   };
 
   if (editingId) {
@@ -2098,8 +2360,11 @@ function handleAddProject(e) {
     }
 
     projects[index].title = title;
+    projects[index].track = track;
     projects[index].sector = sector;
-    projects[index].leadMda = leadMda;
+    projects[index].targetStates = targetStates;
+    projects[index].stakeholders = stakeholders;
+    projects[index].leadMda = stakeholders;
     projects[index].targetBeneficiaries = beneficiaries || 'National Public Service Youths';
     projects[index].budget = budget || 'Government Subvention';
     projects[index].status = status;
@@ -2129,8 +2394,11 @@ function handleAddProject(e) {
     const newProject = {
       id: `PRJ-${String(projects.length + 1).padStart(3, '0')}`,
       title,
+      track,
       sector,
-      leadMda,
+      targetStates,
+      stakeholders,
+      leadMda: stakeholders,
       targetBeneficiaries: beneficiaries || 'National Public Service Youths',
       budget: budget || 'N/A',
       status,
@@ -2150,7 +2418,7 @@ function handleAddProject(e) {
     saveProjects(projects);
 
     if (window.NCSYF_DB && window.NCSYF_DB.projects) {
-      window.NCSYF_DB.projects.save(editingId ? projects[index] : newProject).catch(() => {});
+      window.NCSYF_DB.projects.save(newProject).catch(() => {});
     }
 
     showAdminToast('New national priority project published to website & portal!');
@@ -2522,24 +2790,24 @@ function renderAdminsTable() {
               ${initials}
             </div>
             <div>
-              <div style="font-weight: 700; color: var(--admin-primary);">${a.name}</div>
-              <div style="font-size: 0.74rem; color: var(--admin-text-muted);">${a.id}</div>
+              <div style="font-weight: 700; color: var(--admin-primary);">${escapeHtml(a.name)}</div>
+              <div style="font-size: 0.74rem; color: var(--admin-text-muted);">${escapeHtml(a.id)}</div>
             </div>
           </div>
         </td>
         <td data-label="Role & Permissions">${roleBadge}</td>
-        <td data-label="Email Address"><code>${a.email}</code></td>
-        <td data-label="Created Date" style="font-size: 0.8rem; color: var(--admin-text-muted);">${a.createdAt || '2026-09-01'}</td>
+        <td data-label="Email Address"><code>${escapeHtml(a.email)}</code></td>
+        <td data-label="Created Date" style="font-size: 0.8rem; color: var(--admin-text-muted);">${escapeHtml(a.createdAt || '2026-09-01')}</td>
         <td data-label="Status">${statusBadge}</td>
         <td data-label="Actions" class="cell-actions">
           <div class="table-actions">
             ${(isPrimary || isSelf) ? `
               <span style="font-size: 0.74rem; color: var(--admin-text-muted); font-weight: 700;">${isPrimary ? 'Primary Account' : 'Current Session'}</span>
             ` : `
-              <button class="btn-icon-sm ${isRevoked ? '' : 'disapprove'}" title="${isRevoked ? 'Restore Access' : 'Revoke Access'}" onclick="toggleAdminStatus('${a.id}')">
+              <button class="btn-icon-sm ${isRevoked ? '' : 'disapprove'}" title="${isRevoked ? 'Restore Access' : 'Revoke Access'}" onclick="toggleAdminStatus('${escapeHtml(a.id)}')">
                 ${getIconSvg(isRevoked ? 'check-circle' : 'ban', { size: 15 })}
               </button>
-              <button class="btn-icon-sm delete" title="Permanently Delete Admin" onclick="deleteAdmin('${a.id}')">
+              <button class="btn-icon-sm delete" title="Permanently Delete Admin" onclick="deleteAdmin('${escapeHtml(a.id)}')">
                 ${getIconSvg('trash-2', { size: 15 })}
               </button>
             `}
@@ -2550,7 +2818,7 @@ function renderAdminsTable() {
   }).join('');
 }
 
-function handleAddAdmin(e) {
+async function handleAddAdmin(e) {
   e.preventDefault();
   if (!isSuperAdmin()) {
     showAdminToast('Access Denied: Only Super Administrators can provision new admin accounts.', 'error');
@@ -2568,17 +2836,26 @@ function handleAddAdmin(e) {
     return;
   }
 
+  if (password.length < 8) {
+    showAdminToast('Admin password must be at least 8 characters long.', 'error');
+    return;
+  }
+
   const admins = getStoredAdminUsers();
   if (admins.some(a => a.email.toLowerCase() === email)) {
     showAdminToast('An administrator with this email already exists.', 'error');
     return;
   }
 
+  const salt = 'ncsyf_adm_' + Math.random().toString(36).substring(2, 10);
+  const passwordHash = await hashAdminPassword(password, salt);
+
   const newAdmin = {
     id: `ADM-${String(admins.length + 1).padStart(3, '0')}`,
     name,
     email,
-    password,
+    passwordHash,
+    salt,
     role,
     roleLabel: role === 'super_admin' ? 'Super Administrator' : 'Regular Administrator',
     createdAt: new Date().toISOString().split('T')[0],
@@ -2587,6 +2864,16 @@ function handleAddAdmin(e) {
 
   admins.push(newAdmin);
   saveAdminUsers(admins);
+
+  const client = (window.NCSYF_CONFIG_MANAGER && typeof window.NCSYF_CONFIG_MANAGER.getClient === 'function')
+    ? window.NCSYF_CONFIG_MANAGER.getClient()
+    : null;
+
+  if (client) {
+    try {
+      await client.auth.signUp({ email, password });
+    } catch (err) {}
+  }
 
   if (window.NCSYF_DB && window.NCSYF_DB.admins) {
     window.NCSYF_DB.admins.save(newAdmin).catch(() => {});
@@ -3255,3 +3542,332 @@ function showAdminToast(message, type = 'success') {
     setTimeout(() => toast.remove(), 250);
   }, 4000);
 }
+
+// ==========================================================================
+// GOVERNANCE DIRECTORY & STATE CHAPTERS CONTROLLER
+// ==========================================================================
+let activeAdminGovernanceData = null;
+
+function renderGovernanceAdmin() {
+  if (typeof window.getNcsyfGovernanceData === 'function') {
+    activeAdminGovernanceData = JSON.parse(JSON.stringify(window.getNcsyfGovernanceData()));
+  } else if (window.NCSYF_DEFAULT_GOVERNANCE) {
+    activeAdminGovernanceData = JSON.parse(JSON.stringify(window.NCSYF_DEFAULT_GOVERNANCE));
+  } else {
+    activeAdminGovernanceData = {
+      patrons: [],
+      matrons: [],
+      nec: [],
+      states: []
+    };
+  }
+
+  // 1. Render Patrons (3)
+  const patronsGrid = document.getElementById('govPatronsGrid');
+  if (patronsGrid && activeAdminGovernanceData.patrons) {
+    patronsGrid.innerHTML = activeAdminGovernanceData.patrons.map((p, idx) => {
+      const initial = idx === 0 ? 'GP' : 'P';
+      return `
+        <div class="gov-member-card" id="govCardAdminPatron_${idx}" data-idx="${idx}" data-photo="${escapeHtml(p.photo || '')}">
+          <div class="gov-photo-picker-row">
+            <div class="gov-photo-preview" id="govPreviewPatron_${idx}">
+              ${p.photo ? `<img src="${escapeHtml(p.photo)}" alt="${escapeHtml(p.title)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : `<span>${initial}</span>`}
+            </div>
+            <div style="flex: 1;">
+              <label class="admin-label" style="margin-bottom: 4px; font-size: 0.76rem; font-weight: 700;">Upload Photo</label>
+              <input type="file" accept="image/*" class="admin-input" style="padding: 5px 8px; font-size: 0.76rem;" onchange="handleGovPhotoUpload(event, 'govPreviewPatron_${idx}', 'govCardAdminPatron_${idx}')">
+            </div>
+          </div>
+          <div class="admin-form-group" style="margin-bottom: 0;">
+            <label class="admin-label">Official Title</label>
+            <input type="text" class="admin-input gov-title-input" value="${escapeHtml(p.title)}" ${idx === 0 ? 'readonly style="background:var(--admin-bg-page);"' : ''}>
+          </div>
+          <div class="admin-form-group" style="margin-bottom: 0;">
+            <label class="admin-label">Full Name</label>
+            <input type="text" class="admin-input gov-name-input" placeholder="e.g. Chief / Dr. / Alhaji ..." value="${escapeHtml(p.name && p.name !== p.title ? p.name : '')}">
+          </div>
+          <div class="admin-form-group" style="margin-bottom: 0;">
+            <label class="admin-label">About / Background</label>
+            <textarea class="admin-textarea gov-about-input" rows="2" placeholder="Brief summary of public service record...">${escapeHtml(p.about || '')}</textarea>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // 2. Render Matrons (3)
+  const matronsGrid = document.getElementById('govMatronsGrid');
+  if (matronsGrid && activeAdminGovernanceData.matrons) {
+    matronsGrid.innerHTML = activeAdminGovernanceData.matrons.map((m, idx) => {
+      const initial = idx === 0 ? 'GM' : 'M';
+      return `
+        <div class="gov-member-card" id="govCardAdminMatron_${idx}" data-idx="${idx}" data-photo="${escapeHtml(m.photo || '')}">
+          <div class="gov-photo-picker-row">
+            <div class="gov-photo-preview" id="govPreviewMatron_${idx}">
+              ${m.photo ? `<img src="${escapeHtml(m.photo)}" alt="${escapeHtml(m.title)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : `<span>${initial}</span>`}
+            </div>
+            <div style="flex: 1;">
+              <label class="admin-label" style="margin-bottom: 4px; font-size: 0.76rem; font-weight: 700;">Upload Photo</label>
+              <input type="file" accept="image/*" class="admin-input" style="padding: 5px 8px; font-size: 0.76rem;" onchange="handleGovPhotoUpload(event, 'govPreviewMatron_${idx}', 'govCardAdminMatron_${idx}')">
+            </div>
+          </div>
+          <div class="admin-form-group" style="margin-bottom: 0;">
+            <label class="admin-label">Official Title</label>
+            <input type="text" class="admin-input gov-title-input" value="${escapeHtml(m.title)}" ${idx === 0 ? 'readonly style="background:var(--admin-bg-page);"' : ''}>
+          </div>
+          <div class="admin-form-group" style="margin-bottom: 0;">
+            <label class="admin-label">Full Name</label>
+            <input type="text" class="admin-input gov-name-input" placeholder="e.g. Hajia / Dame / Dr. ..." value="${escapeHtml(m.name && m.name !== m.title ? m.name : '')}">
+          </div>
+          <div class="admin-form-group" style="margin-bottom: 0;">
+            <label class="admin-label">About / Background</label>
+            <textarea class="admin-textarea gov-about-input" rows="2" placeholder="Distinguished public policy & mentorship record...">${escapeHtml(m.about || '')}</textarea>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // 3. Render NEC (8)
+  const necGrid = document.getElementById('govNecGrid');
+  if (necGrid && activeAdminGovernanceData.nec) {
+    necGrid.innerHTML = activeAdminGovernanceData.nec.map((item, idx) => {
+      return `
+        <div class="gov-member-card" id="govCardAdminNec_${idx}" data-idx="${idx}" data-photo="${escapeHtml(item.photo || '')}">
+          <div class="gov-photo-picker-row">
+            <div class="gov-photo-preview" id="govPreviewNec_${idx}">
+              ${item.photo ? `<img src="${escapeHtml(item.photo)}" alt="${escapeHtml(item.title)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : `<span>${idx + 1}</span>`}
+            </div>
+            <div style="flex: 1;">
+              <label class="admin-label" style="margin-bottom: 4px; font-size: 0.76rem; font-weight: 700;">Upload Photo</label>
+              <input type="file" accept="image/*" class="admin-input" style="padding: 5px 8px; font-size: 0.76rem;" onchange="handleGovPhotoUpload(event, 'govPreviewNec_${idx}', 'govCardAdminNec_${idx}')">
+            </div>
+          </div>
+          <div class="admin-form-group" style="margin-bottom: 0;">
+            <label class="admin-label">Statutory Position</label>
+            <input type="text" class="admin-input gov-title-input" value="${escapeHtml(item.title)}">
+          </div>
+          <div class="admin-form-group" style="margin-bottom: 0;">
+            <label class="admin-label">Executive Role / Portfolio</label>
+            <input type="text" class="admin-input gov-role-input" value="${escapeHtml(item.role || '')}" placeholder="Executive Portfolio">
+          </div>
+          <div class="admin-form-group" style="margin-bottom: 0;">
+            <label class="admin-label">Full Name of Officer</label>
+            <input type="text" class="admin-input gov-name-input" placeholder="Official Name" value="${escapeHtml(item.name && item.name !== item.title ? item.name : '')}">
+          </div>
+          <div class="admin-form-group" style="margin-bottom: 0;">
+            <label class="admin-label">About / Responsibilities</label>
+            <textarea class="admin-textarea gov-about-input" rows="2" placeholder="Portfolio scope and statutory duties...">${escapeHtml(item.about || '')}</textarea>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // 4. Render State Chapters (37)
+  renderAdminStateChapters('');
+}
+
+function syncCurrentStateInputsToActiveData() {
+  if (!activeAdminGovernanceData || !activeAdminGovernanceData.states) return;
+  document.querySelectorAll('.gov-state-card').forEach(card => {
+    const stateName = card.getAttribute('data-state');
+    const stateObj = activeAdminGovernanceData.states.find(s => s.state === stateName);
+    if (!stateObj) return;
+
+    const coordName = card.querySelector('.gov-coord-name')?.value.trim();
+    const secName = card.querySelector('.gov-sec-name')?.value.trim();
+    const projects = card.querySelector('.gov-state-projects')?.value.trim();
+
+    stateObj.coordinator = coordName || 'State Coordinator';
+    stateObj.secretary = secName || 'State Secretary';
+    stateObj.projects = projects || '';
+    if (card.dataset.coordPhoto !== undefined) stateObj.coordPhoto = card.dataset.coordPhoto;
+    if (card.dataset.secPhoto !== undefined) stateObj.secPhoto = card.dataset.secPhoto;
+  });
+}
+
+function renderAdminStateChapters(filterText = '') {
+  const container = document.getElementById('govStatesGrid');
+  if (!container || !activeAdminGovernanceData || !activeAdminGovernanceData.states) return;
+
+  syncCurrentStateInputsToActiveData();
+
+  const query = (filterText || '').toLowerCase().trim();
+  const filtered = activeAdminGovernanceData.states.filter(s => {
+    return !query || s.state.toLowerCase().includes(query) || s.zone.toLowerCase().includes(query);
+  });
+
+  if (!filtered.length) {
+    container.innerHTML = `
+      <div style="grid-column: 1/-1; text-align: center; padding: 36px 20px; color: var(--admin-text-muted);">
+        No matching states found for "${escapeHtml(filterText)}".
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = filtered.map((s, idx) => {
+    const coordAvatar = s.coordPhoto
+      ? `<img src="${escapeHtml(s.coordPhoto)}" alt="${escapeHtml(s.coordinator)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+      : `<span>SC</span>`;
+
+    const secAvatar = s.secPhoto
+      ? `<img src="${escapeHtml(s.secPhoto)}" alt="${escapeHtml(s.secretary)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+      : `<span>SS</span>`;
+
+    return `
+      <div class="gov-state-card" id="govCardAdminState_${idx}" data-state="${escapeHtml(s.state)}" data-zone="${escapeHtml(s.zone)}" data-coord-photo="${escapeHtml(s.coordPhoto || '')}" data-sec-photo="${escapeHtml(s.secPhoto || '')}">
+        <div class="gov-state-header">
+          <span class="gov-state-title">${escapeHtml(s.state)} State Chapter</span>
+          <span class="gov-state-zone-badge">${escapeHtml(s.zone)}</span>
+        </div>
+        <div class="gov-state-exec-grid">
+          <!-- Coordinator -->
+          <div class="gov-exec-box">
+            <strong style="font-size: 0.8rem; color: var(--admin-primary); display: flex; align-items: center; gap: 6px;">
+              ${getIconSvg('user-check', { size: 14 })} State Coordinator
+            </strong>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div class="gov-photo-preview" id="govCoordPreview_${idx}" style="width: 44px; height: 44px; font-size: 0.85rem;">
+                ${coordAvatar}
+              </div>
+              <div style="flex: 1;">
+                <input type="file" accept="image/*" class="admin-input" style="padding: 4px; font-size: 0.72rem;" onchange="handleStatePhotoUpload(event, 'govCoordPreview_${idx}', 'govCardAdminState_${idx}', 'coord')">
+              </div>
+            </div>
+            <input type="text" class="admin-input gov-coord-name" placeholder="Coordinator Name" value="${escapeHtml(s.coordinator !== 'State Coordinator' ? s.coordinator : '')}">
+          </div>
+
+          <!-- Secretary -->
+          <div class="gov-exec-box">
+            <strong style="font-size: 0.8rem; color: var(--admin-primary); display: flex; align-items: center; gap: 6px;">
+              ${getIconSvg('file-text', { size: 14 })} State Secretary
+            </strong>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div class="gov-photo-preview" id="govSecPreview_${idx}" style="width: 44px; height: 44px; font-size: 0.85rem;">
+                ${secAvatar}
+              </div>
+              <div style="flex: 1;">
+                <input type="file" accept="image/*" class="admin-input" style="padding: 4px; font-size: 0.72rem;" onchange="handleStatePhotoUpload(event, 'govSecPreview_${idx}', 'govCardAdminState_${idx}', 'sec')">
+              </div>
+            </div>
+            <input type="text" class="admin-input gov-sec-name" placeholder="Secretary Name" value="${escapeHtml(s.secretary !== 'State Secretary' ? s.secretary : '')}">
+          </div>
+        </div>
+
+        <!-- Projects -->
+        <div class="admin-form-group" style="margin-bottom: 0;">
+          <label class="admin-label" style="font-size: 0.76rem; display: flex; align-items: center; gap: 6px;">
+            ${getIconSvg('folder-git-2', { size: 13 })} State Projects (Track B Grassroots Initiatives)
+          </label>
+          <textarea class="admin-textarea gov-state-projects" rows="2" placeholder="Key initiatives and grassroots empowerment projects in this state...">${escapeHtml(s.projects || '')}</textarea>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+window.handleGovPhotoUpload = function(event, previewId, cardId) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    showAdminToast('Please select a valid image file (PNG, JPG, WebP).', 'error');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    const previewEl = document.getElementById(previewId);
+    if (previewEl) {
+      previewEl.innerHTML = `<img src="${dataUrl}" alt="Preview" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+    }
+    const cardEl = document.getElementById(cardId);
+    if (cardEl) {
+      cardEl.dataset.photo = dataUrl;
+    }
+    showAdminToast('Photo loaded. Click "Save Governance Changes" to publish.', 'info');
+  };
+  reader.readAsDataURL(file);
+};
+
+window.handleStatePhotoUpload = function(event, previewId, cardId, role) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    showAdminToast('Please select a valid image file.', 'error');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    const previewEl = document.getElementById(previewId);
+    if (previewEl) {
+      previewEl.innerHTML = `<img src="${dataUrl}" alt="Preview" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+    }
+    const cardEl = document.getElementById(cardId);
+    if (cardEl) {
+      if (role === 'coord') cardEl.dataset.coordPhoto = dataUrl;
+      if (role === 'sec') cardEl.dataset.secPhoto = dataUrl;
+    }
+    syncCurrentStateInputsToActiveData();
+    showAdminToast('State official photo loaded. Click "Save Governance Changes" to publish.', 'info');
+  };
+  reader.readAsDataURL(file);
+};
+
+window.saveGovernanceChanges = function() {
+  if (!activeAdminGovernanceData) return;
+
+  // 1. Read Patrons
+  const patronCards = document.querySelectorAll('#govPatronsGrid .gov-member-card');
+  const patrons = [];
+  patronCards.forEach(card => {
+    const idx = parseInt(card.getAttribute('data-idx'), 10);
+    const title = card.querySelector('.gov-title-input')?.value.trim() || `Patron`;
+    const name = card.querySelector('.gov-name-input')?.value.trim() || title;
+    const about = card.querySelector('.gov-about-input')?.value.trim() || '';
+    const photo = card.dataset.photo || '';
+    patrons.push({ id: `patron_${idx}`, title, name, photo, about });
+  });
+
+  // 2. Read Matrons
+  const matronCards = document.querySelectorAll('#govMatronsGrid .gov-member-card');
+  const matrons = [];
+  matronCards.forEach(card => {
+    const idx = parseInt(card.getAttribute('data-idx'), 10);
+    const title = card.querySelector('.gov-title-input')?.value.trim() || `Matron`;
+    const name = card.querySelector('.gov-name-input')?.value.trim() || title;
+    const about = card.querySelector('.gov-about-input')?.value.trim() || '';
+    const photo = card.dataset.photo || '';
+    matrons.push({ id: `matron_${idx}`, title, name, photo, about });
+  });
+
+  // 3. Read NEC
+  const necCards = document.querySelectorAll('#govNecGrid .gov-member-card');
+  const nec = [];
+  necCards.forEach(card => {
+    const idx = parseInt(card.getAttribute('data-idx'), 10);
+    const title = card.querySelector('.gov-title-input')?.value.trim() || `National Officer`;
+    const role = card.querySelector('.gov-role-input')?.value.trim() || '';
+    const name = card.querySelector('.gov-name-input')?.value.trim() || title;
+    const about = card.querySelector('.gov-about-input')?.value.trim() || '';
+    const photo = card.dataset.photo || '';
+    nec.push({ id: `nec_${idx}`, title, role, name, photo, about });
+  });
+
+  // 4. Sync State Chapters
+  syncCurrentStateInputsToActiveData();
+
+  const finalData = {
+    patrons: patrons.length === 3 ? patrons : activeAdminGovernanceData.patrons,
+    matrons: matrons.length === 3 ? matrons : activeAdminGovernanceData.matrons,
+    nec: nec.length === 8 ? nec : activeAdminGovernanceData.nec,
+    states: activeAdminGovernanceData.states
+  };
+
+  localStorage.setItem('ncsyf_admin_governance', JSON.stringify(finalData));
+  activeAdminGovernanceData = finalData;
+
+  showAdminToast('Governance Directory & 37 State Chapters saved! All updates are live on the public website.');
+};

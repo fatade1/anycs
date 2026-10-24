@@ -30,6 +30,45 @@
   // Subscribers for state changes
   const authStateListeners = [];
 
+  // ---- Login Rate Limiting & Brute-Force Lockout ----
+  const FAILED_LOGIN_KEY = 'ncsyf_auth_failed_attempts';
+  const MAX_FAILED_ATTEMPTS = 5;
+  const LOCKOUT_DURATION_MS = 60 * 1000; // 60 seconds temporary lockout
+
+  function checkLoginRateLimit() {
+    try {
+      const raw = sessionStorage.getItem(FAILED_LOGIN_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed.lockUntil && Date.now() < parsed.lockUntil) {
+          const remainingSecs = Math.ceil((parsed.lockUntil - Date.now()) / 1000);
+          throw new Error(`Too many failed login attempts. Workstation temporarily locked. Please try again in ${remainingSecs} seconds.`);
+        }
+      }
+    } catch (e) {
+      if (e.message && e.message.includes('Too many failed')) throw e;
+    }
+  }
+
+  function recordFailedLogin() {
+    try {
+      const raw = sessionStorage.getItem(FAILED_LOGIN_KEY);
+      const state = raw ? JSON.parse(raw) : { count: 0, lockUntil: 0 };
+      state.count = (state.count || 0) + 1;
+      if (state.count >= MAX_FAILED_ATTEMPTS) {
+        state.lockUntil = Date.now() + LOCKOUT_DURATION_MS;
+        state.count = 0;
+      }
+      sessionStorage.setItem(FAILED_LOGIN_KEY, JSON.stringify(state));
+    } catch (e) {}
+  }
+
+  function resetFailedLogin() {
+    try {
+      sessionStorage.removeItem(FAILED_LOGIN_KEY);
+    } catch (e) {}
+  }
+
   // ---- Cryptographic Password Hashing Utility (Web Crypto API) ----
   async function hashPassword(password, salt) {
     if (!global.crypto || !global.crypto.subtle) {
@@ -231,10 +270,91 @@
     },
 
     /**
+     * Resolve user input identifier (Email, Membership ID, or Staff ID) to registered email address
+     * Multi-tiered strategy: Direct email -> Supabase Cloud RPC -> Alphanumeric normalizations -> Local Cache
+     */
+    async resolveIdentifierToEmail(identifier) {
+      if (!identifier || typeof identifier !== 'string') return null;
+      const clean = identifier.trim().toLowerCase();
+      if (clean.includes('@')) return clean;
+
+      // Alphanumeric normalized variant (e.g. "NCSYF19950001" or "19950001")
+      const normInput = clean.toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+      // 1. Try Supabase Cloud RPC (resolve_member_login_email)
+      if (supabaseClient) {
+        try {
+          // Attempt 1: Exact input string
+          const { data: rpcExact, error: err1 } = await supabaseClient.rpc('resolve_member_login_email', {
+            p_member_id: clean
+          });
+          if (!err1 && rpcExact) return rpcExact.trim().toLowerCase();
+
+          // Attempt 2: Uppercase variant
+          const { data: rpcUpper } = await supabaseClient.rpc('resolve_member_login_email', {
+            p_member_id: clean.toUpperCase()
+          });
+          if (rpcUpper) return rpcUpper.trim().toLowerCase();
+
+          // Attempt 3: If user omitted 'NCSYF-' prefix (e.g. entered "1995-0001" or "2026-0001")
+          if (!clean.startsWith('ncsyf')) {
+            const stripped = clean.replace(/^[-\s\/]+/, '');
+            const { data: rpcPrefixed } = await supabaseClient.rpc('resolve_member_login_email', {
+              p_member_id: 'NCSYF-' + stripped
+            });
+            if (rpcPrefixed) return rpcPrefixed.trim().toLowerCase();
+          }
+
+          // Attempt 4: If user used spaces or slashes (e.g. "NCSYF/1995/0001" -> "NCSYF-1995-0001")
+          const hyphenated = clean.replace(/[\s\/]+/g, '-');
+          if (hyphenated !== clean) {
+            const { data: rpcHyphen } = await supabaseClient.rpc('resolve_member_login_email', {
+              p_member_id: hyphenated
+            });
+            if (rpcHyphen) return rpcHyphen.trim().toLowerCase();
+          }
+        } catch (rpcErr) {
+          console.warn('Supabase member resolution notice:', rpcErr);
+        }
+      }
+
+      // 2. Check Local Store Fallback (localStorage: ncsyf_registered_members & ncsyf_auth_users)
+      try {
+        const localMembers = getStoredMembers();
+        const memberMatch = localMembers.find(m => {
+          const mId = (m.memberId || m.id || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+          const sId = (m.staffId || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+          return (mId && mId === normInput) ||
+                 (sId && sId === normInput) ||
+                 (normInput.length >= 6 && mId.endsWith(normInput));
+        });
+        if (memberMatch && memberMatch.email) {
+          return memberMatch.email.trim().toLowerCase();
+        }
+
+        const authUsers = getStoredAuthUsers();
+        const userMatch = authUsers.find(u => {
+          const mId = (u.memberId || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+          return mId && mId === normInput;
+        });
+        if (userMatch && userMatch.email) {
+          return userMatch.email.trim().toLowerCase();
+        }
+      } catch (locErr) {
+        console.warn('Local member lookup notice:', locErr);
+      }
+
+      return null;
+    },
+
+    /**
      * Sign In using either registered Email OR assigned NCSYF Member ID + Password
      * @param {Object} credentials - { identifier, password, rememberMe }
      */
     async signIn({ identifier, password, rememberMe = true }) {
+      // 0. Enforce Rate Limiting to prevent brute-force attacks
+      checkLoginRateLimit();
+
       if (!identifier || !identifier.trim()) {
         throw new Error('Please enter your registered Email Address or Membership ID.');
       }
@@ -243,22 +363,21 @@
       }
 
       const cleanIdentifier = identifier.trim().toLowerCase();
+      const genericErrorMessage = 'Invalid email, membership ID, or password. Please verify your credentials.';
 
       // 1. If live Supabase is connected
       if (supabaseClient) {
         try {
           let emailToAuth = cleanIdentifier;
 
-          // If identifier looks like a Member ID (e.g. NCSYF-1997-0001), resolve its email
-          if (cleanIdentifier.startsWith('ncsyf') || cleanIdentifier.startsWith('anycs')) {
-            const { data: profile } = await supabaseClient
-              .from('member_profiles')
-              .select('email')
-              .ilike('member_id', cleanIdentifier)
-              .maybeSingle();
-
-            if (profile && profile.email) {
-              emailToAuth = profile.email;
+          // If identifier is not an email, resolve Membership ID or Staff ID to email
+          if (!cleanIdentifier.includes('@')) {
+            const resolvedEmail = await this.resolveIdentifierToEmail(cleanIdentifier);
+            if (resolvedEmail) {
+              emailToAuth = resolvedEmail;
+            } else {
+              recordFailedLogin();
+              throw new Error(`Unable to find an account associated with Membership ID "${identifier.trim()}". Please check your Member ID or sign in with your registered email.`);
             }
           }
 
@@ -268,10 +387,11 @@
           });
 
           if (error) {
+            recordFailedLogin();
             if (error.message && error.message.toLowerCase().includes('email not confirmed')) {
-              throw new Error('Email not confirmed. To allow members to sign in without email verification, turn OFF "Confirm email" in your Supabase Dashboard under Authentication > Providers > Email.');
+              throw new Error('Email not confirmed. Please check your inbox for the confirmation email or contact the Secretariat.');
             }
-            throw new Error(error.message || 'Invalid email or password.');
+            throw new Error(genericErrorMessage);
           }
 
           // Fetch linked profile from Supabase Cloud
@@ -301,10 +421,54 @@
             }
           }
 
+          // If profile does not exist in Supabase Cloud yet, auto-sync from local cache or provision for authenticated user
+          if (!memberProfile) {
+            const localMembers = getStoredMembers();
+            const localRec = localMembers.find(m =>
+              (m.email && m.email.toLowerCase() === data.user.email.toLowerCase()) ||
+              (m.userId && m.userId === data.user.id)
+            );
+
+            const profileToSave = {
+              user_id: data.user.id,
+              member_id: (localRec && (localRec.memberId || localRec.id)) || ('NCSYF-' + new Date().getFullYear() + '-0001'),
+              email: data.user.email,
+              first_name: (localRec && localRec.firstName) || (data.user.user_metadata && data.user.user_metadata.first_name) || data.user.email.split('@')[0],
+              last_name: (localRec && localRec.lastName) || (data.user.user_metadata && data.user.user_metadata.last_name) || 'Member',
+              category: (localRec && localRec.category) || 'full',
+              tier: (localRec && localRec.tier) || 'federal',
+              tier_label: (localRec && localRec.tierLabel) || 'Federal Government MDA',
+              mda: (localRec && localRec.mda) || 'Federal Public Service',
+              state_chapter: (localRec && localRec.stateChapter) || 'FCT Abuja',
+              staff_id: (localRec && localRec.staffId) || null,
+              status: (localRec && ['pending', 'verified', 'disapproved', 'suspended'].includes(localRec.status)) ? localRec.status : 'pending',
+              registered_at: (localRec && localRec.registeredAt) || new Date().toISOString()
+            };
+
+            try {
+              const { data: savedProf, error: saveErr } = await supabaseClient
+                .from('member_profiles')
+                .insert(profileToSave)
+                .select('*')
+                .maybeSingle();
+
+              if (!saveErr && savedProf) {
+                memberProfile = savedProf;
+              } else {
+                memberProfile = profileToSave;
+              }
+            } catch (syncErr) {
+              console.warn('Auto-sync member profile to Cloud notice:', syncErr);
+              memberProfile = profileToSave;
+            }
+          }
+
+          resetFailedLogin();
+
           const session = {
             userId: data.user.id,
             email: data.user.email,
-            memberId: memberProfile ? memberProfile.member_id : null,
+            memberId: memberProfile ? (memberProfile.member_id || memberProfile.memberId) : null,
             token: data.session ? data.session.access_token : generateSessionToken(),
             expiresAt: data.session && data.session.expires_at ? new Date(data.session.expires_at * 1000).toISOString() : new Date(Date.now() + 86400000 * 7).toISOString(),
             rememberMe: rememberMe
@@ -357,18 +521,27 @@
       }
 
       if (!matchedUser) {
-        throw new Error('Account not found. Please verify your Email or Membership ID, or complete registration.');
+        recordFailedLogin();
+        throw new Error(genericErrorMessage);
       }
 
-      // Verify Password Hash
+      // Verify Password Hash securely (no hardcoded backdoor)
       const computedHash = await hashPassword(password, matchedUser.salt);
       const isMatch = (computedHash === matchedUser.passwordHash) || 
-                      (password === 'Member@2026') || 
                       (matchedUser.password && matchedUser.password === password);
 
       if (!isMatch) {
-        throw new Error('Incorrect password. Please verify your credentials or use the password recovery option.');
+        recordFailedLogin();
+        throw new Error(genericErrorMessage);
       }
+
+      // Upgrade plaintext password to secure hash if legacy property exists
+      if (matchedUser.password) {
+        delete matchedUser.password;
+        saveAuthUsers(authUsers);
+      }
+
+      resetFailedLogin();
 
       // Resolve Member Profile
       if (!matchedMember) {
@@ -432,19 +605,30 @@
           if (error) throw new Error(error.message);
 
           if (data && data.user) {
-            // Insert or update linked profile in public.member_profiles
-            await supabaseClient.from('member_profiles').upsert({
+            // Insert linked profile into public.member_profiles
+            const newProfilePayload = {
               user_id: data.user.id,
               email: cleanEmail,
               member_id: memberProfile.memberId,
-              first_name: memberProfile.firstName,
-              last_name: memberProfile.lastName,
+              first_name: memberProfile.firstName || '',
+              last_name: memberProfile.lastName || '',
               category: memberProfile.category || 'full',
-              mda: memberProfile.mda,
-              state_chapter: memberProfile.stateChapter,
-              staff_id: memberProfile.staffId,
-              status: memberProfile.status || 'pending'
-            }, { onConflict: 'member_id' });
+              tier: memberProfile.tier || 'federal',
+              tier_label: memberProfile.tierLabel || 'Federal Government MDA',
+              mda: memberProfile.mda || '',
+              state_chapter: memberProfile.stateChapter || 'FCT Abuja',
+              staff_id: memberProfile.staffId || null,
+              status: memberProfile.status || 'pending',
+              registered_at: memberProfile.registeredAt || new Date().toISOString()
+            };
+
+            const { error: insErr } = await supabaseClient
+              .from('member_profiles')
+              .insert(newProfilePayload);
+
+            if (insErr) {
+              console.warn('Supabase member_profiles insert notice:', insErr.message || insErr);
+            }
 
             // If Supabase has "Confirm email" turned OFF, an active session is returned immediately
             if (data.session) {
@@ -526,10 +710,18 @@
         throw new Error('Please enter your registered email address or Membership ID.');
       }
       const clean = identifier.trim().toLowerCase();
+      let emailToReset = clean;
+
+      if (!clean.includes('@')) {
+        const resolved = await this.resolveIdentifierToEmail(clean);
+        if (resolved) {
+          emailToReset = resolved;
+        }
+      }
 
       if (supabaseClient) {
         try {
-          const { error } = await supabaseClient.auth.resetPasswordForEmail(clean);
+          const { error } = await supabaseClient.auth.resetPasswordForEmail(emailToReset);
           if (error) throw new Error(error.message);
           return true;
         } catch (err) {
@@ -548,10 +740,7 @@
         (m.memberId && m.memberId.toLowerCase() === clean)
       );
 
-      if (!exists) {
-        throw new Error('No membership account found with this email or Membership ID.');
-      }
-
+      // Return success uniformly to prevent user enumeration
       return true;
     },
 

@@ -222,12 +222,25 @@
         const client = getClient();
         if (client) {
           try {
+            // 1. Try secure admin RPC first (returns all member dossiers)
+            if (typeof client.rpc === 'function') {
+              const { data: rpcData, error: rpcErr } = await client.rpc('get_all_member_profiles_admin');
+              if (!rpcErr && Array.isArray(rpcData) && rpcData.length > 0) {
+                const mapped = rpcData.map(rowToMember);
+                try {
+                  localStorage.setItem(STORAGE_KEYS.MEMBERS, JSON.stringify(mapped));
+                } catch (e) {}
+                return mapped;
+              }
+            }
+
+            // 2. Direct query on member_profiles
             const { data, error } = await client
               .from('member_profiles')
               .select('*')
               .order('registered_at', { ascending: false });
 
-            if (!error && Array.isArray(data)) {
+            if (!error && Array.isArray(data) && data.length > 0) {
               const mapped = data.map(rowToMember);
               try {
                 localStorage.setItem(STORAGE_KEYS.MEMBERS, JSON.stringify(mapped));
@@ -361,8 +374,13 @@
         const client = getClient();
         if (client) {
           try {
-            await client.from('member_profiles').delete().eq('member_id', memberId);
-          } catch (err) {}
+            const { error } = await client.from('member_profiles').delete().eq('member_id', memberId);
+            if (error) {
+              console.warn('Supabase member delete requires administrator authorization:', error.message || error);
+            }
+          } catch (err) {
+            console.warn('Supabase member delete exception:', err);
+          }
         }
       },
 
@@ -378,7 +396,10 @@
         const client = getClient();
         if (client) {
           try {
-            await client.from('member_profiles').delete().neq('member_id', 'NON_EXISTENT_PLACEHOLDER');
+            const { error } = await client.from('member_profiles').delete().neq('member_id', 'NON_EXISTENT_PLACEHOLDER');
+            if (error) {
+              console.warn('Supabase member_profiles clearAll requires administrator or service role authorization:', error.message || error);
+            }
           } catch (err) {
             console.warn('Supabase member_profiles clearAll error:', err);
           }
@@ -542,7 +563,13 @@
         const client = getClient();
         if (client && item) {
           try {
-            await client.from('resources').update({ downloads: item.downloads }).eq('id', id);
+            // Under hardened RLS, public users cannot directly UPDATE resources table.
+            // Call the secure increment_resource_downloads RPC:
+            const { error: rpcErr } = await client.rpc('increment_resource_downloads', { p_resource_id: id });
+            if (rpcErr) {
+              // Fallback for setups before migration is applied
+              await client.from('resources').update({ downloads: item.downloads }).eq('id', id);
+            }
           } catch (err) {}
         }
       },

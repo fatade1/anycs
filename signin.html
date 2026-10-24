@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Sign In — Nigeria Civil Service Youths Forum (ANYCS) Member Portal. Enter Membership ID and Password.">
+  <meta name="description" content="Sign In — Nigeria Civil Service Youths’ Forum (ANYCS) Member Portal. Enter Membership ID and Password.">
   <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
   <link rel="shortcut icon" href="favicon.ico">
@@ -79,9 +79,6 @@
           <div style="text-align: center; margin-top: var(--space-xl); padding-top: var(--space-lg); border-top: 1px solid var(--color-light-gray); font-size: var(--fs-sm); color: var(--color-dark-gray);">
             Not a registered member yet? <br>
             <a href="membership.html#register" style="color: var(--color-primary); font-weight: 700;">Complete Membership Registration Form →</a>
-            <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--color-light-gray); font-size: var(--fs-xs);">
-              Secretariat Official? <a href="admin/index.html" style="color: var(--color-accent); font-weight: 700;">Access Admin Management Console <i data-lucide="shield-check" style="width: 14px; height: 14px; margin-left: 4px; vertical-align: -2px;"></i></a>
-            </div>
           </div>
         </form>
       </div>
@@ -119,7 +116,7 @@
   <footer class="footer">
     <div class="container">
       <div class="footer__bottom" style="border-top: none; padding: var(--space-lg) 0;">
-        <span>© 2026 Nigeria Civil Service Youths' Forum (NCSYF). All rights reserved. • <a href="admin/index.html" style="color: inherit; text-decoration: underline; opacity: 0.75;">Admin Portal</a></span>
+        <span>© 2026 Nigeria Civil Service Youths' Forum (NCSYF). All rights reserved.</span>
         <div style="display: flex; gap: var(--space-md);">
           <a href="index.html" class="footer__link">Home</a>
           <a href="about.html" class="footer__link">About Us</a>
@@ -176,8 +173,20 @@
             const memberName = res.profile ? `${res.profile.firstName} ${res.profile.lastName}` : (res.user.email || 'Member');
             showToast(`Welcome back, ${memberName}! Signed in successfully.`, 'success');
 
+            function sanitizeRedirectUrl(raw) {
+              if (!raw || typeof raw !== 'string') return 'dashboard.html';
+              const clean = raw.trim();
+              if (clean.startsWith('//') || 
+                  clean.includes('://') || 
+                  clean.startsWith('\\') || 
+                  clean.toLowerCase().startsWith('javascript:')) {
+                return 'dashboard.html';
+              }
+              return clean;
+            }
+
             const urlParams = new URLSearchParams(window.location.search);
-            const redirectUrl = urlParams.get('redirect') || 'dashboard.html';
+            const redirectUrl = sanitizeRedirectUrl(urlParams.get('redirect'));
 
             setTimeout(() => {
               window.location.href = redirectUrl;
@@ -205,7 +214,7 @@
             if (window.NCSYF_AUTH) {
               await window.NCSYF_AUTH.resetPassword(identifier);
             }
-            showToast(`Password recovery link dispatched to ${identifier}. Please check your inbox.`, 'success');
+            showToast('If a verified account is associated with this record, a password recovery link has been dispatched.', 'success');
             document.getElementById('pageForgotSection').style.display = 'none';
             document.getElementById('pageSignInSection').style.display = 'block';
           } catch (err) {

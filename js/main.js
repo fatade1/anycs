@@ -1,5 +1,5 @@
 // ========================================
-// Nigeria Civil Service Youths Forum (ANYCS)
+// Nigeria Civil Service Youths’ Forum (ANYCS)
 // Main JavaScript & Interactive Controllers
 // ========================================
 
@@ -708,16 +708,14 @@ async function handleMembershipSubmit(e) {
   // Password confirmation check
   const pwd = form.querySelector('#password');
   const confirmPwd = form.querySelector('#confirmPassword');
-  if (pwd && confirmPwd) {
-    if (pwd.value.length < 8) {
-      pwd.classList.add('error');
-      showToast('Password must be at least 8 characters long.', 'error');
-      isValid = false;
-    } else if (pwd.value !== confirmPwd.value) {
-      confirmPwd.classList.add('error');
-      showToast('Passwords do not match. Please re-enter your password.', 'error');
-      isValid = false;
-    }
+  if (!pwd || !pwd.value || pwd.value.trim().length < 8) {
+    if (pwd) pwd.classList.add('error');
+    showToast('Password is required and must be at least 8 characters long.', 'error');
+    isValid = false;
+  } else if (!confirmPwd || pwd.value !== confirmPwd.value) {
+    if (confirmPwd) confirmPwd.classList.add('error');
+    showToast('Passwords do not match. Please re-enter your password.', 'error');
+    isValid = false;
   }
 
   if (!isValid) {
@@ -882,7 +880,10 @@ async function handleMembershipSubmit(e) {
 
     // Persist applicant chosen password into auth service
     const passwordInput = form.querySelector('#password');
-    const userPass = passwordInput && passwordInput.value ? passwordInput.value.trim() : 'Member@2026';
+    const userPass = passwordInput && passwordInput.value ? passwordInput.value.trim() : '';
+    if (!userPass) {
+      throw new Error('Registration requires a secure password.');
+    }
     if (window.NCSYF_AUTH && newMemberRecord.email) {
       try {
         await window.NCSYF_AUTH.signUp({
@@ -1326,7 +1327,7 @@ function initDynamicProjects() {
         <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; background: var(--color-white); border-radius: var(--radius-xl); border: 1px dashed var(--color-light-gray);">
           <div style="font-size: 2.4rem; margin-bottom: 12px; color: var(--color-gray);">${typeof getIconSvg === 'function' ? getIconSvg('layers', { size: 40 }) : '📁'}</div>
           <h4 style="font-size: var(--fs-lg); color: var(--color-dark); margin-bottom: 6px;">No Initiatives Found in this Category</h4>
-          <p style="font-size: var(--fs-sm); color: var(--color-gray); margin-bottom: 0;">Upload or initiate new priority projects via the Secretariat Admin Portal.</p>
+          <p style="font-size: var(--fs-sm); color: var(--color-gray); margin-bottom: 0;">New initiatives and active projects in this sector will appear here as they are registered.</p>
         </div>
       `;
       return;
@@ -2258,10 +2259,6 @@ async function updateNavbarAuthState() {
             <a href="dashboard.html" class="nav-dropdown-item">
               <i data-lucide="layout-dashboard"></i>
               <span>My Member Dashboard</span>
-            </a>
-            <a href="dashboard.html#credentialSlip" class="nav-dropdown-item">
-              <i data-lucide="badge-check"></i>
-              <span>Digital Credential Slip</span>
             </a>
             <a href="resources.html" class="nav-dropdown-item">
               <i data-lucide="file-text"></i>
