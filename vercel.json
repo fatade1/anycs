@@ -5,6 +5,23 @@
   "redirects": [
     {
       "source": "/admin",
+      "has": [
+        {
+          "type": "host",
+          "value": "ncsyf.com.ng"
+        }
+      ],
+      "destination": "https://admin.ncsyf.com.ng",
+      "permanent": true
+    },
+    {
+      "source": "/admin",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.ncsyf.com.ng"
+        }
+      ],
       "destination": "https://admin.ncsyf.com.ng",
       "permanent": true
     },
@@ -18,9 +35,62 @@
       ],
       "destination": "https://admin.ncsyf.com.ng/:path*",
       "permanent": true
+    },
+    {
+      "source": "/admin/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.ncsyf.com.ng"
+        }
+      ],
+      "destination": "https://admin.ncsyf.com.ng/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/admin",
+      "has": [
+        {
+          "type": "host",
+          "value": "admin.ncsyf.com.ng"
+        }
+      ],
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/admin/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "admin.ncsyf.com.ng"
+        }
+      ],
+      "destination": "/:path*",
+      "permanent": true
     }
   ],
   "rewrites": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "admin.ncsyf.com.ng"
+        }
+      ],
+      "destination": "/admin/index.html"
+    },
+    {
+      "source": "/index.html",
+      "has": [
+        {
+          "type": "host",
+          "value": "admin.ncsyf.com.ng"
+        }
+      ],
+      "destination": "/admin/index.html"
+    },
     {
       "source": "/(.*)",
       "has": [
