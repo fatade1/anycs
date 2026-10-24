@@ -313,6 +313,16 @@
             });
             if (rpcHyphen) return rpcHyphen.trim().toLowerCase();
           }
+
+          // Attempt 5: Current registration year format (e.g. "0011", "11", "NCSYF-0011" -> "NCSYF-2026-0011")
+          const digits = clean.replace(/\D/g, '');
+          if (digits.length >= 1 && digits.length <= 4) {
+            const padded = digits.padStart(4, '0');
+            const { data: rpc2026 } = await supabaseClient.rpc('resolve_member_login_email', {
+              p_member_id: 'NCSYF-2026-' + padded
+            });
+            if (rpc2026) return rpc2026.trim().toLowerCase();
+          }
         } catch (rpcErr) {
           console.warn('Supabase member resolution notice:', rpcErr);
         }
@@ -375,6 +385,7 @@
             const resolvedEmail = await this.resolveIdentifierToEmail(cleanIdentifier);
             if (resolvedEmail) {
               emailToAuth = resolvedEmail;
+              console.log(`[NCSYF Auth] Resolved Member identifier "${identifier.trim()}" to email "${emailToAuth}".`);
             } else {
               recordFailedLogin();
               throw new Error(`Unable to find an account associated with Membership ID "${identifier.trim()}". Please check your Member ID or sign in with your registered email.`);

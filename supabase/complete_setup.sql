@@ -142,6 +142,15 @@ BEGIN
         LIMIT 1;
     END IF;
 
+    -- 5. Digit ending match (e.g. user entered "0011", "11", or "NCSYF-0011")
+    IF found_email IS NULL AND LENGTH(REGEXP_REPLACE(clean_id, '[^0-9]', '', 'g')) >= 2 THEN
+        SELECT email INTO found_email
+        FROM public.member_profiles
+        WHERE REGEXP_REPLACE(UPPER(TRIM(member_id)), '[^0-9]', '', 'g') LIKE '%' || REGEXP_REPLACE(clean_id, '[^0-9]', '', 'g')
+        ORDER BY registered_at DESC
+        LIMIT 1;
+    END IF;
+
     RETURN found_email;
 END;
 $$;
