@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initDynamicResources();
   initDynamicMediaGallery();
   initMemberAuthSystem();
+  syncPublicContentFromSupabaseCloud();
 });
 
 // ---- Navbar scroll effect & active page highlighting ----
@@ -1831,6 +1832,11 @@ function initDynamicResources() {
 }
 
 window.downloadPublicResource = function(resourceId) {
+  // Increment download count in Supabase Cloud database and local store
+  if (window.NCSYF_DB && window.NCSYF_DB.resources && typeof window.NCSYF_DB.resources.incrementDownloads === 'function') {
+    window.NCSYF_DB.resources.incrementDownloads(resourceId).catch(() => {});
+  }
+
   const data = localStorage.getItem('ncsyf_admin_resources');
   if (!data) {
     showToast('Downloading document...');
@@ -2384,5 +2390,53 @@ function initMemberAuthSystem() {
   });
 
   updateNavbarAuthState();
+}
+
+// Synchronize public site content (projects, publications, gallery, governance) directly with Supabase Cloud
+async function syncPublicContentFromSupabaseCloud() {
+  if (!window.NCSYF_DB) return;
+
+  try {
+    // 1. Projects
+    if (window.NCSYF_DB.projects && typeof window.NCSYF_DB.projects.getAll === 'function') {
+      window.NCSYF_DB.projects.getAll().then(cloudProjects => {
+        if (Array.isArray(cloudProjects) && cloudProjects.length > 0) {
+          const grid = document.getElementById('dynamicProjectsGrid');
+          if (grid) initDynamicProjects();
+        }
+      }).catch(() => {});
+    }
+
+    // 2. Resources / Circulars
+    if (window.NCSYF_DB.resources && typeof window.NCSYF_DB.resources.getAll === 'function') {
+      window.NCSYF_DB.resources.getAll().then(cloudResources => {
+        if (Array.isArray(cloudResources) && cloudResources.length > 0) {
+          const grid = document.getElementById('dynamicResourcesGrid');
+          if (grid) initDynamicResources();
+        }
+      }).catch(() => {});
+    }
+
+    // 3. Media Gallery & Photos
+    if (window.NCSYF_DB.gallery && typeof window.NCSYF_DB.gallery.getAll === 'function') {
+      window.NCSYF_DB.gallery.getAll().then(cloudGallery => {
+        if (Array.isArray(cloudGallery) && cloudGallery.length > 0) {
+          const grid = document.getElementById('dynamicMediaGalleryGrid');
+          if (grid) initDynamicMediaGallery();
+        }
+      }).catch(() => {});
+    }
+
+    // 4. Governance & 37 State Chapters
+    if (window.NCSYF_DB.governance && typeof window.NCSYF_DB.governance.get === 'function') {
+      window.NCSYF_DB.governance.get().then(cloudGov => {
+        if (cloudGov && typeof window.initPublicGovernance === 'function') {
+          window.initPublicGovernance();
+        }
+      }).catch(() => {});
+    }
+  } catch (err) {
+    console.warn('Public cloud content sync notice:', err);
+  }
 }
 

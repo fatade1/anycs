@@ -503,6 +503,13 @@ async function autoSyncFromSupabaseCloud() {
       renderResourcesList();
       renderGalleryList();
       renderAdminsTable();
+      if (typeof populateGovernanceAdminFields === 'function') {
+        const govData = typeof getNcsyfGovernanceData === 'function' ? getNcsyfGovernanceData() : null;
+        if (govData) {
+          activeAdminGovernanceData = govData;
+          populateGovernanceAdminFields(govData);
+        }
+      }
     } catch (err) {
       console.warn('Auto cloud sync notice:', err);
     }
@@ -1577,9 +1584,10 @@ async function handleLogin(e) {
   setAuthSession(session, remember);
   showAdminToast(`Welcome, ${displayName}! Signed in as ${role === 'super_admin' ? 'Super Admin' : 'Regular Admin'}.`);
 
-  setTimeout(() => {
+  setTimeout(async () => {
     checkAuthAndRender();
-  }, 400);
+    await autoSyncFromSupabaseCloud();
+  }, 300);
 }
 
 // ==========================================================================
@@ -1631,11 +1639,11 @@ function switchTab(tabId) {
     if (pageSubtitle) pageSubtitle.textContent = titles[tabId].subtitle;
   }
 
-  // Refresh relevant view
+  // Refresh relevant view and pull latest cloud records
   if (tabId === 'overview') {
     renderDashboard();
-    if (window.NCSYF_DB && window.NCSYF_DB.members) {
-      window.NCSYF_DB.members.getAll().then(() => renderDashboard()).catch(() => {});
+    if (window.NCSYF_DB && window.NCSYF_DB.pullFromSupabase) {
+      window.NCSYF_DB.pullFromSupabase().then(() => renderDashboard()).catch(() => {});
     }
   }
   if (tabId === 'members') {
@@ -1644,11 +1652,41 @@ function switchTab(tabId) {
       window.NCSYF_DB.members.getAll().then(() => renderMembersTable()).catch(() => {});
     }
   }
-  if (tabId === 'projects') renderProjectsList();
-  if (tabId === 'resources') renderResourcesList();
-  if (tabId === 'gallery') renderGalleryList();
-  if (tabId === 'governance') renderGovernanceAdmin();
-  if (tabId === 'admins') renderAdminsTable();
+  if (tabId === 'projects') {
+    renderProjectsList();
+    if (window.NCSYF_DB && window.NCSYF_DB.projects) {
+      window.NCSYF_DB.projects.getAll().then(() => renderProjectsList()).catch(() => {});
+    }
+  }
+  if (tabId === 'resources') {
+    renderResourcesList();
+    if (window.NCSYF_DB && window.NCSYF_DB.resources) {
+      window.NCSYF_DB.resources.getAll().then(() => renderResourcesList()).catch(() => {});
+    }
+  }
+  if (tabId === 'gallery') {
+    renderGalleryList();
+    if (window.NCSYF_DB && window.NCSYF_DB.gallery) {
+      window.NCSYF_DB.gallery.getAll().then(() => renderGalleryList()).catch(() => {});
+    }
+  }
+  if (tabId === 'governance') {
+    renderGovernanceAdmin();
+    if (window.NCSYF_DB && window.NCSYF_DB.governance) {
+      window.NCSYF_DB.governance.get().then(govData => {
+        if (govData && typeof populateGovernanceAdminFields === 'function') {
+          activeAdminGovernanceData = govData;
+          populateGovernanceAdminFields(govData);
+        }
+      }).catch(() => {});
+    }
+  }
+  if (tabId === 'admins') {
+    renderAdminsTable();
+    if (window.NCSYF_DB && window.NCSYF_DB.admins) {
+      window.NCSYF_DB.admins.getAll().then(() => renderAdminsTable()).catch(() => {});
+    }
+  }
 }
 
 // ==========================================================================
@@ -2037,7 +2075,7 @@ window.openDisapproveModal = function(memberId) {
   if (modal) modal.classList.add('active');
 };
 
-function handleDisapproveMember(e) {
+async function handleDisapproveMember(e) {
   e.preventDefault();
   const form = e.target;
   const memberId = form.querySelector('#disapproveMemberId').value;
@@ -2045,7 +2083,7 @@ function handleDisapproveMember(e) {
   const notes = form.querySelector('#disapproveNotes').value.trim();
 
   const members = getStoredMembers();
-  const index = members.findIndex(m => m.id === memberId);
+  const index = members.findIndex(m => m.id === memberId || m.memberId === memberId);
   if (index === -1) return;
 
   const now = new Date();
@@ -2058,15 +2096,26 @@ function handleDisapproveMember(e) {
   members[index].canReapply = true;
 
   saveMembers(members);
+
+  // Persist disapproval to Supabase Cloud
+  if (window.NCSYF_DB && window.NCSYF_DB.members) {
+    try {
+      await window.NCSYF_DB.members.updateStatus(members[index].memberId || members[index].id, 'disapproved', reason);
+      console.log('✅ Disapproval persisted to Supabase Cloud for:', members[index].memberId);
+    } catch (sbErr) {
+      console.warn('Supabase member disapproval notice:', sbErr);
+    }
+  }
+
   showAdminToast(`Application for ${members[index].firstName} ${members[index].lastName} disapproved. Member may reapply with corrected credentials.`, 'error');
   closeAllModals();
   renderDashboard();
   renderMembersTable();
 }
 
-window.updateMemberStatus = function(memberId, newStatus) {
+window.updateMemberStatus = async function(memberId, newStatus) {
   const members = getStoredMembers();
-  const index = members.findIndex(m => m.id === memberId);
+  const index = members.findIndex(m => m.id === memberId || m.memberId === memberId);
   if (index === -1) return;
 
   members[index].status = newStatus;
@@ -2075,9 +2124,14 @@ window.updateMemberStatus = function(memberId, newStatus) {
   }
   saveMembers(members);
 
-  // Sync to Supabase if connected
+  // Sync to Supabase Cloud
   if (window.NCSYF_DB && window.NCSYF_DB.members) {
-    window.NCSYF_DB.members.updateStatus(members[index].memberId || members[index].id, newStatus).catch(() => {});
+    try {
+      await window.NCSYF_DB.members.updateStatus(members[index].memberId || members[index].id, newStatus);
+      console.log('✅ Member status updated in Supabase Cloud:', members[index].memberId, newStatus);
+    } catch (sbErr) {
+      console.warn('Supabase member status update notice:', sbErr);
+    }
   }
 
   showAdminToast(`Member application status updated to: ${newStatus.toUpperCase()}`);
@@ -2085,7 +2139,7 @@ window.updateMemberStatus = function(memberId, newStatus) {
   renderMembersTable();
 };
 
-window.deleteMember = function(memberId) {
+window.deleteMember = async function(memberId) {
   if (!isSuperAdmin()) {
     showAdminToast('Access Denied: Only Super Administrators can permanently delete member records.', 'error');
     return;
@@ -2096,7 +2150,12 @@ window.deleteMember = function(memberId) {
   saveMembers(members);
 
   if (window.NCSYF_DB && window.NCSYF_DB.members) {
-    window.NCSYF_DB.members.delete(memberId).catch(() => {});
+    try {
+      await window.NCSYF_DB.members.delete(memberId);
+      console.log('✅ Member deleted from Supabase Cloud:', memberId);
+    } catch (sbErr) {
+      console.warn('Supabase member delete notice:', sbErr);
+    }
   }
 
   showAdminToast('Member record removed from system.');
@@ -2434,6 +2493,15 @@ function handleAddProject(e) {
     }
 
     saveProjects(projects);
+
+    if (window.NCSYF_DB && window.NCSYF_DB.projects) {
+      try {
+        await window.NCSYF_DB.projects.save(projects[index]);
+      } catch (e) {
+        console.warn('Supabase project edit sync notice:', e);
+      }
+    }
+
     showAdminToast(`Project "${title}" updated successfully!`);
   } else {
     // Add new project
@@ -2468,7 +2536,11 @@ function handleAddProject(e) {
     saveProjects(projects);
 
     if (window.NCSYF_DB && window.NCSYF_DB.projects) {
-      window.NCSYF_DB.projects.save(newProject).catch(() => {});
+      try {
+        await window.NCSYF_DB.projects.save(newProject);
+      } catch (e) {
+        console.warn('Supabase project save sync notice:', e);
+      }
     }
 
     showAdminToast('New national priority project published to website & portal!');
@@ -2481,7 +2553,7 @@ function handleAddProject(e) {
   renderProjectsList();
 }
 
-window.deleteProject = function(projectId) {
+window.deleteProject = async function(projectId) {
   if (!isSuperAdmin()) {
     showAdminToast('Access Denied: Only Super Administrators can delete projects.', 'error');
     return;
@@ -2492,7 +2564,11 @@ window.deleteProject = function(projectId) {
   saveProjects(projects);
 
   if (window.NCSYF_DB && window.NCSYF_DB.projects) {
-    window.NCSYF_DB.projects.delete(projectId).catch(() => {});
+    try {
+      await window.NCSYF_DB.projects.delete(projectId);
+    } catch (e) {
+      console.warn('Supabase project delete notice:', e);
+    }
   }
 
   showAdminToast('Project removed successfully.');
@@ -2700,6 +2776,15 @@ function handleAddResource(e) {
     }
 
     saveResources(resources);
+
+    if (window.NCSYF_DB && window.NCSYF_DB.resources) {
+      try {
+        await window.NCSYF_DB.resources.save(resources[index]);
+      } catch (e) {
+        console.warn('Supabase resource edit notice:', e);
+      }
+    }
+
     showAdminToast(`Resource "${title}" updated successfully!`);
   } else {
     // Add new resource
@@ -2728,7 +2813,11 @@ function handleAddResource(e) {
     saveResources(resources);
 
     if (window.NCSYF_DB && window.NCSYF_DB.resources) {
-      window.NCSYF_DB.resources.save(editingId ? resources[index] : newResource).catch(() => {});
+      try {
+        await window.NCSYF_DB.resources.save(newResource);
+      } catch (e) {
+        console.warn('Supabase resource save notice:', e);
+      }
     }
 
     showAdminToast(`Document "${uploadedResourceFileData.name}" uploaded successfully!`);
@@ -2782,7 +2871,7 @@ window.downloadResource = function(resourceId) {
   showAdminToast(`Downloading: ${r.title}`);
 };
 
-window.deleteResource = function(resourceId) {
+window.deleteResource = async function(resourceId) {
   if (!isSuperAdmin()) {
     showAdminToast('Access Denied: Only Super Administrators can delete resources.', 'error');
     return;
@@ -2793,7 +2882,11 @@ window.deleteResource = function(resourceId) {
   saveResources(resources);
 
   if (window.NCSYF_DB && window.NCSYF_DB.resources) {
-    window.NCSYF_DB.resources.delete(resourceId).catch(() => {});
+    try {
+      await window.NCSYF_DB.resources.delete(resourceId);
+    } catch (e) {
+      console.warn('Supabase resource delete notice:', e);
+    }
   }
 
   showAdminToast('Resource deleted.');
@@ -3527,6 +3620,15 @@ function handleSaveGallery(e) {
     albums[index].images = [...uploadedGalleryImages];
 
     saveGallery(albums);
+
+    if (window.NCSYF_DB && window.NCSYF_DB.gallery) {
+      try {
+        await window.NCSYF_DB.gallery.save(albums[index]);
+      } catch (e) {
+        console.warn('Supabase gallery edit notice:', e);
+      }
+    }
+
     showAdminToast(`Media Album "${title}" updated successfully!`);
   } else {
     const newAlbum = {
@@ -3543,7 +3645,11 @@ function handleSaveGallery(e) {
     saveGallery(albums);
 
     if (window.NCSYF_DB && window.NCSYF_DB.gallery) {
-      window.NCSYF_DB.gallery.save(editingId ? albums[index] : newAlbum).catch(() => {});
+      try {
+        await window.NCSYF_DB.gallery.save(newAlbum);
+      } catch (e) {
+        console.warn('Supabase gallery save notice:', e);
+      }
     }
 
     showAdminToast('New Media Gallery album published to public website!');
@@ -3557,7 +3663,7 @@ function handleSaveGallery(e) {
   renderGalleryList();
 }
 
-window.deleteGallery = function(galleryId) {
+window.deleteGallery = async function(galleryId) {
   if (!isSuperAdmin()) {
     showAdminToast('Access Denied: Only Super Administrators can delete gallery albums.', 'error');
     return;
@@ -3569,7 +3675,11 @@ window.deleteGallery = function(galleryId) {
   saveGallery(filtered);
 
   if (window.NCSYF_DB && window.NCSYF_DB.gallery) {
-    window.NCSYF_DB.gallery.delete(galleryId).catch(() => {});
+    try {
+      await window.NCSYF_DB.gallery.delete(galleryId);
+    } catch (e) {
+      console.warn('Supabase gallery delete notice:', e);
+    }
   }
 
   showAdminToast('Media album removed successfully.');
@@ -3925,5 +4035,15 @@ window.saveGovernanceChanges = function() {
   localStorage.setItem('ncsyf_admin_governance', JSON.stringify(finalData));
   activeAdminGovernanceData = finalData;
 
-  showAdminToast('Governance Directory & 37 State Chapters saved! All updates are live on the public website.');
+  // Persist to Supabase Cloud database
+  if (window.NCSYF_DB && window.NCSYF_DB.governance && typeof window.NCSYF_DB.governance.save === 'function') {
+    try {
+      await window.NCSYF_DB.governance.save(finalData);
+      console.log('✅ Governance & 37 State Chapters synced to Supabase Cloud');
+    } catch (e) {
+      console.warn('Supabase governance save notice:', e);
+    }
+  }
+
+  showAdminToast('Governance Directory & 37 State Chapters saved to database and live across all devices!');
 };

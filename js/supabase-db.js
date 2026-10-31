@@ -346,15 +346,29 @@
           } catch (e) {}
         }
 
-        // 2. Update Supabase
+        // 2. Update Supabase Cloud
         const client = getClient();
         if (client) {
           try {
+            // Attempt A: Call secure admin RPC update
+            if (typeof client.rpc === 'function') {
+              const { data: rpcRes, error: rpcErr } = await client.rpc('update_member_status_admin', {
+                p_member_id: memberId,
+                p_status: status,
+                p_disapproved_reason: status === 'disapproved' ? disapprovedReason : null
+              });
+              if (!rpcErr && rpcRes) return target;
+            }
+
+            // Attempt B: Direct update
             const updatePayload = { status, disapproved_reason: status === 'disapproved' ? disapprovedReason : null };
-            await client
+            const { error: updErr } = await client
               .from('member_profiles')
               .update(updatePayload)
-              .eq('member_id', memberId);
+              .or(`member_id.eq.${memberId},id.eq.${memberId}`);
+            if (updErr) {
+              console.warn('Supabase member_profiles update notice:', updErr.message || updErr);
+            }
           } catch (err) {
             console.warn('Supabase status update error:', err);
           }
@@ -374,13 +388,22 @@
           localStorage.setItem(STORAGE_KEYS.MEMBERS, JSON.stringify(list));
         } catch (e) {}
 
-        // 2. Supabase
+        // 2. Supabase Cloud
         const client = getClient();
         if (client) {
           try {
-            const { error } = await client.from('member_profiles').delete().eq('member_id', memberId);
+            // Attempt A: Secure admin RPC delete
+            if (typeof client.rpc === 'function') {
+              const { data: rpcDel, error: rpcDelErr } = await client.rpc('delete_member_profile_admin', {
+                p_member_id: memberId
+              });
+              if (!rpcDelErr && rpcDel) return;
+            }
+
+            // Attempt B: Direct delete
+            const { error } = await client.from('member_profiles').delete().or(`member_id.eq.${memberId},id.eq.${memberId}`);
             if (error) {
-              console.warn('Supabase member delete requires administrator authorization:', error.message || error);
+              console.warn('Supabase member delete notice:', error.message || error);
             }
           } catch (err) {
             console.warn('Supabase member delete exception:', err);
@@ -759,6 +782,59 @@
       }
     },
 
+    // ---- Governance & State Chapters Repository ----
+    governance: {
+      async get() {
+        const client = getClient();
+        if (client) {
+          try {
+            const { data, error } = await client
+              .from('site_governance')
+              .select('data')
+              .eq('id', 'current')
+              .maybeSingle();
+
+            if (!error && data && data.data) {
+              try {
+                localStorage.setItem('ncsyf_admin_governance', JSON.stringify(data.data));
+              } catch (e) {}
+              return data.data;
+            }
+          } catch (err) {
+            console.warn('Supabase site_governance fetch notice:', err);
+          }
+        }
+
+        try {
+          const raw = localStorage.getItem('ncsyf_admin_governance');
+          if (raw) return JSON.parse(raw);
+        } catch (e) {}
+        return null;
+      },
+
+      async save(govData) {
+        if (!govData) return null;
+        try {
+          localStorage.setItem('ncsyf_admin_governance', JSON.stringify(govData));
+        } catch (e) {}
+
+        const client = getClient();
+        if (client) {
+          try {
+            const { error } = await client
+              .from('site_governance')
+              .upsert({ id: 'current', data: govData, updated_at: new Date().toISOString() }, { onConflict: 'id' });
+            if (error) {
+              console.warn('Supabase site_governance save notice:', error.message || error);
+            }
+          } catch (err) {
+            console.warn('Supabase site_governance save exception:', err);
+          }
+        }
+        return govData;
+      }
+    },
+
     // ---- Cloud Synchronization Utilities ----
 
     /**
@@ -776,6 +852,7 @@
         resources: 0,
         gallery: 0,
         admins: 0,
+        governance: 0,
         errors: []
       };
 
@@ -849,6 +926,21 @@
         results.errors.push(`Admin users sync: ${e.message}`);
       }
 
+      // 6. Sync Governance & State Chapters
+      try {
+        const rawGov = localStorage.getItem('ncsyf_admin_governance');
+        if (rawGov) {
+          const govData = JSON.parse(rawGov);
+          const { error } = await client
+            .from('site_governance')
+            .upsert({ id: 'current', data: govData, updated_at: new Date().toISOString() }, { onConflict: 'id' });
+          if (error) results.errors.push(`Governance sync: ${error.message}`);
+          else results.governance = 1;
+        }
+      } catch (e) {
+        results.errors.push(`Governance sync: ${e.message}`);
+      }
+
       return {
         ok: results.errors.length === 0,
         stats: results
@@ -869,16 +961,18 @@
         projects: 0,
         resources: 0,
         gallery: 0,
-        admins: 0
+        admins: 0,
+        governance: 0
       };
 
       // Pull all
-      const [members, projects, resources, gallery, admins] = await Promise.all([
+      const [members, projects, resources, gallery, admins, govData] = await Promise.all([
         this.members.getAll(),
         this.projects.getAll(),
         this.resources.getAll(),
         this.gallery.getAll(),
-        this.admins.getAll()
+        this.admins.getAll(),
+        this.governance.get()
       ]);
 
       stats.members = members.length;
@@ -886,6 +980,13 @@
       stats.resources = resources.length;
       stats.gallery = gallery.length;
       stats.admins = admins.length;
+      stats.governance = govData ? 1 : 0;
+
+      return {
+        ok: true,
+        stats
+      };
+    }
 
       return {
         ok: true,

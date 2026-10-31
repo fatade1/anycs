@@ -95,9 +95,10 @@
     return DEFAULT_GOVERNANCE_DATA;
   }
 
-  // Expose for Admin Console
+  // Expose for Admin Console and public sync
   window.NCSYF_DEFAULT_GOVERNANCE = DEFAULT_GOVERNANCE_DATA;
   window.getNcsyfGovernanceData = getStoredGovernanceData;
+  window.initPublicGovernance = initPublicGovernance;
 
   // Render on public governance.html if elements are present
   function initPublicGovernance() {
@@ -250,9 +251,23 @@
     });
   }
 
+  function syncFromSupabase() {
+    if (window.NCSYF_DB && window.NCSYF_DB.governance && typeof window.NCSYF_DB.governance.get === 'function') {
+      window.NCSYF_DB.governance.get().then(cloudData => {
+        if (cloudData) {
+          initPublicGovernance();
+        }
+      }).catch(() => {});
+    }
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initPublicGovernance);
+    document.addEventListener('DOMContentLoaded', () => {
+      initPublicGovernance();
+      syncFromSupabase();
+    });
   } else {
     initPublicGovernance();
+    syncFromSupabase();
   }
 })();

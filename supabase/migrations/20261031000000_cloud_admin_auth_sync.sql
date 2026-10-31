@@ -104,3 +104,4 @@ CREATE POLICY "Authorized admins can insert admin personnel"
     ON public.admin_users FOR INSERT
     TO authenticated, anon, service_role
     WITH CHECK (true);
+

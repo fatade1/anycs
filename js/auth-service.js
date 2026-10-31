@@ -252,7 +252,34 @@
             if (data) cloudProfile = data;
           }
 
-          if (cloudProfile) return cloudProfile;
+          if (cloudProfile) {
+            // Normalize so profile seamlessly provides BOTH camelCase and snake_case properties
+            const normalized = {
+              ...cloudProfile,
+              id: cloudProfile.id,
+              userId: cloudProfile.user_id || cloudProfile.userId,
+              memberId: cloudProfile.member_id || cloudProfile.memberId,
+              email: cloudProfile.email,
+              firstName: cloudProfile.first_name || cloudProfile.firstName || '',
+              lastName: cloudProfile.last_name || cloudProfile.lastName || '',
+              category: cloudProfile.category || 'full',
+              memberTypeLabel: cloudProfile.member_type_label || cloudProfile.memberTypeLabel,
+              dob: cloudProfile.dob,
+              age: cloudProfile.age,
+              gender: cloudProfile.gender,
+              phone: cloudProfile.phone,
+              tier: cloudProfile.tier,
+              tierLabel: cloudProfile.tier_label || cloudProfile.tierLabel,
+              mda: cloudProfile.mda,
+              stateChapter: cloudProfile.state_chapter || cloudProfile.stateChapter,
+              staffId: cloudProfile.staff_id || cloudProfile.staffId,
+              status: cloudProfile.status || 'pending',
+              disapprovedReason: cloudProfile.disapproved_reason || cloudProfile.disapprovedReason,
+              reappliedAt: cloudProfile.reapplied_at || cloudProfile.reappliedAt,
+              registeredAt: cloudProfile.registered_at || cloudProfile.registeredAt
+            };
+            return normalized;
+          }
         } catch (err) {
           console.warn('Supabase profile fetch error, checking fallback:', err);
         }
