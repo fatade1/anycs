@@ -278,34 +278,27 @@ function getStoredAdminUsers() {
   admins = admins.filter(a => a.email !== 'officer@anycs.org.ng' && a.email !== 'admin@anycs.org.ng');
   if (admins.length !== initialLen) modified = true;
 
-  // Ensure admin@ncsyf.com.ng exists as the primary superadmin
-  const hasSuper = admins.some(a => a.email.toLowerCase() === 'admin@ncsyf.com.ng');
-  if (!hasSuper) {
-    const adm001 = admins.find(a => a.id === 'ADM-001');
-    if (adm001) {
-      adm001.email = 'admin@ncsyf.com.ng';
-      adm001.name = 'National Secretariat Super Admin';
-      adm001.role = 'super_admin';
-      adm001.roleLabel = 'Super Administrator';
+  // Ensure admin@ncsyf.com.ng exists as the primary superadmin with valid credentials
+  const adm001 = admins.find(a => a.email.toLowerCase() === 'admin@ncsyf.com.ng');
+  if (adm001) {
+    if (!adm001.passwordHash || !adm001.salt) {
       adm001.passwordHash = '46940140b4a15dc9d9ac3474834d86cfd8dd2a37f06055519995c811b6ce2cb8';
       adm001.salt = 'ncsyf_sec_2026_salt';
-      delete adm001.password;
-      adm001.status = 'active';
-      modified = true;
-    } else {
-      admins.unshift({
-        id: 'ADM-001',
-        name: 'National Secretariat Super Admin',
-        email: 'admin@ncsyf.com.ng',
-        passwordHash: '46940140b4a15dc9d9ac3474834d86cfd8dd2a37f06055519995c811b6ce2cb8',
-        salt: 'ncsyf_sec_2026_salt',
-        role: 'super_admin',
-        roleLabel: 'Super Administrator',
-        createdAt: '2026-09-01',
-        status: 'active'
-      });
       modified = true;
     }
+  } else {
+    admins.unshift({
+      id: 'ADM-001',
+      name: 'National Secretariat Super Admin',
+      email: 'admin@ncsyf.com.ng',
+      passwordHash: '46940140b4a15dc9d9ac3474834d86cfd8dd2a37f06055519995c811b6ce2cb8',
+      salt = 'ncsyf_sec_2026_salt',
+      role: 'super_admin',
+      roleLabel: 'Super Administrator',
+      createdAt: '2026-09-01',
+      status: 'active'
+    });
+    modified = true;
   }
 
   if (modified || !data) {
@@ -1478,7 +1471,64 @@ async function handleLogin(e) {
     }
   }
 
-  // 2. Offline / Local fallback cryptographic verification
+  // 2. Supabase Cloud Database Direct Verification (works across all devices worldwide)
+  if (!authenticated && client) {
+    try {
+      const { data: adminData, error: adminErr } = await client
+        .from('admin_users')
+        .select('*')
+        .ilike('email', email.toLowerCase())
+        .maybeSingle();
+
+      if (!adminErr && adminData && adminData.status === 'active') {
+        const pSalt = adminData.salt || 'ncsyf_sec_2026_salt';
+        const pTargetHash = adminData.password_hash || adminData.passwordHash;
+
+        if (pSalt) {
+          const computedHash = await hashAdminPassword(password, pSalt);
+
+          // Attempt A: Call secure verify_admin_login RPC if provisioned
+          if (typeof client.rpc === 'function') {
+            try {
+              const { data: rpcRes, error: rpcErr } = await client.rpc('verify_admin_login', {
+                p_email: email.toLowerCase(),
+                p_password_hash: computedHash
+              });
+              if (!rpcErr && Array.isArray(rpcRes) && rpcRes.length > 0) {
+                const matchedAdmin = rpcRes[0];
+                role = matchedAdmin.role || 'regular_admin';
+                displayName = matchedAdmin.name || 'Secretariat Administrator';
+                authenticated = true;
+              }
+            } catch (rErr) {}
+          }
+
+          // Attempt B: Compare directly against cloud record's password_hash
+          if (!authenticated && pTargetHash && computedHash === pTargetHash) {
+            role = adminData.role || 'regular_admin';
+            displayName = adminData.name || 'Secretariat Administrator';
+            authenticated = true;
+          }
+
+          // Attempt C: Primary superadmin default hash verification
+          if (!authenticated && email.toLowerCase() === 'admin@ncsyf.com.ng') {
+            const defaultSuperHash = SEED_ADMIN_USERS[0].passwordHash;
+            const superSalt = SEED_ADMIN_USERS[0].salt;
+            const testHash = await hashAdminPassword(password, superSalt);
+            if (testHash === defaultSuperHash) {
+              role = 'super_admin';
+              displayName = adminData.name || 'National Secretariat Super Admin';
+              authenticated = true;
+            }
+          }
+        }
+      }
+    } catch (cloudErr) {
+      console.warn('Supabase Cloud database admin verification notice:', cloudErr);
+    }
+  }
+
+  // 3. Offline / Local fallback cryptographic verification
   if (!authenticated) {
     const adminUsers = getStoredAdminUsers();
     const matched = adminUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
@@ -2876,7 +2926,9 @@ async function handleAddAdmin(e) {
   }
 
   if (window.NCSYF_DB && window.NCSYF_DB.admins) {
-    window.NCSYF_DB.admins.save(newAdmin).catch(() => {});
+    try {
+      await window.NCSYF_DB.admins.save(newAdmin);
+    } catch (err) {}
   }
 
   showAdminToast(`Administrator account created for ${name} (${role === 'super_admin' ? 'Super Admin' : 'Regular Admin'})!`);
@@ -2885,7 +2937,7 @@ async function handleAddAdmin(e) {
   renderAdminsTable();
 }
 
-window.toggleAdminStatus = function(adminId) {
+window.toggleAdminStatus = async function(adminId) {
   if (!isSuperAdmin()) {
     showAdminToast('Access Denied: Super Admin privileges required.', 'error');
     return;
@@ -2903,6 +2955,10 @@ window.toggleAdminStatus = function(adminId) {
   const newStatus = admin.status === 'revoked' ? 'active' : 'revoked';
   admin.status = newStatus;
   saveAdminUsers(admins);
+
+  if (window.NCSYF_DB && window.NCSYF_DB.admins) {
+    await window.NCSYF_DB.admins.save(admin).catch(() => {});
+  }
 
   showAdminToast(`Access for ${admin.name} has been ${newStatus === 'active' ? 'restored' : 'revoked'}.`);
   renderAdminsTable();

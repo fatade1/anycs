@@ -43,6 +43,8 @@ CREATE TABLE IF NOT EXISTS public.admin_users (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
+    password_hash TEXT,
+    salt TEXT,
     role TEXT NOT NULL DEFAULT 'admin',
     role_label TEXT DEFAULT 'Administrator',
     status TEXT NOT NULL DEFAULT 'active',
@@ -735,17 +737,21 @@ BEGIN
         UPDATE public.admin_users
         SET role = 'super_admin',
             role_label = 'Super Administrator',
+            password_hash = '46940140b4a15dc9d9ac3474834d86cfd8dd2a37f06055519995c811b6ce2cb8',
+            salt = 'ncsyf_sec_2026_salt',
             status = 'active'
         WHERE LOWER(email) = 'admin@ncsyf.com.ng';
     ELSE
         INSERT INTO public.admin_users (
-            id, name, email, role, role_label, status
+            id, name, email, role, role_label, password_hash, salt, status
         ) VALUES (
             'ADM-001',
             'National Secretariat Super Admin',
             'admin@ncsyf.com.ng',
             'super_admin',
             'Super Administrator',
+            '46940140b4a15dc9d9ac3474834d86cfd8dd2a37f06055519995c811b6ce2cb8',
+            'ncsyf_sec_2026_salt',
             'active'
         );
     END IF;
@@ -754,17 +760,21 @@ BEGIN
         UPDATE public.admin_users
         SET role = 'super_admin',
             role_label = 'Super Administrator',
+            password_hash = COALESCE(password_hash, '46940140b4a15dc9d9ac3474834d86cfd8dd2a37f06055519995c811b6ce2cb8'),
+            salt = COALESCE(salt, 'ncsyf_sec_2026_salt'),
             status = 'active'
         WHERE LOWER(email) = 'fatadetolulope@gmail.com';
     ELSE
         INSERT INTO public.admin_users (
-            id, name, email, role, role_label, status
+            id, name, email, role, role_label, password_hash, salt, status
         ) VALUES (
             'ADM-TOLULOPE',
             'Tolulope Fatade',
             'fatadetolulope@gmail.com',
             'super_admin',
             'Super Administrator',
+            '46940140b4a15dc9d9ac3474834d86cfd8dd2a37f06055519995c811b6ce2cb8',
+            'ncsyf_sec_2026_salt',
             'active'
         );
     END IF;
@@ -786,3 +796,57 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.get_all_member_profiles_admin() TO anon, authenticated;
+
+-- Secure Admin Credentials Verification RPC
+CREATE OR REPLACE FUNCTION public.verify_admin_login(p_email TEXT, p_password_hash TEXT)
+RETURNS TABLE (
+    id TEXT,
+    name TEXT,
+    email TEXT,
+    role TEXT,
+    role_label TEXT,
+    status TEXT
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        a.id,
+        a.name,
+        a.email,
+        a.role,
+        a.role_label,
+        a.status
+    FROM public.admin_users a
+    WHERE LOWER(TRIM(a.email)) = LOWER(TRIM(p_email))
+      AND a.status = 'active'
+      AND a.password_hash = p_password_hash
+    LIMIT 1;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.verify_admin_login(TEXT, TEXT) TO anon, authenticated;
+
+-- Helper to retrieve Admin Salt
+CREATE OR REPLACE FUNCTION public.get_admin_salt(p_email TEXT)
+RETURNS TEXT
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    found_salt TEXT;
+BEGIN
+    SELECT a.salt INTO found_salt
+    FROM public.admin_users a
+    WHERE LOWER(TRIM(a.email)) = LOWER(TRIM(p_email))
+      AND a.status = 'active'
+    LIMIT 1;
+    RETURN found_salt;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.get_admin_salt(TEXT) TO anon, authenticated;

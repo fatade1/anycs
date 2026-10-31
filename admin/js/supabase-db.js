@@ -193,6 +193,8 @@
       id: a.id,
       name: a.name || '',
       email: (a.email || '').trim().toLowerCase(),
+      password_hash: a.passwordHash || a.password_hash || null,
+      salt: a.salt || null,
       role: a.role || 'admin',
       role_label: a.roleLabel || 'Administrator',
       status: a.status || 'active',
@@ -205,6 +207,8 @@
       id: row.id,
       name: row.name,
       email: row.email,
+      passwordHash: row.password_hash || row.passwordHash || null,
+      salt: row.salt || null,
       role: row.role,
       roleLabel: row.role_label,
       status: row.status,
@@ -684,6 +688,13 @@
 
             if (!error && Array.isArray(data) && data.length > 0) {
               const mapped = data.map(rowToAdmin);
+              // Ensure primary superadmin credentials are preserved if cloud record didn't include them
+              mapped.forEach(a => {
+                if (a.email && a.email.toLowerCase() === 'admin@ncsyf.com.ng' && (!a.passwordHash || !a.salt)) {
+                  a.passwordHash = '46940140b4a15dc9d9ac3474834d86cfd8dd2a37f06055519995c811b6ce2cb8';
+                  a.salt = 'ncsyf_sec_2026_salt';
+                }
+              });
               try {
                 localStorage.setItem(STORAGE_KEYS.ADMIN_USERS, JSON.stringify(mapped));
               } catch (e) {}
