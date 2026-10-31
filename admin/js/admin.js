@@ -292,7 +292,7 @@ function getStoredAdminUsers() {
       name: 'National Secretariat Super Admin',
       email: 'admin@ncsyf.com.ng',
       passwordHash: '46940140b4a15dc9d9ac3474834d86cfd8dd2a37f06055519995c811b6ce2cb8',
-      salt = 'ncsyf_sec_2026_salt',
+      salt: 'ncsyf_sec_2026_salt',
       role: 'super_admin',
       roleLabel: 'Super Administrator',
       createdAt: '2026-09-01',
@@ -2406,7 +2406,7 @@ window.openEditProjectModal = function(projectId) {
   openModal('newProjectModal');
 };
 
-function handleAddProject(e) {
+async function handleAddProject(e) {
   e.preventDefault();
   const form = e.target;
   const editingIdInput = form.querySelector('#editingProjectId');
@@ -2731,7 +2731,7 @@ window.openEditResourceModal = function(resourceId) {
   openModal('newResourceModal');
 };
 
-function handleAddResource(e) {
+async function handleAddResource(e) {
   e.preventDefault();
   const form = e.target;
   const editingIdInput = form.querySelector('#editingResourceId');
@@ -3582,7 +3582,7 @@ window.openEditGalleryModal = function(galleryId) {
   openModal('newGalleryModal');
 };
 
-function handleSaveGallery(e) {
+async function handleSaveGallery(e) {
   e.preventDefault();
   const form = e.target;
   const editingId = document.getElementById('editingGalleryId')?.value.trim() || '';
@@ -3982,7 +3982,7 @@ window.handleStatePhotoUpload = function(event, previewId, cardId, role) {
   reader.readAsDataURL(file);
 };
 
-window.saveGovernanceChanges = function() {
+window.saveGovernanceChanges = async function() {
   if (!activeAdminGovernanceData) return;
 
   // 1. Read Patrons

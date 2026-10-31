@@ -987,12 +987,6 @@
         stats
       };
     }
-
-      return {
-        ok: true,
-        stats
-      };
-    }
   };
 
   global.NCSYF_DB = NCSYF_DB;
