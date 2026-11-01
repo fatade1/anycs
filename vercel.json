@@ -68,17 +68,6 @@
       ],
       "destination": "/:path*",
       "permanent": true
-    },
-    {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "ncsyf.com.ng"
-        }
-      ],
-      "destination": "https://www.ncsyf.com.ng/:path*",
-      "permanent": true
     }
   ],
   "rewrites": [
