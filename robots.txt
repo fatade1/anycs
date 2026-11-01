@@ -1,0 +1,20 @@
+# robots.txt for Nigeria Civil Service Youths' Forum (NCSYF)
+# Production Domain: https://ncsyf.com.ng
+
+User-agent: *
+Allow: /
+Allow: /css/
+Allow: /js/
+Allow: /images/
+
+# Disallow private member records, authentication, and administrative consoles
+Disallow: /admin/
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /dashboard.html
+Disallow: /signin
+Disallow: /signin.html
+Disallow: /supabase/
+
+# XML Sitemap
+Sitemap: https://ncsyf.com.ng/sitemap.xml
