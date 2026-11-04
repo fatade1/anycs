@@ -2,6 +2,8 @@
   "version": 2,
   "cleanUrls": true,
   "trailingSlash": false,
+  "installCommand": "unset npm_config_cache_dir NPM_CONFIG_CACHE_DIR 2>/dev/null; npm install",
+  "buildCommand": "unset npm_config_cache_dir NPM_CONFIG_CACHE_DIR 2>/dev/null; npm run build",
   "redirects": [
     {
       "source": "/admin",

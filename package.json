@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "npx live-server --port=5501",
     "start": "npx live-server --port=5501",
+    "build": "node scripts/test_security_audit_suite.js && node scripts/test_email_service_suite.js",
     "test": "node scripts/test_security_audit_suite.js && node scripts/test_email_service_suite.js",
     "test:security": "node scripts/test_security_audit_suite.js",
     "test:email": "node scripts/test_email_service_suite.js",
