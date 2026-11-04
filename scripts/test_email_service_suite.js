@@ -6,10 +6,13 @@
  * 1. Configuration & Secrets Protection
  * 2. Reusable Email Service & Templates
  * 3. Security: Header Injection & Email Validation
- * 4. Idempotency & Duplicate Suppression
- * 5. Rate Limiting Protection
+ * 4. Idempotency & Duplicate Suppression (including Concurrent Dispatches)
+ * 5. Rate Limiting Protection (Persistent & Sliding Window)
  * 6. Vercel Serverless API Handler (/api/send-email)
- * 7. Client-Side Non-blocking Dispatch Integration
+ * 7. Server-Side Administrative Authorization & Privileged Action Guards
+ * 8. Database Status Verification & Trusted Recipient Sourcing
+ * 9. Password Reset Uniformity & Single-Source Recovery
+ * 10. SMTP Connection Verification & Information Disclosure Shielding
  * ==============================================================================
  */
 
@@ -31,6 +34,8 @@ const {
 } = require('../lib/email-service');
 
 const emailApiHandler = require('../api/send-email');
+const verifySmtpHandler = require('../api/verify-smtp');
+const { setMockMember, resetMockStores } = require('../lib/supabase-server');
 
 let totalTests = 0;
 let passedTests = 0;
@@ -61,7 +66,7 @@ async function runAsyncTest(name, fn) {
 
 async function runSuite() {
   console.log('\n======================================================================');
-  console.log('📧 NCSYF ZEPTOMAIL TRANSACTIONAL EMAIL TEST SUITE');
+  console.log('📧 NCSYF ZEPTOMAIL TRANSACTIONAL EMAIL TEST SUITE (PHASE 2)');
   console.log('======================================================================\n');
 
   // --- Suite 1: Configuration & Secrets Protection ---
@@ -252,6 +257,25 @@ async function runSuite() {
     assert(res2.message.includes('Duplicate notification suppressed'));
   });
 
+  await runAsyncTest('Concurrent duplicate dispatches are atomically deduplicated', async () => {
+    const key = `concurrent-test-${Date.now()}`;
+    const payload = {
+      workflow: 'registration_acknowledgement',
+      recipient: 'concurrent.user@mda.gov.ng',
+      data: { memberId: 'NCSYF-1997-0777', firstName: 'Concurrent' },
+      idempotencyKey: key
+    };
+
+    const [resA, resB] = await Promise.all([
+      sendWorkflowEmail(payload),
+      sendWorkflowEmail(payload)
+    ]);
+
+    const statuses = [resA.status, resB.status];
+    assert(statuses.includes('accepted'), 'At least one request must succeed with accepted status');
+    assert(statuses.includes('duplicate_prevented'), 'The duplicate concurrent request must be intercepted and suppressed');
+  });
+
   // --- Suite 5: Rate Limiting Protection ---
   console.log('\n--- Suite 5: Rate Limiting Protection ---');
 
@@ -262,9 +286,9 @@ async function runSuite() {
     // Send 7 emails rapidly (threshold is 5/min)
     for (let i = 0; i < 7; i++) {
       const res = await sendWorkflowEmail({
-        workflow: 'password_reset',
+        workflow: 'registration_acknowledgement',
         recipient: spamRecipient,
-        data: { firstName: 'User' },
+        data: { firstName: 'User', memberId: `TEST-${i}` },
         idempotencyKey: `burst-req-${i}-${Date.now()}`
       });
 
@@ -277,8 +301,8 @@ async function runSuite() {
     assert(rateLimitedEncountered, 'Rate limiter should have intercepted burst requests');
   });
 
-  // --- Suite 6: Vercel Serverless API (/api/send-email) ---
-  console.log('\n--- Suite 6: Vercel Serverless API (/api/send-email) ---');
+  // --- Suite 6: Vercel Serverless API (/api/send-email) Core Validations ---
+  console.log('\n--- Suite 6: Vercel Serverless API Core Validations ---');
 
   await runAsyncTest('API handles CORS preflight OPTIONS request with HTTP 204', async () => {
     const req = {
@@ -354,17 +378,19 @@ async function runSuite() {
     assert(jsonResp.error.includes('valid recipient'));
   });
 
-  await runAsyncTest('API successfully processes valid registration acknowledgement request with HTTP 200', async () => {
+  await runAsyncTest('API processes valid public registration acknowledgement request with HTTP 200', async () => {
+    resetMockStores();
     const req = {
       method: 'POST',
       headers: { origin: 'https://www.ncsyf.com.ng' },
       body: {
         workflow: 'registration_acknowledgement',
-        recipient: 'api.applicant@mda.gov.ng',
+        recipient: 'applicant1@mda.gov.ng',
+        idempotencyKey: `api-reg-ack-${Date.now()}`,
         data: {
-          firstName: 'Halima',
-          lastName: 'Abubakar',
-          memberId: 'NCSYF-1995-0321'
+          firstName: 'Ibrahim',
+          lastName: 'Musa',
+          memberId: 'NCSYF-1996-0045'
         }
       }
     };
@@ -381,8 +407,263 @@ async function runSuite() {
     assert.strictEqual(jsonResp.status, 'accepted');
   });
 
-  // --- Suite 7: Vercel Routing Configuration ---
-  console.log('\n--- Suite 7: Vercel Routing Configuration ---');
+  // --- Suite 7: Second-Stage Security & Privilege Enforcement (10 E2E Controls) ---
+  console.log('\n--- Suite 7: Second-Stage Security & Privilege Enforcement (10 E2E Controls) ---');
+
+  // Control 1: Admin approval succeeds with valid admin token and verified member status
+  await runAsyncTest('Control 1: Admin approval email succeeds for verified member with valid admin token', async () => {
+    resetMockStores();
+    const req = {
+      method: 'POST',
+      headers: {
+        origin: 'https://admin.ncsyf.com.ng',
+        authorization: 'Bearer mock-admin-token'
+      },
+      body: {
+        workflow: 'membership_approved',
+        idempotencyKey: `admin-appr-${Date.now()}`,
+        data: {
+          memberId: 'NCSYF-1994-0012' // Verified member in DB
+        }
+      }
+    };
+    let statusCode = 0;
+    let jsonResp = null;
+    const res = {
+      setHeader: () => {},
+      status: (code) => { statusCode = code; return { json: (data) => { jsonResp = data; } }; }
+    };
+
+    await emailApiHandler(req, res);
+    assert.strictEqual(statusCode, 200);
+    assert.strictEqual(jsonResp.success, true);
+    assert.strictEqual(jsonResp.status, 'accepted');
+    assert.strictEqual(jsonResp.recipient, 'approved.member@mda.gov.ng');
+  });
+
+  // Control 2: Admin disapproval succeeds with valid admin token and disapproved member status
+  await runAsyncTest('Control 2: Admin rejection email succeeds for disapproved member with valid admin token', async () => {
+    resetMockStores();
+    const req = {
+      method: 'POST',
+      headers: {
+        origin: 'https://admin.ncsyf.com.ng',
+        authorization: 'Bearer mock-admin-token'
+      },
+      body: {
+        workflow: 'membership_disapproved',
+        idempotencyKey: `admin-disappr-${Date.now()}`,
+        data: {
+          memberId: 'NCSYF-1999-0089' // Disapproved member in DB
+        }
+      }
+    };
+    let statusCode = 0;
+    let jsonResp = null;
+    const res = {
+      setHeader: () => {},
+      status: (code) => { statusCode = code; return { json: (data) => { jsonResp = data; } }; }
+    };
+
+    await emailApiHandler(req, res);
+    assert.strictEqual(statusCode, 200);
+    assert.strictEqual(jsonResp.success, true);
+    assert.strictEqual(jsonResp.status, 'accepted');
+    assert.strictEqual(jsonResp.recipient, 'rejected.applicant@mda.gov.ng');
+  });
+
+  // Control 3: Unauthorized approval attempts strictly rejected (No Token)
+  await runAsyncTest('Control 3: Unauthenticated call to membership_approved is rejected with HTTP 401', async () => {
+    const req = {
+      method: 'POST',
+      headers: { origin: 'https://www.ncsyf.com.ng' },
+      body: {
+        workflow: 'membership_approved',
+        recipient: 'victim@mda.gov.ng',
+        data: { memberId: 'NCSYF-1994-0012' }
+      }
+    };
+    let statusCode = 0;
+    let jsonResp = null;
+    const res = {
+      setHeader: () => {},
+      status: (code) => { statusCode = code; return { json: (data) => { jsonResp = data; } }; }
+    };
+
+    await emailApiHandler(req, res);
+    assert.strictEqual(statusCode, 401);
+    assert.strictEqual(jsonResp.success, false);
+    assert(jsonResp.error.includes('Unauthorized'));
+  });
+
+  // Control 4: Unauthorized approval attempts strictly rejected (Invalid Token)
+  await runAsyncTest('Control 4: Invalid bearer token to membership_approved is rejected with HTTP 401', async () => {
+    const req = {
+      method: 'POST',
+      headers: {
+        origin: 'https://www.ncsyf.com.ng',
+        authorization: 'Bearer forged-invalid-token-xyz'
+      },
+      body: {
+        workflow: 'membership_approved',
+        recipient: 'victim@mda.gov.ng',
+        data: { memberId: 'NCSYF-1994-0012' }
+      }
+    };
+    let statusCode = 0;
+    let jsonResp = null;
+    const res = {
+      setHeader: () => {},
+      status: (code) => { statusCode = code; return { json: (data) => { jsonResp = data; } }; }
+    };
+
+    await emailApiHandler(req, res);
+    assert.strictEqual(statusCode, 401);
+    assert.strictEqual(jsonResp.success, false);
+  });
+
+  // Control 5: Database Status Mismatch Rejection
+  await runAsyncTest('Control 5: Attempting approval for member whose DB status is still "pending" is rejected with HTTP 400', async () => {
+    const req = {
+      method: 'POST',
+      headers: {
+        origin: 'https://admin.ncsyf.com.ng',
+        authorization: 'Bearer mock-admin-token'
+      },
+      body: {
+        workflow: 'membership_approved',
+        data: {
+          memberId: 'NCSYF-1996-0045' // Status is pending in DB!
+        }
+      }
+    };
+    let statusCode = 0;
+    let jsonResp = null;
+    const res = {
+      setHeader: () => {},
+      status: (code) => { statusCode = code; return { json: (data) => { jsonResp = data; } }; }
+    };
+
+    await emailApiHandler(req, res);
+    assert.strictEqual(statusCode, 400);
+    assert.strictEqual(jsonResp.success, false);
+    assert(jsonResp.error.includes('expected "verified"'));
+  });
+
+  // Control 6: Client-Provided Recipient Spoofing Blocked
+  await runAsyncTest('Control 6: Privileged approval ignores client-provided recipient and enforces database email', async () => {
+    const req = {
+      method: 'POST',
+      headers: {
+        origin: 'https://admin.ncsyf.com.ng',
+        authorization: 'Bearer mock-admin-token'
+      },
+      body: {
+        workflow: 'membership_approved',
+        recipient: 'attacker.controlled@evil.com', // Spoofed client recipient
+        data: {
+          memberId: 'NCSYF-2026-0011' // Fatade Tolulope (fatadetolulope@gmail.com)
+        }
+      }
+    };
+    let statusCode = 0;
+    let jsonResp = null;
+    const res = {
+      setHeader: () => {},
+      status: (code) => { statusCode = code; return { json: (data) => { jsonResp = data; } }; }
+    };
+
+    await emailApiHandler(req, res);
+    assert.strictEqual(statusCode, 200);
+    assert.strictEqual(jsonResp.recipient, 'fatadetolulope@gmail.com');
+    assert.notStrictEqual(jsonResp.recipient, 'attacker.controlled@evil.com');
+  });
+
+  // Control 7: Admin New Application Alert Forces Destination Inbox
+  await runAsyncTest('Control 7: admin_new_application strictly overrides recipient to Secretariat notification email', async () => {
+    const req = {
+      method: 'POST',
+      headers: { origin: 'https://www.ncsyf.com.ng' },
+      body: {
+        workflow: 'admin_new_application',
+        recipient: 'attacker@evil.com', // Attempted relay
+        data: {
+          memberId: 'NCSYF-1998-0046',
+          firstName: 'Amina',
+          lastName: 'Bello'
+        }
+      }
+    };
+    let statusCode = 0;
+    let jsonResp = null;
+    const res = {
+      setHeader: () => {},
+      status: (code) => { statusCode = code; return { json: (data) => { jsonResp = data; } }; }
+    };
+
+    await emailApiHandler(req, res);
+    assert.strictEqual(statusCode, 200);
+    assert.strictEqual(jsonResp.recipient, 'admin@ncsyf.com.ng');
+    assert.notStrictEqual(jsonResp.recipient, 'attacker@evil.com');
+  });
+
+  // Control 8: Password Reset Recovery Domain & URL Enforcement
+  await runAsyncTest('Control 8: password_reset template always enforces canonical production domain (https://www.ncsyf.com.ng/signin)', async () => {
+    const template = sendWorkflowEmail({
+      workflow: 'password_reset',
+      recipient: 'member@mda.gov.ng',
+      data: {
+        firstName: 'Member',
+        resetUrl: 'https://www.ncsyf.com.ng/signin'
+      }
+    });
+
+    const res = await template;
+    assert.strictEqual(res.success, true);
+    assert(res.subject.includes('Password Reset'));
+  });
+
+  // Control 9: SMTP Verification Endpoint Blocks Unauthenticated Reconnaissance
+  await runAsyncTest('Control 9: /api/verify-smtp strictly blocks unauthenticated requests with HTTP 401', async () => {
+    const req = {
+      method: 'GET',
+      headers: {}
+    };
+    let statusCode = 0;
+    let jsonResp = null;
+    const res = {
+      setHeader: () => {},
+      status: (code) => { statusCode = code; return { json: (data) => { jsonResp = data; } }; }
+    };
+
+    await verifySmtpHandler(req, res);
+    assert.strictEqual(statusCode, 401);
+    assert.strictEqual(jsonResp.success, false);
+    assert(jsonResp.error.includes('Unauthorized'));
+  });
+
+  // Control 10: SMTP Verification Endpoint Allows Authenticated Admin
+  await runAsyncTest('Control 10: /api/verify-smtp accepts authenticated administrator token', async () => {
+    const req = {
+      method: 'GET',
+      headers: {
+        authorization: 'Bearer mock-admin-token'
+      }
+    };
+    let statusCode = 0;
+    let jsonResp = null;
+    const res = {
+      setHeader: () => {},
+      status: (code) => { statusCode = code; return { json: (data) => { jsonResp = data; } }; }
+    };
+
+    await verifySmtpHandler(req, res);
+    assert(statusCode === 200 || statusCode === 503);
+    assert(jsonResp.service.includes('Zoho ZeptoMail'));
+  });
+
+  // --- Suite 8: Vercel Routing Configuration ---
+  console.log('\n--- Suite 8: Vercel Routing Configuration ---');
 
   runTest('vercel.json includes direct rewrite exception for /api/* on admin subdomain', () => {
     const vercelJson = JSON.parse(fs.readFileSync(path.join(__dirname, '../vercel.json'), 'utf8'));

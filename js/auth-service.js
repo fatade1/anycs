@@ -757,21 +757,25 @@
         }
       }
 
+      // Official Single-Source Password Reset Recovery
+      // Supabase Auth generates a time-limited, cryptographically signed recovery token
+      // and delivers it to the user with the canonical production redirect URL.
       if (supabaseClient) {
         try {
-          const { error } = await supabaseClient.auth.resetPasswordForEmail(emailToReset);
+          const { error } = await supabaseClient.auth.resetPasswordForEmail(emailToReset, {
+            redirectTo: 'https://www.ncsyf.com.ng/signin'
+          });
           if (error) throw new Error(error.message);
+          console.log('✅ Authoritative password recovery link dispatched via Supabase Auth.');
         } catch (err) {
           console.warn('Supabase resetPassword error:', err);
         }
-      }
-
-      // Dispatch custom-branded password reset instructions via Zoho ZeptoMail (Non-Blocking)
-      if (global.NCSYF_EMAIL && emailToReset) {
+      } else if (global.NCSYF_EMAIL && emailToReset) {
+        // Fallback for offline / local mock environments only (prevents dual emails in production)
         try {
           const resetUrl = 'https://www.ncsyf.com.ng/signin';
           global.NCSYF_EMAIL.sendPasswordResetNotification(emailToReset, 'Member', resetUrl);
-          console.log('📧 Password reset recovery instructions queued for:', emailToReset);
+          console.log('📧 Password reset recovery instructions queued for offline mock:', emailToReset);
         } catch (emailErr) {
           console.warn('[NCSYF Email] Password reset email notice:', emailErr);
         }

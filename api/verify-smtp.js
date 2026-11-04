@@ -1,17 +1,32 @@
 /**
- * ==========================================================================
+ * ==============================================================================
  * NCSYF SMTP VERIFICATION ENDPOINT (/api/verify-smtp)
  * Nigeria Civil Service Youths' Forum (NCSYF)
- * ==========================================================================
+ * ==============================================================================
  * Verifies live SMTP connection to Zoho ZeptoMail.
+ * Strictly protected: Requires Administrator authentication to prevent
+ * information disclosure or unauthorized service reconnaissance.
+ * ==============================================================================
  */
 
 const { verifySmtpConnection } = require('../lib/email-service');
+const { verifyAdminToken } = require('../lib/supabase-server');
 
 module.exports = async function handler(req, res) {
   // Only allow GET requests
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method Not Allowed' });
+  }
+
+  // Require administrator authorization to inspect SMTP configuration
+  const authHeader = req.headers.authorization || '';
+  const authResult = await verifyAdminToken(authHeader);
+
+  if (!authResult.ok) {
+    return res.status(authResult.status || 401).json({
+      success: false,
+      error: authResult.error || 'Unauthorized: Administrator privileges required to verify SMTP configuration.'
+    });
   }
 
   try {
@@ -34,7 +49,7 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({
       configured: false,
       connected: false,
-      error: err.message
+      error: 'Failed to verify SMTP connection.'
     });
   }
 };

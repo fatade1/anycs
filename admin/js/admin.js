@@ -1441,6 +1441,7 @@ async function handleLogin(e) {
   let role = 'regular_admin';
   let displayName = 'Admin Official';
   let authenticated = false;
+  let adminAccessToken = null;
 
   // 1. Supabase Cloud Auth if connected
   const client = (window.NCSYF_CONFIG_MANAGER && typeof window.NCSYF_CONFIG_MANAGER.getClient === 'function')
@@ -1466,6 +1467,7 @@ async function handleLogin(e) {
           role = adminRecord.role || 'regular_admin';
           displayName = adminRecord.name || 'Secretariat Administrator';
           authenticated = true;
+          adminAccessToken = (data.session && data.session.access_token) ? data.session.access_token : null;
         } else {
           await client.auth.signOut().catch(() => {});
           recordAdminFailedLogin();
@@ -1578,6 +1580,7 @@ async function handleLogin(e) {
     name: displayName,
     role: role,
     loggedIn: true,
+    accessToken: adminAccessToken || ('ncsyf_admin_' + (typeof btoa === 'function' ? btoa(email + ':' + Date.now()) : Date.now())),
     loginTimestamp: new Date().toISOString()
   };
 

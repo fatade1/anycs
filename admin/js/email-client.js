@@ -15,6 +15,33 @@
 
   const EmailClient = {
     /**
+     * Retrieve active administrator bearer token if authenticated
+     */
+    _getAuthToken() {
+      try {
+        if (typeof window !== 'undefined') {
+          // 1. From Supabase config manager client
+          if (window.NCSYF_CONFIG_MANAGER && typeof window.NCSYF_CONFIG_MANAGER.getClient === 'function') {
+            const client = window.NCSYF_CONFIG_MANAGER.getClient();
+            if (client && client.auth) {
+              const session = (typeof client.auth.session === 'function') ? client.auth.session() : null;
+              if (session && session.access_token) return session.access_token;
+            }
+          }
+          // 2. From Admin session storage
+          if (typeof sessionStorage !== 'undefined') {
+            const raw = sessionStorage.getItem('ncsyf_admin_auth') || localStorage.getItem('ncsyf_admin_auth');
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (parsed && (parsed.accessToken || parsed.token)) return parsed.accessToken || parsed.token;
+            }
+          }
+        }
+      } catch (e) {}
+      return null;
+    },
+
+    /**
      * Dispatch a transactional email notification via the serverless ZeptoMail gateway
      * @param {Object} params
      * @param {string} params.workflow - e.g. 'registration_acknowledgement', 'admin_new_application', 'membership_approved', 'membership_disapproved', 'password_reset'
@@ -36,11 +63,17 @@
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
+        const reqHeaders = {
+          'Content-Type': 'application/json'
+        };
+        const authToken = this._getAuthToken();
+        if (authToken) {
+          reqHeaders['Authorization'] = `Bearer ${authToken}`;
+        }
+
         const response = await fetch(API_ENDPOINT, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: reqHeaders,
           body: JSON.stringify({
             workflow,
             recipient,
