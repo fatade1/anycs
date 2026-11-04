@@ -761,9 +761,19 @@
         try {
           const { error } = await supabaseClient.auth.resetPasswordForEmail(emailToReset);
           if (error) throw new Error(error.message);
-          return true;
         } catch (err) {
           console.warn('Supabase resetPassword error:', err);
+        }
+      }
+
+      // Dispatch custom-branded password reset instructions via Zoho ZeptoMail (Non-Blocking)
+      if (global.NCSYF_EMAIL && emailToReset) {
+        try {
+          const resetUrl = 'https://www.ncsyf.com.ng/signin';
+          global.NCSYF_EMAIL.sendPasswordResetNotification(emailToReset, 'Member', resetUrl);
+          console.log('📧 Password reset recovery instructions queued for:', emailToReset);
+        } catch (emailErr) {
+          console.warn('[NCSYF Email] Password reset email notice:', emailErr);
         }
       }
 

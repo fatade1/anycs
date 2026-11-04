@@ -2107,6 +2107,16 @@ async function handleDisapproveMember(e) {
     }
   }
 
+  // Dispatch Transactional Reapplication Email via Zoho ZeptoMail (Non-Blocking)
+  if (window.NCSYF_EMAIL && members[index].email) {
+    try {
+      window.NCSYF_EMAIL.sendMembershipDisapprovalNotification(members[index], reason, notes);
+      console.log('📧 Disapproval notification queued for:', members[index].memberId);
+    } catch (eErr) {
+      console.warn('[NCSYF Email] Disapproval email notice:', eErr);
+    }
+  }
+
   showAdminToast(`Application for ${members[index].firstName} ${members[index].lastName} disapproved. Member may reapply with corrected credentials.`, 'error');
   closeAllModals();
   renderDashboard();
@@ -2131,6 +2141,16 @@ window.updateMemberStatus = async function(memberId, newStatus) {
       console.log('✅ Member status updated in Supabase Cloud:', members[index].memberId, newStatus);
     } catch (sbErr) {
       console.warn('Supabase member status update notice:', sbErr);
+    }
+  }
+
+  // Dispatch Transactional Approval Email via Zoho ZeptoMail on Verification (Non-Blocking)
+  if (newStatus === 'verified' && window.NCSYF_EMAIL && members[index].email) {
+    try {
+      window.NCSYF_EMAIL.sendMembershipApprovalNotification(members[index]);
+      console.log('📧 Official verification & approval email queued for:', members[index].memberId);
+    } catch (eErr) {
+      console.warn('[NCSYF Email] Approval email notice:', eErr);
     }
   }
 

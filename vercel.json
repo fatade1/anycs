@@ -92,6 +92,16 @@
       "destination": "/admin/index.html"
     },
     {
+      "source": "/api/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "admin.ncsyf.com.ng"
+        }
+      ],
+      "destination": "/api/:path*"
+    },
+    {
       "source": "/(.*)",
       "has": [
         {

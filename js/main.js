@@ -897,6 +897,17 @@ async function handleMembershipSubmit(e) {
         console.warn('Could not register auth identity:', authErr);
       }
     }
+
+    // Dispatch Transactional Emails via Zoho ZeptoMail (Asynchronous & Non-Blocking)
+    if (window.NCSYF_EMAIL && newMemberRecord && newMemberRecord.email) {
+      try {
+        window.NCSYF_EMAIL.sendRegistrationAcknowledgement(newMemberRecord);
+        window.NCSYF_EMAIL.sendAdminNewApplicationAlert(newMemberRecord);
+        console.log('📧 Registration acknowledgement & admin alerts queued for:', newMemberRecord.memberId);
+      } catch (emailErr) {
+        console.warn('[NCSYF Email] Registration notification notice:', emailErr);
+      }
+    }
   } catch (storageErr) {
     console.warn('Could not sync registration to local store:', storageErr);
   }
