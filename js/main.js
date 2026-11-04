@@ -724,33 +724,14 @@ async function handleMembershipSubmit(e) {
     return;
   }
 
-  // Helper to generate unique Member ID format: NCSYF-[Year of Birth]-[Unique 4-digit number]
-  function generateUniqueMemberId(dob, age, existingMembers = []) {
-    let birthYear = '1998';
-    if (dob && typeof dob === 'string' && dob.includes('-')) {
-      const parts = dob.split('-');
-      if (parts[0] && parts[0].length === 4) {
-        birthYear = parts[0];
-      }
-    } else if (age) {
-      birthYear = String(new Date().getFullYear() - parseInt(age, 10));
-    }
-
-    let maxNum = 0;
-    existingMembers.forEach(m => {
-      const mId = m.memberId || m.id || '';
-      const match = mId.match(new RegExp(`^NCSYF-${birthYear}-(\\d+)$`));
-      if (match) {
-        const num = parseInt(match[1], 10);
-        if (num > maxNum) maxNum = num;
-      }
-    });
-
-    const nextSeq = String(maxNum + 1).padStart(4, '0');
-    return `NCSYF-${birthYear}-${nextSeq}`;
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span>Chartering Application...</span>';
   }
 
-  // Synchronize new registration to localStorage so it instantly appears in the Admin Portal (/admin)
+  // Synchronize new registration so it instantly appears in Cloud Supabase and the Admin Portal (/admin)
   let newMemberRecord = null;
   let isReapplication = false;
 
@@ -773,7 +754,13 @@ async function handleMembershipSubmit(e) {
 
     if (memberType === 'associate') {
       const assocStaffId = form.querySelector('#associateMemberId')?.value.trim() || `ANYCS-ASC-${randomSuffix}`;
-      const assignedMemberId = generateUniqueMemberId(null, 38, membersList);
+      const birthYear = String(new Date().getFullYear() - 38);
+      let assignedMemberId;
+      if (window.NCSYF_DB && window.NCSYF_DB.members && typeof window.NCSYF_DB.members.allocateNextMemberId === 'function') {
+        assignedMemberId = await window.NCSYF_DB.members.allocateNextMemberId(birthYear);
+      } else {
+        assignedMemberId = `NCSYF-${birthYear}-${randomSuffix}`;
+      }
 
       newMemberRecord = {
         id: assignedMemberId,
@@ -802,9 +789,13 @@ async function handleMembershipSubmit(e) {
       const lName = form.querySelector('#lastName')?.value.trim() || 'Officer';
       const dobVal = form.querySelector('#dob')?.value || '';
       let calcAge = 28;
-      if (dobVal) {
-        const birth = new Date(dobVal);
-        calcAge = now.getFullYear() - birth.getFullYear();
+      let birthYear = '1998';
+      if (dobVal && dobVal.includes('-')) {
+        const parts = dobVal.split('-');
+        if (parts[0] && parts[0].length === 4) {
+          birthYear = parts[0];
+          calcAge = now.getFullYear() - parseInt(parts[0], 10);
+        }
       }
       const genderVal = form.querySelector('#gender')?.value || 'N/A';
       const phoneVal = form.querySelector('#phone')?.value.trim() || 'N/A';
@@ -819,7 +810,12 @@ async function handleMembershipSubmit(e) {
       const stateVal = form.querySelector('#stateChapter')?.value || 'FCT Abuja';
       const staffIdVal = form.querySelector('#staffId')?.value.trim() || `CIV-${randomSuffix}`;
 
-      const assignedMemberId = generateUniqueMemberId(dobVal, calcAge, membersList);
+      let assignedMemberId;
+      if (window.NCSYF_DB && window.NCSYF_DB.members && typeof window.NCSYF_DB.members.allocateNextMemberId === 'function') {
+        assignedMemberId = await window.NCSYF_DB.members.allocateNextMemberId(birthYear);
+      } else {
+        assignedMemberId = `NCSYF-${birthYear}-${randomSuffix}`;
+      }
 
       newMemberRecord = {
         id: assignedMemberId,
@@ -860,42 +856,43 @@ async function handleMembershipSubmit(e) {
       membersList.unshift(newMemberRecord);
     }
 
-    localStorage.setItem(STORAGE_KEY_MEMBERS, JSON.stringify(membersList));
-
-    // Persist to Supabase Cloud if connected
-    if (window.NCSYF_DB && window.NCSYF_DB.members) {
-      try {
-        await window.NCSYF_DB.members.save(newMemberRecord);
-        console.log('✅ Member successfully synced to Supabase Cloud:', newMemberRecord.memberId);
-      } catch (err) {
-        console.warn('Supabase member save notice:', err);
+    // Validate chosen password
+    const passwordInput = form.querySelector('#password');
+    const userPass = passwordInput && passwordInput.value ? passwordInput.value.trim() : '';
+    if (!userPass || userPass.length < 8) {
+      showToast('Password is required and must be at least 8 characters long.', 'error');
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnHtml;
       }
+      return;
     }
+
+    // Persist applicant auth identity & database profile synchronously
+    if (window.NCSYF_AUTH && newMemberRecord.email) {
+      const authRes = await window.NCSYF_AUTH.signUp({
+        email: newMemberRecord.email,
+        password: userPass,
+        memberProfile: newMemberRecord
+      });
+      if (authRes && authRes.memberProfile && authRes.memberProfile.memberId) {
+        newMemberRecord.memberId = authRes.memberProfile.memberId;
+        newMemberRecord.id = authRes.memberProfile.memberId;
+        if (membersList.length > 0) {
+          membersList[0].memberId = authRes.memberProfile.memberId;
+          membersList[0].id = authRes.memberProfile.memberId;
+        }
+      }
+      console.log('✅ Auth identity & profile chartered in Supabase Cloud for:', newMemberRecord.email);
+    }
+
+    localStorage.setItem(STORAGE_KEY_MEMBERS, JSON.stringify(membersList));
 
     const finalMemberId = newMemberRecord.memberId;
     if (isReapplication) {
       showToast(`Corrected reapplication submitted for Member ID: ${finalMemberId}.`, 'success');
     } else {
       showToast(`Registration chartered! Membership ID: ${finalMemberId}.`, 'success');
-    }
-
-    // Persist applicant chosen password into auth service
-    const passwordInput = form.querySelector('#password');
-    const userPass = passwordInput && passwordInput.value ? passwordInput.value.trim() : '';
-    if (!userPass) {
-      throw new Error('Registration requires a secure password.');
-    }
-    if (window.NCSYF_AUTH && newMemberRecord.email) {
-      try {
-        await window.NCSYF_AUTH.signUp({
-          email: newMemberRecord.email,
-          password: userPass,
-          memberProfile: newMemberRecord
-        });
-        console.log('✅ Auth identity chartered in Supabase Cloud for:', newMemberRecord.email);
-      } catch (authErr) {
-        console.warn('Could not register auth identity:', authErr);
-      }
     }
 
     // Dispatch Transactional Emails via Zoho ZeptoMail (Asynchronous & Non-Blocking)
@@ -908,24 +905,25 @@ async function handleMembershipSubmit(e) {
         console.warn('[NCSYF Email] Registration notification notice:', emailErr);
       }
     }
-  } catch (storageErr) {
-    console.warn('Could not sync registration to local store:', storageErr);
-  }
 
-  // Display the dedicated success modal and inline credentials card
-  if (newMemberRecord) {
+    // Display the dedicated success modal and inline credentials card
     showRegistrationSuccessUI(newMemberRecord, isReapplication);
-  } else {
-    showToast('Application submitted successfully! Your credentials are being reviewed by the Secretariat.', 'success');
-  }
+    form.reset();
 
-  form.reset();
-
-  // Reset to default Full Member state
-  const defaultRadio = form.querySelector('input[name="memberType"][value="full"]');
-  if (defaultRadio) {
-    defaultRadio.checked = true;
-    defaultRadio.dispatchEvent(new Event('change'));
+    // Reset to default Full Member state
+    const defaultRadio = form.querySelector('input[name="memberType"][value="full"]');
+    if (defaultRadio) {
+      defaultRadio.checked = true;
+      defaultRadio.dispatchEvent(new Event('change'));
+    }
+  } catch (regErr) {
+    console.error('Registration processing notice:', regErr);
+    showToast(regErr.message || 'Registration could not be completed. Please verify your details or sign in.', 'error');
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalBtnHtml;
+    }
   }
 }
 

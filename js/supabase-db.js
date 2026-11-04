@@ -47,6 +47,7 @@
     }
 
     return {
+      user_id: m.userId || m.user_id || null,
       member_id: m.memberId || m.id,
       email: (m.email || '').trim().toLowerCase(),
       first_name: m.firstName || '',
@@ -75,6 +76,7 @@
     return {
       id: row.member_id || row.id,
       memberId: row.member_id,
+      userId: row.user_id || null,
       email: row.email,
       firstName: row.first_name,
       lastName: row.last_name,
@@ -279,6 +281,76 @@
         }
         const all = await this.getAll();
         return all.find(m => m.memberId === memberId || m.id === memberId) || null;
+      },
+
+      async allocateNextMemberId(birthYear) {
+        const year = birthYear ? String(birthYear).trim() : String(new Date().getFullYear());
+        const client = getClient();
+        if (client) {
+          // 1. Try atomic database RPC function first
+          try {
+            if (typeof client.rpc === 'function') {
+              const { data: rpcId, error: rpcErr } = await client.rpc('generate_next_member_id', {
+                p_birth_year: parseInt(year, 10)
+              });
+              if (!rpcErr && rpcId && typeof rpcId === 'string' && rpcId.startsWith('NCSYF-')) {
+                return rpcId;
+              }
+            }
+          } catch (rpcEx) {}
+
+          // 2. Dynamic sequence probe via resolve_member_login_email (SECURITY DEFINER, available to anon)
+          try {
+            if (typeof client.rpc === 'function') {
+              let localMax = 0;
+              try {
+                const raw = localStorage.getItem(STORAGE_KEYS.MEMBERS);
+                const localList = raw ? JSON.parse(raw) : [];
+                localList.forEach(m => {
+                  const mId = m.memberId || m.id || '';
+                  const match = mId.match(new RegExp(`^NCSYF-${year}-(\\d+)$`));
+                  if (match) {
+                    const num = parseInt(match[1], 10);
+                    if (num > localMax) localMax = num;
+                  }
+                });
+              } catch (e) {}
+
+              let seq = localMax + 1;
+              let attempts = 0;
+              while (attempts < 50) {
+                const candidateId = `NCSYF-${year}-${String(seq).padStart(4, '0')}`;
+                const { data: takenEmail } = await client.rpc('resolve_member_login_email', {
+                  p_member_id: candidateId
+                });
+                if (!takenEmail) {
+                  return candidateId;
+                }
+                seq++;
+                attempts++;
+              }
+            }
+          } catch (probeEx) {
+            console.warn('Member ID allocation probe notice:', probeEx);
+          }
+        }
+
+        // 3. Fallback for completely offline environments: sequence from local store
+        let localMax = 0;
+        try {
+          const raw = localStorage.getItem(STORAGE_KEYS.MEMBERS);
+          const localList = raw ? JSON.parse(raw) : [];
+          localList.forEach(m => {
+            const mId = m.memberId || m.id || '';
+            const match = mId.match(new RegExp(`^NCSYF-${year}-(\\d+)$`));
+            if (match) {
+              const num = parseInt(match[1], 10);
+              if (num > localMax) localMax = num;
+            }
+          });
+        } catch (e) {}
+        const nextSeq = String(localMax + 1).padStart(4, '0');
+        return `NCSYF-${year}-${nextSeq}`;
       },
 
       async save(member) {

@@ -467,9 +467,16 @@
               (m.userId && m.userId === data.user.id)
             );
 
+            let nextMemberId = null;
+            if (global.NCSYF_DB && global.NCSYF_DB.members && typeof global.NCSYF_DB.members.allocateNextMemberId === 'function') {
+              nextMemberId = await global.NCSYF_DB.members.allocateNextMemberId(new Date().getFullYear());
+            } else {
+              nextMemberId = `NCSYF-${new Date().getFullYear()}-${Date.now().toString().slice(-4)}`;
+            }
+
             const profileToSave = {
               user_id: data.user.id,
-              member_id: (localRec && (localRec.memberId || localRec.id)) || ('NCSYF-' + new Date().getFullYear() + '-0001'),
+              member_id: (localRec && (localRec.memberId || localRec.id)) || nextMemberId,
               email: data.user.email,
               first_name: (localRec && localRec.firstName) || (data.user.user_metadata && data.user.user_metadata.first_name) || data.user.email.split('@')[0],
               last_name: (localRec && localRec.lastName) || (data.user.user_metadata && data.user.user_metadata.last_name) || 'Member',
@@ -484,16 +491,18 @@
             };
 
             try {
-              const { data: savedProf, error: saveErr } = await supabaseClient
+              const { error: saveErr } = await supabaseClient
                 .from('member_profiles')
-                .insert(profileToSave)
-                .select('*')
-                .maybeSingle();
+                .insert(profileToSave);
 
-              if (!saveErr && savedProf) {
-                memberProfile = savedProf;
-              } else {
+              if (!saveErr) {
                 memberProfile = profileToSave;
+              } else if (saveErr.code === '23505') {
+                if (global.NCSYF_DB && global.NCSYF_DB.members && typeof global.NCSYF_DB.members.allocateNextMemberId === 'function') {
+                  profileToSave.member_id = await global.NCSYF_DB.members.allocateNextMemberId(new Date().getFullYear());
+                  const { error: retryErr } = await supabaseClient.from('member_profiles').insert(profileToSave);
+                  if (!retryErr) memberProfile = profileToSave;
+                }
               }
             } catch (syncErr) {
               console.warn('Auto-sync member profile to Cloud notice:', syncErr);
@@ -640,9 +649,20 @@
             email: cleanEmail,
             password: password
           });
-          if (error) throw new Error(error.message);
+          if (error) {
+            if (error.message && error.message.toLowerCase().includes('already registered')) {
+              throw new Error(`An account with email "${cleanEmail}" is already registered. Please sign in or use "Forgot Password".`);
+            }
+            throw new Error(error.message);
+          }
 
           if (data && data.user) {
+            let cleanDob = null;
+            if (memberProfile.dob && typeof memberProfile.dob === 'string' && memberProfile.dob.includes('-')) {
+              const parts = memberProfile.dob.split('-');
+              if (parts[0] && parts[0].length === 4) cleanDob = memberProfile.dob;
+            }
+
             // Insert linked profile into public.member_profiles
             const newProfilePayload = {
               user_id: data.user.id,
@@ -651,6 +671,11 @@
               first_name: memberProfile.firstName || '',
               last_name: memberProfile.lastName || '',
               category: memberProfile.category || 'full',
+              member_type_label: memberProfile.memberTypeLabel || (memberProfile.category === 'associate' ? 'Associate Member (After 35 yrs / Alumni)' : 'Full Member (18–35 yrs)'),
+              dob: cleanDob,
+              age: memberProfile.age ? parseInt(memberProfile.age, 10) : null,
+              gender: memberProfile.gender || null,
+              phone: memberProfile.phone || null,
               tier: memberProfile.tier || 'federal',
               tier_label: memberProfile.tierLabel || 'Federal Government MDA',
               mda: memberProfile.mda || '',
@@ -660,13 +685,44 @@
               registered_at: memberProfile.registeredAt || new Date().toISOString()
             };
 
-            const { error: insErr } = await supabaseClient
+            let { error: insErr } = await supabaseClient
               .from('member_profiles')
               .insert(newProfilePayload);
 
+            if (insErr && insErr.code === '23505' && (insErr.message || '').includes('member_id')) {
+              // If member_id collided, dynamically allocate next sequence ID and retry
+              if (global.NCSYF_DB && global.NCSYF_DB.members && typeof global.NCSYF_DB.members.allocateNextMemberId === 'function') {
+                const birthYear = cleanDob ? cleanDob.split('-')[0] : (memberProfile.age ? String(new Date().getFullYear() - parseInt(memberProfile.age, 10)) : null);
+                newProfilePayload.member_id = await global.NCSYF_DB.members.allocateNextMemberId(birthYear);
+                memberProfile.memberId = newProfilePayload.member_id;
+                memberProfile.id = newProfilePayload.member_id;
+                const { error: retryErr } = await supabaseClient
+                  .from('member_profiles')
+                  .insert(newProfilePayload);
+                insErr = retryErr;
+              }
+            }
+
             if (insErr) {
               console.warn('Supabase member_profiles insert notice:', insErr.message || insErr);
+              throw new Error('Database profile registration notice: ' + (insErr.message || 'Please contact Secretariat support.'));
             }
+
+            // Sync successfully chartered member to local store
+            try {
+              const localMembers = getStoredMembers();
+              const existingIdx = localMembers.findIndex(m => 
+                (m.email && m.email.toLowerCase() === cleanEmail) ||
+                (m.memberId && m.memberId === memberProfile.memberId)
+              );
+              const fullMemberObj = { ...memberProfile, userId: data.user.id };
+              if (existingIdx !== -1) {
+                localMembers[existingIdx] = { ...localMembers[existingIdx], ...fullMemberObj };
+              } else {
+                localMembers.unshift(fullMemberObj);
+              }
+              saveMembers(localMembers);
+            } catch (syncLocErr) {}
 
             // If Supabase has "Confirm email" turned OFF, an active session is returned immediately
             if (data.session) {
@@ -682,10 +738,15 @@
               this._notifyListeners('SIGNED_IN', sessionObj, memberProfile);
             }
 
-            return { user: data.user, session: data.session };
+            return { user: data.user, session: data.session, memberProfile };
           }
         } catch (supErr) {
-          console.warn('Supabase signUp error, continuing to local store:', supErr);
+          console.error('Supabase signUp error:', supErr);
+          if (supErr.message && supErr.message.includes('Failed to fetch')) {
+            console.warn('Supabase offline or unreachable, continuing to local store');
+          } else {
+            throw supErr;
+          }
         }
       }
 
