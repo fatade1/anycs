@@ -3892,16 +3892,16 @@ function renderGovernanceAdmin() {
             </div>
           </div>
           <div class="admin-form-group" style="margin-bottom: 0;">
-            <label class="admin-label">Statutory Position</label>
+            <label class="admin-label">Full Name of Officer</label>
+            <input type="text" class="admin-input gov-name-input" placeholder="e.g. Kevin Oluwafisayo Fato, MNCS" value="${escapeHtml(item.name && item.name !== item.title ? item.name : '')}">
+          </div>
+          <div class="admin-form-group" style="margin-bottom: 0;">
+            <label class="admin-label">Statutory Position <span style="color:var(--admin-accent); font-weight:600; font-size:0.75rem;">(Shown in Gold on Website)</span></label>
             <input type="text" class="admin-input gov-title-input" value="${escapeHtml(item.title)}">
           </div>
           <div class="admin-form-group" style="margin-bottom: 0;">
             <label class="admin-label">Executive Role / Portfolio</label>
-            <input type="text" class="admin-input gov-role-input" value="${escapeHtml(item.role || '')}" placeholder="Executive Portfolio">
-          </div>
-          <div class="admin-form-group" style="margin-bottom: 0;">
-            <label class="admin-label">Full Name of Officer</label>
-            <input type="text" class="admin-input gov-name-input" placeholder="Official Name" value="${escapeHtml(item.name && item.name !== item.title ? item.name : '')}">
+            <input type="text" class="admin-input gov-role-input" value="${escapeHtml(item.role || item.title || '')}" placeholder="Executive Portfolio">
           </div>
           <div class="admin-form-group" style="margin-bottom: 0;">
             <label class="admin-label">About / Responsibilities</label>
@@ -4097,7 +4097,7 @@ window.saveGovernanceChanges = async function() {
   necCards.forEach(card => {
     const idx = parseInt(card.getAttribute('data-idx'), 10);
     const title = card.querySelector('.gov-title-input')?.value.trim() || `National Officer`;
-    const role = card.querySelector('.gov-role-input')?.value.trim() || '';
+    const role = card.querySelector('.gov-role-input')?.value.trim() || title;
     const name = card.querySelector('.gov-name-input')?.value.trim() || title;
     const about = card.querySelector('.gov-about-input')?.value.trim() || '';
     const photo = card.dataset.photo || '';

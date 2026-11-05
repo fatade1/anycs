@@ -17,14 +17,14 @@
       { id: 'matron_2', title: 'Matron', name: 'Matron', photo: '', about: 'Inspiring policy mentor fostering career growth for serving officers.' }
     ],
     nec: [
-      { id: 'nec_0', title: 'National President', name: 'National President', role: 'Chief Executive & Strategic Lead', photo: '', about: 'Executive leadership across the 3 tiers of civil service.' },
-      { id: 'nec_1', title: 'Deputy National President', name: 'Deputy National President', role: 'Inter-Tier Relations', photo: '', about: 'Coordination between Federal, State, and LGA bodies.' },
-      { id: 'nec_2', title: 'National Secretary', name: 'National Secretary', role: 'Executive Secretariat & Records', photo: '', about: 'Secretariat records, statutory correspondences, and registry.' },
-      { id: 'nec_3', title: 'Financial Secretary', name: 'Financial Secretary', role: 'Audit & Accounts', photo: '', about: 'Financial governance, audits, and program subventions.' },
-      { id: 'nec_4', title: 'Legal Adviser', name: 'Legal Adviser', role: 'Statutory Compliance', photo: '', about: 'Constitutional compliance and public service regulations.' },
-      { id: 'nec_5', title: 'Public Relations Officer', name: 'Public Relations Officer', role: 'National Media & Communications', photo: '', about: 'Strategic media briefings and civil service publications.' },
-      { id: 'nec_6', title: 'Director of Digital Innovation', name: 'Director of Digital Innovation', role: 'ICT & Portal Infrastructure', photo: '', about: 'Digital portals, membership verification, and civic technology.' },
-      { id: 'nec_7', title: 'National Welfare Officer', name: 'National Welfare Officer', role: 'Member Services & Health', photo: '', about: 'Civil servant welfare, career advancement, and wellness programs.' }
+      { id: 'nec_0', title: 'National President', name: 'National President', role: 'National President', photo: '', about: 'Executive leadership across the 3 tiers of civil service.' },
+      { id: 'nec_1', title: 'Deputy National President', name: 'Deputy National President', role: 'Deputy National President', photo: '', about: 'Coordination between Federal, State, and LGA bodies.' },
+      { id: 'nec_2', title: 'National Secretary', name: 'National Secretary', role: 'National Secretary', photo: '', about: 'Secretariat records, statutory correspondences, and registry.' },
+      { id: 'nec_3', title: 'Financial Secretary', name: 'Financial Secretary', role: 'Financial Secretary', photo: '', about: 'Financial governance, audits, and program subventions.' },
+      { id: 'nec_4', title: 'Legal Adviser', name: 'Legal Adviser', role: 'Legal Adviser', photo: '', about: 'Constitutional compliance and public service regulations.' },
+      { id: 'nec_5', title: 'Public Relations Officer', name: 'Public Relations Officer', role: 'Public Relations Officer', photo: '', about: 'Strategic media briefings and civil service publications.' },
+      { id: 'nec_6', title: 'Director of Digital Innovation', name: 'Director of Digital Innovation', role: 'Director of Digital Innovation', photo: '', about: 'Digital portals, membership verification, and civic technology.' },
+      { id: 'nec_7', title: 'Member Relations and Welfare Officer', name: 'Member Relations and Welfare Officer', role: 'Member Relations and Welfare Officer', photo: '', about: 'Civil servant welfare, career advancement, and wellness programs.' }
     ],
     states: [
       { state: 'Abia', zone: 'South East', coordinator: 'State Coordinator', coordPhoto: '', secretary: 'State Secretary', secPhoto: '', projects: 'Civil Service Digital Records Archive & LGA Youth Desks' },
@@ -110,11 +110,24 @@
       if (!card) return;
       const avatarEl = card.querySelector('.person-card__avatar');
       const nameEl = card.querySelector('.person-card__name');
+      let roleEl = card.querySelector('.person-card__role');
+      if (!roleEl) {
+        roleEl = document.createElement('div');
+        roleEl.className = 'person-card__role person-card__role--accent';
+        roleEl.style.fontSize = '0.78rem';
+        roleEl.style.marginTop = '2px';
+        card.appendChild(roleEl);
+      }
       if (p.photo && avatarEl) {
         avatarEl.innerHTML = `<img src="${escapeHtml(p.photo)}" alt="${escapeHtml(p.name || p.title)}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
       }
-      if (nameEl) {
-        nameEl.textContent = p.name ? p.name : p.title;
+      const hasSpecificName = Boolean(p.name && p.name.trim() && p.name.trim().toLowerCase() !== (p.title || '').trim().toLowerCase());
+      if (hasSpecificName) {
+        if (nameEl) nameEl.textContent = p.name.trim();
+        if (roleEl) roleEl.textContent = p.title || 'Patron';
+      } else {
+        if (nameEl) nameEl.textContent = p.title || 'Patron';
+        if (roleEl) roleEl.textContent = '';
       }
     });
 
@@ -124,25 +137,61 @@
       if (!card) return;
       const avatarEl = card.querySelector('.person-card__avatar');
       const nameEl = card.querySelector('.person-card__name');
+      let roleEl = card.querySelector('.person-card__role');
+      if (!roleEl) {
+        roleEl = document.createElement('div');
+        roleEl.className = 'person-card__role person-card__role--accent';
+        roleEl.style.fontSize = '0.78rem';
+        roleEl.style.marginTop = '2px';
+        card.appendChild(roleEl);
+      }
       if (m.photo && avatarEl) {
         avatarEl.innerHTML = `<img src="${escapeHtml(m.photo)}" alt="${escapeHtml(m.name || m.title)}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
       }
-      if (nameEl) {
-        nameEl.textContent = m.name ? m.name : m.title;
+      const hasSpecificName = Boolean(m.name && m.name.trim() && m.name.trim().toLowerCase() !== (m.title || '').trim().toLowerCase());
+      if (hasSpecificName) {
+        if (nameEl) nameEl.textContent = m.name.trim();
+        if (roleEl) roleEl.textContent = m.title || 'Matron';
+      } else {
+        if (nameEl) nameEl.textContent = m.title || 'Matron';
+        if (roleEl) roleEl.textContent = '';
       }
     });
 
     // 3. Update NEC (8)
+    // Structure: Photo -> Name -> Position (in gold)
     govData.nec.forEach((item, idx) => {
       const card = document.getElementById(`govCardNec${idx}`);
       if (!card) return;
       const avatarEl = card.querySelector('.person-card__avatar');
       const nameEl = card.querySelector('.person-card__name');
+      let roleEl = card.querySelector('.person-card__role');
+      if (!roleEl) {
+        roleEl = document.createElement('div');
+        roleEl.className = 'person-card__role person-card__role--accent';
+        card.appendChild(roleEl);
+      }
+
+      // 1. Photo
       if (item.photo && avatarEl) {
         avatarEl.innerHTML = `<img src="${escapeHtml(item.photo)}" alt="${escapeHtml(item.name || item.title)}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
       }
-      if (nameEl && item.name && item.name !== item.title) {
-        nameEl.textContent = item.name;
+
+      // 2. Name & 3. Position (in gold)
+      const hasSpecificName = Boolean(item.name && item.name.trim() && item.name.trim().toLowerCase() !== (item.title || '').trim().toLowerCase());
+      const positionTitle = (item.title || item.role || 'National Officer').trim();
+
+      if (hasSpecificName) {
+        if (nameEl) nameEl.textContent = item.name.trim();
+        if (roleEl) roleEl.textContent = positionTitle;
+      } else {
+        if (nameEl) nameEl.textContent = positionTitle;
+        if (roleEl) {
+          const portfolio = (item.role || '').trim();
+          roleEl.textContent = (portfolio && portfolio.toLowerCase() !== positionTitle.toLowerCase())
+            ? portfolio
+            : positionTitle;
+        }
       }
     });
 
