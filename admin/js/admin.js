@@ -1894,7 +1894,11 @@ function renderMembersTable() {
               <button class="btn-icon-sm" style="color: #15803D;" title="Approve & Verify Application" onclick="updateMemberStatus('${escapeHtml(m.id)}', 'verified')">
                 ${getIconSvg('check', { size: 15 })}
               </button>
-            ` : ''}
+            ` : `
+              <button class="btn-icon-sm" style="color: #0F766E;" title="Resend Official Verification Email" onclick="resendVerificationEmail('${escapeHtml(m.id)}')">
+                ${getIconSvg('mail', { size: 15 })}
+              </button>
+            `}
             ${m.status !== 'disapproved' ? `
               <button class="btn-icon-sm disapprove" title="Disapprove Verification (Allow Reapply)" onclick="openDisapproveModal('${escapeHtml(m.id)}')">
                 ${getIconSvg('ban', { size: 15 })}
@@ -2040,6 +2044,9 @@ window.viewMemberDossier = function(memberId) {
             ${getIconSvg('check', { size: 14 })} Approve &amp; Verify Application
           </button>
         ` : `
+          <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" style="color: #0F766E; border-color: #A7F3D0;" onclick="resendVerificationEmail('${escapeHtml(m.id)}')">
+            ${getIconSvg('mail', { size: 14 })} Resend Verification Email
+          </button>
           <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" onclick="updateMemberStatus('${escapeHtml(m.id)}', 'pending'); closeAllModals();">
             Mark as Pending Review
           </button>
@@ -2186,6 +2193,32 @@ window.updateMemberStatus = async function(memberId, newStatus) {
   showAdminToast(`Member application status updated to: ${newStatus.toUpperCase()}`);
   renderDashboard();
   renderMembersTable();
+};
+
+window.resendVerificationEmail = async function(memberId) {
+  const members = getStoredMembers();
+  const target = members.find(m => m.id === memberId || m.memberId === memberId);
+  if (!target || !target.email) {
+    showAdminToast('Member email address not found on file.', 'error');
+    return;
+  }
+  showAdminToast(`Dispatching official verification email to ${target.email}...`);
+  if (window.NCSYF_EMAIL) {
+    try {
+      const emailPayload = {
+        ...target,
+        memberId: target.memberId || target.id
+      };
+      const res = await window.NCSYF_EMAIL.sendMembershipApprovalNotification(emailPayload);
+      if (res && res.success) {
+        showAdminToast(`Official verification email sent to ${target.email}`);
+      } else {
+        showAdminToast(`Notice: ${res ? res.error : 'Failed to dispatch email'}`, 'error');
+      }
+    } catch (e) {
+      showAdminToast(`Email dispatch error: ${e.message}`, 'error');
+    }
+  }
 };
 
 window.deleteMember = async function(memberId) {
