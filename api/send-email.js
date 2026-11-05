@@ -105,7 +105,10 @@ module.exports = async function handler(req, res) {
         });
       }
 
-      const memberRecord = await getMemberRecord(targetMemberId);
+      let memberRecord = await getMemberRecord(targetMemberId);
+      if (!memberRecord && targetRecipient && isValidEmail(targetRecipient)) {
+        memberRecord = await getMemberRecord(targetRecipient);
+      }
       if (!memberRecord) {
         return res.status(404).json({
           success: false,

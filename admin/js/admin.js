@@ -2113,7 +2113,20 @@ async function handleDisapproveMember(e) {
   // Dispatch Transactional Reapplication Email via Zoho ZeptoMail (Non-Blocking)
   if (window.NCSYF_EMAIL && members[index].email) {
     try {
-      window.NCSYF_EMAIL.sendMembershipDisapprovalNotification(members[index], reason, notes);
+      const emailPayload = {
+        ...members[index],
+        memberId: members[index].memberId || members[index].id
+      };
+      window.NCSYF_EMAIL.sendMembershipDisapprovalNotification(emailPayload, reason, notes).then(res => {
+        if (res && res.success) {
+          console.log('✅ Disapproval email delivered to:', members[index].email);
+          showAdminToast(`Disapproval notification email dispatched to ${members[index].email}`);
+        } else if (res && res.error) {
+          console.warn('[NCSYF Email] Disapproval dispatch notice:', res.error);
+        }
+      }).catch(err => {
+        console.warn('[NCSYF Email] Disapproval dispatch network error:', err);
+      });
       console.log('📧 Disapproval notification queued for:', members[index].memberId);
     } catch (eErr) {
       console.warn('[NCSYF Email] Disapproval email notice:', eErr);
@@ -2150,7 +2163,20 @@ window.updateMemberStatus = async function(memberId, newStatus) {
   // Dispatch Transactional Approval Email via Zoho ZeptoMail on Verification (Non-Blocking)
   if (newStatus === 'verified' && window.NCSYF_EMAIL && members[index].email) {
     try {
-      window.NCSYF_EMAIL.sendMembershipApprovalNotification(members[index]);
+      const emailPayload = {
+        ...members[index],
+        memberId: members[index].memberId || members[index].id
+      };
+      window.NCSYF_EMAIL.sendMembershipApprovalNotification(emailPayload).then(res => {
+        if (res && res.success) {
+          console.log('✅ Approval email delivered to:', members[index].email);
+          showAdminToast(`Approval notification email dispatched to ${members[index].email}`);
+        } else if (res && res.error) {
+          console.warn('[NCSYF Email] Approval dispatch notice:', res.error);
+        }
+      }).catch(err => {
+        console.warn('[NCSYF Email] Approval dispatch network error:', err);
+      });
       console.log('📧 Official verification & approval email queued for:', members[index].memberId);
     } catch (eErr) {
       console.warn('[NCSYF Email] Approval email notice:', eErr);

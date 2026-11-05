@@ -35,7 +35,7 @@ const {
 
 const emailApiHandler = require('../api/send-email');
 const verifySmtpHandler = require('../api/verify-smtp');
-const { setMockMember, resetMockStores } = require('../lib/supabase-server');
+const { getMemberRecord, setMockMember, resetMockStores } = require('../lib/supabase-server');
 
 let totalTests = 0;
 let passedTests = 0;
@@ -660,6 +660,21 @@ async function runSuite() {
     await verifySmtpHandler(req, res);
     assert(statusCode === 200 || statusCode === 503);
     assert(jsonResp.service.includes('Zoho ZeptoMail'));
+  });
+
+  // Control 11: Member Lookup by Member ID (non-UUID format) and Status Synchronization
+  await runAsyncTest('Control 11: Member dossier lookup resolves non-UUID member ID without Postgres error', async () => {
+    const memberRecord = await getMemberRecord('NCSYF-2026-0011');
+    assert(memberRecord, 'Member dossier must resolve for valid NCSYF-YYYY-XXXX Member ID');
+    assert.strictEqual(memberRecord.member_id, 'NCSYF-2026-0011');
+    assert.strictEqual(memberRecord.email, 'fatadetolulope@gmail.com');
+  });
+
+  // Control 12: Admin Subdomain Cross-Origin Endpoint Routing
+  runTest('Control 12: Admin email-client resolves absolute canonical production API on admin.ncsyf.com.ng', () => {
+    const emailClientSrc = fs.readFileSync(path.join(__dirname, '../admin/js/email-client.js'), 'utf8');
+    assert(emailClientSrc.includes('https://www.ncsyf.com.ng/api/send-email'), 'Must resolve canonical production API');
+    assert(emailClientSrc.includes('admin.ncsyf.com.ng'), 'Must check admin.ncsyf.com.ng subdomain');
   });
 
   // --- Suite 8: Vercel Routing Configuration ---
